@@ -5,8 +5,7 @@
 
 2. build libevent
 
-```
-
+```shell
 git submodule add https://github.com/libevent/libevent deps/libevent
 cd deps
 cd libevent
@@ -19,8 +18,7 @@ sudo make install
 ```
 
 3. build google test
-```
-
+```shell
 git submodule add https://github.com/google/googletest deps/googletest
 cd deps
 cd googletest
@@ -33,7 +31,6 @@ sudo make install
 
 4. build jsoncpp
 ```shell
-
 git submodule add https://github.com/open-source-parsers/jsoncpp.git deps/jsoncpp
 cd deps
 cd jsoncpp
@@ -51,5 +48,8 @@ cd `project home`
 mkdir build
 cd build
 cmake ..
+# cmake .. -DDEBUG=ON
+# 编译DEBUG模式
 make
 ```
+
