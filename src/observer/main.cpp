@@ -33,7 +33,7 @@ using namespace common;
 static Server *g_server = nullptr;
 
 void usage() {
-  std::cout << "Useage " << std::endl;
+  std::cout << "Usage " << std::endl;
   std::cout << "-p: server port. if not specified, the item in the config file will be used" << std::endl;
   std::cout << "-f: path of config file." << std::endl;
   std::cout << "-s: use unix socket and the argument is socket address" << std::endl;
@@ -52,25 +52,25 @@ void parse_parameter(int argc, char **argv) {
   extern char *optarg;
   while ((opt = getopt(argc, argv, "dp:s:f:o:e:h")) > 0) {
     switch (opt) {
-    case 's':
+    case 's': /// use unix socket
       process_param->set_unix_socket_path(optarg);
       break;
-    case 'p':
+    case 'p': /// set server port
       process_param->set_server_port(atoi(optarg));
       break;
-    case 'f':
+    case 'f': /// config file path
       process_param->set_conf(optarg);
       break;
-    case 'o':
+    case 'o': /// log out
       process_param->set_std_out(optarg);
       break;
-    case 'e':
+    case 'e': /// err out
       process_param->set_std_err(optarg);
       break;
-    case 'd':
+    case 'd': /// daemon mode
       process_param->set_demon(true);
       break;
-    case 'h':
+    case 'h': /// help
     default:
       usage();
       return;
@@ -160,6 +160,7 @@ int main(int argc, char **argv) {
 
   g_server = init_server();
   Server::init();
+  std::cerr <<"Server successfully initialized"<<std::endl;
   g_server->serve();
 
   LOG_INFO("Server stopped");

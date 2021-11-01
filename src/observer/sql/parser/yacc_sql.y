@@ -576,7 +576,6 @@ extern void scan_string(const char *str, yyscan_t scanner);
 int sql_parse(const char *s, Query *sqls){
 	ParserContext context;
 	memset(&context, 0, sizeof(context));
-
 	yyscan_t scanner;
 	yylex_init_extra(&context, &scanner);
 	context.ssql = sqls;

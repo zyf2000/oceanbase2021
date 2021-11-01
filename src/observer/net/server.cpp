@@ -287,6 +287,7 @@ int Server::start_tcp_server() {
   int ret = 0;
   struct sockaddr_in sa;
 
+  /// Create TCP socket
   server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
   if (server_socket_ < 0) {
     LOG_ERROR("socket(): can not create server socket: %s.", strerror(errno));
@@ -314,6 +315,7 @@ int Server::start_tcp_server() {
   sa.sin_port = htons(server_param_.port);
   sa.sin_addr.s_addr = htonl(server_param_.listen_addr);
 
+  /// Bind the port to this socket
   ret = bind(server_socket_, (struct sockaddr *)&sa, sizeof(sa));
   if (ret < 0) {
     LOG_ERROR("bind(): can not bind server socket, %s", strerror(errno));
@@ -321,6 +323,7 @@ int Server::start_tcp_server() {
     return -1;
   }
 
+  /// Listening to this port
   ret = listen(server_socket_, server_param_.max_connection_num);
   if (ret < 0) {
     LOG_ERROR("listen(): can not listen server socket, %s", strerror(errno));
@@ -328,6 +331,7 @@ int Server::start_tcp_server() {
     return -1;
   }
   LOG_INFO("Listen on port %d", server_param_.port);
+  
 
   listen_ev_ = event_new(event_base_, server_socket_, EV_READ | EV_PERSIST, accept, this);
   if (listen_ev_ == nullptr) {
@@ -419,7 +423,7 @@ int Server::serve() {
     LOG_PANIC("Failed to start network");
     exit(-1);
   }
-
+  std::cerr<<"Dispatching!!!!!!"<<std::endl;
   event_base_dispatch(event_base_);
 
   return 0;

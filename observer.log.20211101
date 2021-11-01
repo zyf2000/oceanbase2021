@@ -1,0 +1,90 @@
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 45688 Time: Mon Nov  1 17:10:30 2021
+
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:10:30 pid:45688 tid:112644e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 48311 Time: Mon Nov  1 17:52:15 2021
+
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:52:15 pid:48311 tid:119ab4e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 48349 Time: Mon Nov  1 17:52:38 2021
+
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:52:38 pid:48349 tid:112bfce00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 48351 Time: Mon Nov  1 17:52:52 2021
+
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:52:52 pid:48351 tid:10d2f5e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 48434 Time: Mon Nov  1 17:52:57 2021
+
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:52:57 pid:48434 tid:1127b1e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 48449 Time: Mon Nov  1 17:53:16 2021
+
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
