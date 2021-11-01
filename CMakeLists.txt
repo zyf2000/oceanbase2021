@@ -37,7 +37,7 @@ ENDIF(WIN32)
 
 # This is for clangd plugin for vscode
 #SET(CMAKE_COMMON_FLAGS ${CMAKE_COMMON_FLAGS} " -Wstring-plus-int -Wsizeof-array-argument -Wunused-variable -Wmissing-braces")
-SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1")
+SET(CMAKE_COMMON_FLAGS "${CMAKE_COMMON_FLAGS} -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -Wno-unused-command-line-argument -lreadline")
 IF(DEBUG)
     MESSAGE("DEBUG has been set as TRUE ${DEBUG}")
     #"${CMAKE_COMMON_FLAGS}  -O0 -g "  ${CMAKE_COMMON_FLAGS}最好在""以内，防止被cmake 增加了;
@@ -52,6 +52,7 @@ ELSE()
     ADD_DEFINITIONS(-DENABLE_DEBUG)
 ENDIF()
 SET(CMAKE_CXX_FLAGS ${CMAKE_COMMON_FLAGS})
+#SET(CMAKE_CXX_FLAGS "${CMAKE_COMMON_FLAGS} -lreadline")
 SET(CMAKE_C_FLAGS ${CMAKE_COMMON_FLAGS})
 MESSAGE("CMAKE_CXX_FLAGS is " ${CMAKE_CXX_FLAGS})
 

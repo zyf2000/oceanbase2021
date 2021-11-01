@@ -315,6 +315,7 @@
             <F N="src/observer/sql/parser/lex.yy.h"/>
             <F N="deps/common/log/log.h"/>
             <F N="deps/common/metrics/log_reporter.h"/>
+            <F N="deps/common/manual.h"/>
             <F N="deps/common/math/md5.h"/>
             <F N="deps/common/mm/mem.h"/>
             <F N="src/observer/storage/mem/mem_storage_stage.h"/>

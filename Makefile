@@ -1,8 +1,12 @@
 .PHONY: build
 configure:
-	rm -r ./build
+	rm -rf ./build
 	mkdir -p ./build
 	cd build && cmake ..
+configure_debug:
+	rm -rf ./build
+	mkdir -p ./build
+	cd build && cmake .. -DDEBUG=ON
 build: 
 	cd build && make -j16
 	./build/bin/observer -f ./etc/observer.ini

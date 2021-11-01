@@ -25,9 +25,11 @@ See the Mulan PSL v2 for more details. */
 #include <sys/un.h>
 #include <unistd.h>
 #include <termios.h>
-
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "common/defs.h"
 #include "common/lang/string.h"
+#include "common/manual.h"
 
 #define MAX_MEM_BUFFER_SIZE 8192
 #define PORT_DEFAULT 6789
@@ -138,8 +140,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  const char *prompt_str = "miniob > ";
-
+  //const char *prompt_str = COLOR_GREEN "miniob " COLOR_BLUE "> " COLOR_YELLOW;
+  const char *prompt_str =  "miniob "  "> " ;
   int sockfd, send_bytes;
   // char send[MAXLINE];
 
@@ -152,16 +154,19 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  char send_buf[MAX_MEM_BUFFER_SIZE];
+  char recv_buf[MAX_MEM_BUFFER_SIZE];
   // char buf[MAXDATASIZE];
+  char* send_buf;
 
-  fputs(prompt_str, stdout);
-  while (fgets(send_buf, MAX_MEM_BUFFER_SIZE, stdin) != NULL) {
+  // fputs(prompt_str, stdout);
+  while (1)
+  {
+      send_buf = readline(prompt_str);
     if (common::is_blank(send_buf)) {
-      fputs(prompt_str, stdout);
-      continue;
+        // fputs(prompt_str, stdout);
+        continue;
     }
-
+    add_history(send_buf);
     if (is_exit_command(send_buf)) {
       break;
     }
@@ -170,22 +175,21 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "send error: %d:%s \n", errno, strerror(errno));
       exit(1);
     }
-    memset(send_buf, 0, sizeof(send_buf));
 
     int len = 0;
-    while((len = recv(sockfd, send_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0){  
+    while((len = recv(sockfd, recv_buf, MAX_MEM_BUFFER_SIZE, 0)) > 0){  
       bool msg_end = false;
       for (int i = 0; i < len; i++) {
-        if (0 == send_buf[i]) {
+        if (0 == recv_buf[i]) {
           msg_end = true;
           break;
 		    }
-        printf("%c", send_buf[i]);
+        printf("%c", recv_buf[i]);
       }
       if (msg_end) {
         break;
       }
-      memset(send_buf, 0, MAX_MEM_BUFFER_SIZE);
+      memset(recv_buf, 0, MAX_MEM_BUFFER_SIZE);
     }
 
     if (len < 0) {
@@ -196,7 +200,7 @@ int main(int argc, char *argv[]) {
       printf("Connection has been closed\n");
       break;
     }
-    fputs(prompt_str, stdout);
+    // fputs(prompt_str, stdout);
   }
   close(sockfd);
 

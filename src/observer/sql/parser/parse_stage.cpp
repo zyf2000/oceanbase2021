@@ -118,7 +118,6 @@ StageEvent *ParseStage::handle_request(StageEvent *event) {
     LOG_ERROR("Failed to create query.");
     return nullptr;
   }
-  LOG_DEBUG("FUCK SQL: %s\n",sql.c_str());
   RC ret = parse(sql.c_str(), result);
   if (ret != RC::SUCCESS) {
     // set error information to event
