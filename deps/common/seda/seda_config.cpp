@@ -213,6 +213,7 @@ SedaConfig::status_t SedaConfig::init_thread_pool() {
 
     // get thread pool names
     key = THREAD_POOLS_NAME;
+    LOG_ERROR("KEY=%s\n", key.c_str());
     it = base_section.find(key);
     if (it == base_section.end()) {
       LOG_ERROR("Configuration hasn't set %s", key.c_str());

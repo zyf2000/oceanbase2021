@@ -88,3 +88,288 @@ Finish dump configuration
 
 [2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
 [2021-11-1 17:53:16 pid:48449 tid:10c09be00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 8993 Time: Mon Nov  1 20:18:25 2021
+
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 218]>>Configuration hasn't set ThreadPools
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 415]>>Failed to init thread pool
+
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 20:18:25 pid:8993 tid:118efde00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 9194 Time: Mon Nov  1 20:20:37 2021
+
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 216]>>KEY=ThreadPools
+
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 219]>>Configuration hasn't set ThreadPools
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 416]>>Failed to init thread pool
+
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 20:20:37 pid:9194 tid:111ab9e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+Finish dump configuration 
+
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 9295 Time: Mon Nov  1 20:25:18 2021
+
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 216]>>KEY=ThreadPools
+
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 219]>>Configuration hasn't set ThreadPools
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp instantiate 416]>>Failed to init thread pool
+
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 73]>>SedaConfig: unable to initialize seda stages
+[2021-11-1 20:25:18 pid:9295 tid:11b0a6e00  ERROR: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 212]>>Failed to init seda configuration!
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+[DefaultStorageStage]
+BaseDir=./miniob
+SystemDb=sys
+ThreadId=IOThreads
+
+[DefaultThreads]
+count=3
+
+[ExecuteStage]
+NextStages=DefaultStorageStage,MemStorageStage
+ThreadId=SQLThreads
+
+[IOThreads]
+count=3
+
+[LOG]
+LOG_CONSOLE_LEVEL=1
+LOG_FILE_LEVEL=3
+LOG_FILE_NAME=observer.log
+
+[MemStorageStage]
+ThreadId=IOThreads
+
+[MetricsStage]
+NextStages=TimerStage
+
+[NET]
+CLIENT_ADDRESS=INADDR_ANY
+MAX_CONNECTION_NUM=8192
+PORT=6789
+
+[OptimizeStage]
+NextStages=ExecuteStage
+ThreadId=SQLThreads
+
+[ParseStage]
+NextStages=OptimizeStage
+ThreadId=SQLThreads
+
+[PlanCacheStage]
+NextStages=ExecuteStage,ParseStage
+ThreadId=SQLThreads
+
+[QueryCacheStage]
+NextStages=PlanCacheStage
+ThreadId=SQLThreads
+
+[ResolveStage]
+NextStages=QueryCacheStage
+ThreadId=SQLThreads
+
+[SEDA_BASE]
+EventHistory=false
+MaxEventHistoryNum=100
+STAGES=SessionStage,ExecuteStage,OptimizeStage,ParseStage,ResolveStage,PlanCacheStage,QueryCacheStage,DefaultStorageStage,MemStorageStage,TimerStage,MetricsStage
+ThreadPools=SQLThre
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 9297 Time: Mon Nov  1 20:25:25 2021
+
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 216]>>KEY=ThreadPools
+
+[2021-11-1 20:25:25 pid:9297 tid:70000652d000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 70000652d000, threadname = SQLThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:700006739000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700006739000, threadname = IOThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:700006945000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700006945000, threadname = DefaultThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:70000683f000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 70000683f000, threadname = DefaultThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:700006633000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700006633000, threadname = SQLThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:7000065b0000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000065b0000, threadname = SQLThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:7000067bc000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000067bc000, threadname = IOThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:7000068c2000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000068c2000, threadname = DefaultThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage SessionStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:7000066b6000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000066b6000, threadname = IOThreads
+
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ExecuteStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage OptimizeStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ParseStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ResolveStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage PlanCacheStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage QueryCacheStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_storage_stage.cpp set_properties 86]>>Use sys as system db
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_handler.cpp init 52]>>Default handler init with ./miniob success
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp open_all_tables 111]>>All table have been opened. num=0
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_storage_stage.cpp set_properties 110]>>Open system db success: sys
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage DefaultStorageStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage MemStorageStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp get_thread_pool 293]>>Not set thread_pool_id for TimerStage, use default threadpool DefaultThreads
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage TimerStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp get_thread_pool 293]>>Not set thread_pool_id for MetricsStage, use default threadpool DefaultThreads
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage MetricsStage use threadpool DefaultThreads.
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :DefaultStorageStage.query
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.sql
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 228]>>Successfully init utility
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.readsocket
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.writesocket
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp start_tcp_server 333]>>Listen on port 6789
+[2021-11-1 20:25:25 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp start_tcp_server 352]>>Observer start success
+[2021-11-1 20:25:27 pid:9297 tid:700006a4b000  INFO: /Users/bi/Code/oceanbase2021/src/observer/main.cpp quit_thread_func 135]>>Receive signal: 2
+[2021-11-1 20:25:27 pid:9297 tid:700006a4b000  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp shutdown 433]>>Server shutting down
+[2021-11-1 20:25:27 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/main.cpp main 166]>>Server stopped
+[2021-11-1 20:25:27 pid:9297 tid:700006a4b000  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp shutdown 453]>>Server quit
+[2021-11-1 20:25:27 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp sync 135]>>Sync db over. db=sys
+[2021-11-1 20:25:27 pid:9297 tid:116c2ae00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp ~Db 33]>>Db has been closed: sys
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 204]>>Output configuration 
+Begin dump configuration
+[]
+
+[DefaultStorageStage]
+BaseDir=./miniob
+SystemDb=sys
+ThreadId=IOThreads
+
+[DefaultThreads]
+count=3
+
+[ExecuteStage]
+NextStages=DefaultStorageStage,MemStorageStage
+ThreadId=SQLThreads
+
+[IOThreads]
+count=3
+
+[LOG]
+LOG_CONSOLE_LEVEL=1
+LOG_FILE_LEVEL=3
+LOG_FILE_NAME=observer.log
+
+[MemStorageStage]
+ThreadId=IOThreads
+
+[MetricsStage]
+NextStages=TimerStage
+
+[NET]
+CLIENT_ADDRESS=INADDR_ANY
+MAX_CONNECTION_NUM=8192
+PORT=6789
+
+[OptimizeStage]
+NextStages=ExecuteStage
+ThreadId=SQLThreads
+
+[ParseStage]
+NextStages=OptimizeStage
+ThreadId=SQLThreads
+
+[PlanCacheStage]
+NextStages=ExecuteStage,ParseStage
+ThreadId=SQLThreads
+
+[QueryCacheStage]
+NextStages=PlanCacheStage
+ThreadId=SQLThreads
+
+[ResolveStage]
+NextStages=QueryCacheStage
+ThreadId=SQLThreads
+
+[SEDA_BASE]
+EventHistory=false
+MaxEventHistoryNum=100
+STAGES=SessionStage,ExecuteStage,OptimizeStage,ParseStage,ResolveStage,PlanCacheStage,QueryCacheStage,DefaultStorageStage,MemStorageStage,TimerStage,MetricsStage
+ThreadPools=SQLThre
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 67]>>(Re)Starting State: Pid: 9309 Time: Mon Nov  1 20:25:50 2021
+
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/init.cpp init_seda 68]>>The process Name is observer
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_event_history 202]>>Successfully init_event_history, EventHistory:0, MaxEventHops:100
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  ERROR: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_thread_pool 216]>>KEY=ThreadPools
+
+[2021-11-1 20:25:50 pid:9309 tid:70000495c000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 70000495c000, threadname = SQLThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004ae5000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004ae5000, threadname = IOThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004b68000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004b68000, threadname = DefaultThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:7000049df000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000049df000, threadname = IOThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:7000048d9000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 7000048d9000, threadname = SQLThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004856000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004856000, threadname = SQLThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004c6e000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004c6e000, threadname = DefaultThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004a62000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004a62000, threadname = IOThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:700004beb000  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/thread_pool.cpp run_thread 243]>>threadid = 700004beb000, threadname = DefaultThreads
+
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage SessionStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ExecuteStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage OptimizeStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ParseStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage ResolveStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage PlanCacheStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage QueryCacheStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_storage_stage.cpp set_properties 86]>>Use sys as system db
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_handler.cpp init 52]>>Default handler init with ./miniob success
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  WARNNING: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_handler.cpp create_db 74]>>Db already exists: sys
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp open_all_tables 111]>>All table have been opened. num=0
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/default/default_storage_stage.cpp set_properties 110]>>Open system db success: sys
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage DefaultStorageStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage MemStorageStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp get_thread_pool 293]>>Not set thread_pool_id for TimerStage, use default threadpool DefaultThreads
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage TimerStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp get_thread_pool 293]>>Not set thread_pool_id for MetricsStage, use default threadpool DefaultThreads
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/seda/seda_config.cpp init_stages 349]>>Stage MetricsStage use threadpool DefaultThreads.
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :DefaultStorageStage.query
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.sql
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/init.cpp init 228]>>Successfully init utility
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.readsocket
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/deps/common/metrics/metrics_registry.cpp register_metric 37]>>Successfully register metric :SessionStage.writesocket
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp start_tcp_server 333]>>Listen on port 6789
+[2021-11-1 20:25:50 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp start_tcp_server 352]>>Observer start success
+[2021-11-1 20:26:19 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp accept 276]>>Accepted connection from 127.0.0.1:33733
+
+[2021-11-1 20:26:24 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp recv 170]>>receive command(size=4): ls
+
+[2021-11-1 20:26:25 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp recv 160]>>The peer has been closed 127.0.0.1:33733
+
+[2021-11-1 20:26:25 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp close_connection 97]>>Close connection of 127.0.0.1:33733.
+[2021-11-1 20:26:27 pid:9309 tid:700004d74000  INFO: /Users/bi/Code/oceanbase2021/src/observer/main.cpp quit_thread_func 135]>>Receive signal: 2
+[2021-11-1 20:26:27 pid:9309 tid:700004d74000  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp shutdown 433]>>Server shutting down
+[2021-11-1 20:26:27 pid:9309 tid:700004d74000  INFO: /Users/bi/Code/oceanbase2021/src/observer/net/server.cpp shutdown 453]>>Server quit
+[2021-11-1 20:26:27 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/main.cpp main 166]>>Server stopped
+[2021-11-1 20:26:27 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp sync 135]>>Sync db over. db=sys
+[2021-11-1 20:26:27 pid:9309 tid:10c20ee00  INFO: /Users/bi/Code/oceanbase2021/src/observer/storage/common/db.cpp ~Db 33]>>Db has been closed: sys
