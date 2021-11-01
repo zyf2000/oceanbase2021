@@ -1,12 +1,14 @@
-run
-
 ```shell
+
+# build
+make configure # Execute for re-configuration
+make build     # Execute for incremental build
+
 # run server
-cd build
-./bin/observer -f ../etc/observer.ini
+make run_server
+
 # run client
-cd build
-./bin/obclient
-# 日志 observer.og
+make run_client
+
 ```
 
