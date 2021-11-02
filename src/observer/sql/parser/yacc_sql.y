@@ -110,7 +110,7 @@ ParserContext *get_context(yyscan_t scanner)
   char *string;
   int number;
   float floats;
-	char *position;
+  char *position; 
 }
 
 %token <number> NUMBER
