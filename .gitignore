@@ -10,4 +10,4 @@ miniob
 *.vpw
 *.vpwhistu
 *.vtg
-*.log.[0-9]+
+observer.log.*
