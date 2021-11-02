@@ -6,3 +6,8 @@ deps/jsoncpp
 .gitmodules
 *~
 miniob
+*.vpj
+*.vpw
+*.vpwhistu
+*.vtg
+*.log.[0-9]+
