@@ -133,16 +133,16 @@ typedef struct {
 } LoadData;
 
 union Queries {
-  Selects selection;
-  Inserts insertion;
-  Deletes deletion;
-  Updates update;
-  CreateTable create_table;
-  DropTable drop_table;
-  CreateIndex create_index;
-  DropIndex drop_index;
-  DescTable desc_table;
-  LoadData load_data;
+  Selects selection;        // SELECT
+  Inserts insertion;        // INSERT
+  Deletes deletion;         // DELETE
+  Updates update;           // UPDATE
+  CreateTable create_table; // CREATE
+  DropTable drop_table;     // DROP
+  CreateIndex create_index; // CREATE INDEX
+  DropIndex drop_index;     // DROP INDEX
+  DescTable desc_table;     // DESC (wtf?)
+  LoadData load_data;       // LOAD (wtf?)
   char *errors;
 };
 
