@@ -25,7 +25,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/os/signal.h"
 #include "net/server.h"
 #include "net/server_param.h"
-
 using namespace common;
 
 #define NET "NET"

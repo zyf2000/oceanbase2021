@@ -26,13 +26,12 @@ SelectExeNode::~SelectExeNode() {
   condition_filters_.clear();
 }
 
-RC
-SelectExeNode::init(Trx *trx, Table *table, TupleSchema &&tuple_schema, std::vector<DefaultConditionFilter *> &&condition_filters) {
-  trx_ = trx;
-  table_ = table;
-  tuple_schema_ = tuple_schema;
-  condition_filters_ = std::move(condition_filters);
-  return RC::SUCCESS;
+RC SelectExeNode::init(Trx *trx, Table *table, TupleSchema &&tuple_schema, std::vector<DefaultConditionFilter *> &&condition_filters) {
+    trx_ = trx;
+    table_ = table;
+    tuple_schema_ = tuple_schema;
+    condition_filters_ = std::move(condition_filters);
+    return RC::SUCCESS;
 }
 
 void record_reader(const char *data, void *context) {
