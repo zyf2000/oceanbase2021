@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "condition_filter.h"
 #include "record_manager.h"
 #include "common/log/log.h"
+#include "common/manual.h"
 #include "storage/common/table.h"
 
 using namespace common;
@@ -70,7 +71,9 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
     left.is_attr = true;
     const FieldMeta *field_left = table_meta.field(condition.left_attr.attribute_name);
     if (nullptr == field_left) {
-      LOG_WARN("No such field in condition. %s.%s", table.name(), condition.left_attr.attribute_name);
+      LOG_ERROR(COLOR_RED "[ERROR] " COLOR_YELLOW "Field [" COLOR_GREEN "%s"
+                COLOR_YELLOW"] is NOT EXISTs in table [" COLOR_GREEN "%s"
+                COLOR_YELLOW"].", condition.left_attr.attribute_name,table.name());
       return RC::SCHEMA_FIELD_MISSING;
     }
     left.attr_length = field_left->len();

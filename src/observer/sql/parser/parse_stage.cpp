@@ -129,5 +129,6 @@ StageEvent *ParseStage::handle_request(StageEvent *event) {
     return nullptr;
   }
 
+  /// Real Execution part
   return new ExecutionPlanEvent(sql_event, result);
 }

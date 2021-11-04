@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 typedef struct {
   char *relation_name;   // relation name (may be NULL) 表名
   char *attribute_name;  // attribute name              属性名
+  int used_count;    /// Used Count
 } RelAttr;
 
 typedef enum {
