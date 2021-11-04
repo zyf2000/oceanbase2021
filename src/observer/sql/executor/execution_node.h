@@ -30,6 +30,14 @@ public:
   virtual RC execute(TupleSet &tuple_set) = 0;
 };
 
+/// <summary>
+///  The [SelectExeNode] class conducts a SELECT operation on
+///  a specificated table.
+/// </summary>
+/// <returns> 
+///  The member function [init()] and [executes()] returns a
+///  state implies its execution result.
+/// </returns> 
 class SelectExeNode : public ExecutionNode {
 public:
   SelectExeNode();

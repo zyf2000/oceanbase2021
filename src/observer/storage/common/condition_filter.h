@@ -40,13 +40,25 @@ public:
   virtual bool filter(const Record &rec) const = 0;
 };
 
+/// <summary> 
+///  Condition Filters for a specified table, only valid in 
+///  single table 
+/// </summary> 
 class DefaultConditionFilter : public ConditionFilter {
 public:
   DefaultConditionFilter();
   virtual ~DefaultConditionFilter();
 
   RC init(const ConDesc &left, const ConDesc &right, AttrType attr_type, CompOp comp_op);
+
+    /// <summary>
+    ///  Init the condition filter itself with 
+    /// </summary>
+    /// <param name="table"></param>
+    /// <param name="condition"></param>
+    /// <returns></returns>
   RC init(Table &table, const Condition &condition);
+
 
   virtual bool filter(const Record &rec) const;
 

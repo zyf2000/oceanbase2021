@@ -11,3 +11,6 @@ miniob
 *.vpwhistu
 *.vtg
 observer.log.*
+GPATH
+GRTAGS
+GTAGS

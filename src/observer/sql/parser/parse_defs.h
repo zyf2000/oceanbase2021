@@ -16,7 +16,6 @@ See the Mulan PSL v2 for more details. */
 #define __OBSERVER_SQL_PARSER_PARSE_DEFS_H__
 
 #include <stddef.h>
-
 #define MAX_NUM 20
 #define MAX_REL_NAME 20
 #define MAX_ATTR_NAME 20
@@ -25,8 +24,13 @@ See the Mulan PSL v2 for more details. */
 
 //属性结构体
 typedef struct {
-  char *relation_name;   // relation name (may be NULL) 表名
-  char *attribute_name;  // attribute name              属性名
+    /// Parsing Stage
+    char *relation_name;   // relation name (may be NULL) 表名
+    char *attribute_name;  // attribute name              属性名
+
+    /// Execution Stage
+    int used_count;    /// Used Count [deprecated]
+    void* related_table;  /// Related table
 } RelAttr;
 
 typedef enum {
