@@ -157,7 +157,12 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case SCF_SELECT:
       { // select
         //do_select(current_db, sql, exe_event->sql_event()->session_event());
-        manual_do_select(current_db, sql, exe_event->sql_event()->session_event());
+        RC rc = manual_do_select(current_db, sql, exe_event->sql_event()->session_event());
+        if (rc)
+        {
+            session_event->set_response("FAILURE\n");
+        }
+
         exe_event->done_immediate();
       }
       break;
@@ -388,12 +393,12 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   
   for (int i = 0; i < selects.attr_num; i++)
     {
-      printf(COLOR_GREEN "%s" COLOR_WHITE "." COLOR_CYAN "%s" COLOR_WHITE ", ",
+      LOG_ERROR(COLOR_GREEN "%s" COLOR_WHITE "." COLOR_CYAN "%s" COLOR_WHITE ", ",
              selects.attributes[i].relation_name == NULL ?
              "(NULL)" : selects.attributes[i].relation_name,
              selects.attributes[i].attribute_name);
     }
-  printf("\n");
+  LOG_ERROR("\n");
   fflush(stdout);
   /// Test log END
     
@@ -424,18 +429,16 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
         if(table == nullptr)
           {
-            char buf[256];
-            sprintf(buf, COLOR_RED "[ERROR] " COLOR_YELLOW "No such table ["
-                    COLOR_GREEN "%s" COLOR_YELLOW "] in db ["
-                    COLOR_GREEN "%s" COLOR_YELLOW "]\n", selects.relations[i], db);
-            ///session_event->set_response(buf);
+            LOG_ERROR(COLOR_RED "[ERROR] " COLOR_YELLOW "No such table ["
+                 COLOR_GREEN "%s" COLOR_YELLOW "] in db ["
+                 COLOR_GREEN "%s" COLOR_YELLOW "]\n", selects.relations[i], db);
             end_trx_if_need(session, transaction, false);
             return RC::SCHEMA_TABLE_NOT_EXIST;
           }
         auto pr = Resolve_Attr_Scope(attr_array, table);
         if(pr.first != RC::SUCCESS)
           {
-            ///session_event->set_response(pr.second.c_str());
+            LOG_ERROR("%s", pr.second.c_str());
             end_trx_if_need(session, transaction, false);
             return pr.first;
           }
@@ -444,16 +447,14 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     /// Check if there is an attribute that can't be attached
     for(auto it : attr_array)
       {
-      printf("The attachment of %s is %p\n", it->attribute_name, it->related_table);
+      LOG_ERROR("The attachment of %s is %p\n", it->attribute_name, it->related_table);
       fflush(stdout);
         if(it->related_table == nullptr)
           {
-          char buf[256];
-          sprintf(buf, COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
-                  COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
-                  it->relation_name != nullptr?it->relation_name:"(NULL)",
-                  it->attribute_name);
-          ///session_event->set_response(buf);
+          printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
+                 COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
+                 it->relation_name != nullptr?it->relation_name:"(NULL)",
+                 it->attribute_name);
           end_trx_if_need(session, transaction, false);
           return RC::SCHEMA_FIELD_NOT_EXIST;
                 
@@ -494,7 +495,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               {
                 delete tmp_node;
               }
-            ///session_event->set_response(pr.second.c_str());
+            LOG_ERROR(pr.second.c_str());
             end_trx_if_need(session, transaction, false);
             return pr.first;
           }
@@ -504,9 +505,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     /// If there is no table given
     if (select_nodes.empty())
       {
-        char buf[] = COLOR_RED "[ERROR]" COLOR_YELLOW "No table given.";
-        ///session_event->set_response(buf);
-        LOG_ERROR(buf);
+        LOG_ERROR(COLOR_RED "[ERROR]" COLOR_YELLOW "No table given.");
         end_trx_if_need(session, transaction, false);
         return RC::SQL_SYNTAX;
       }
