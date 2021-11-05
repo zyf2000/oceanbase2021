@@ -148,6 +148,7 @@ RC Table::drop()
     if (remove((prefix + TABLE_META_SUFFIX).c_str()) != 0) return RC::GENERIC_ERROR;
     if (remove((prefix + TABLE_DATA_SUFFIX).c_str()) != 0) return RC::GENERIC_ERROR;
     fflush(stdout);
+    return RC::SUCCESS;
 }
 
 
