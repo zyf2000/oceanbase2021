@@ -174,13 +174,18 @@ RC DefaultHandler::delete_record(Trx *trx, const char *dbname, const char *relat
   return table->delete_record(trx, &condition_filter, deleted_count);
 }
 
-RC DefaultHandler::update_record(Trx *trx, const char *dbname, const char *relation_name, const char *attribute_name, const Value *value,
-                          int condition_num, const Condition *conditions, int *updated_count) {
+RC DefaultHandler::update_record(Trx *trx,                   /// Transaction
+                                 const char *dbname,         /// Database name
+                                 const char *relation_name,  /// Table Name
+                                 const char *attribute_name, /// Attribute to be modified
+                                 const Value *value,         /// Value to be updated
+                                 int condition_num,          /// number of WHERE clauses
+                                 const Condition *conditions,/// Condition statements
+                                 int *updated_count) {       /// (modify) affected num
   Table *table = find_table(dbname, relation_name);
   if (nullptr == table) {
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
-
   return table->update_record(trx, attribute_name, value, condition_num, conditions, updated_count);
 }
 

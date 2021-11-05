@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <algorithm>
 #include "execute_stage.h"
 
 #include "common/io/io.h"
@@ -375,6 +376,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   Session* session     = session_event->get_client()->session; /// Session struct
   Trx*     transaction = session->current_trx(); /// Transaction
   Selects& selects     = sql->sstr.selection;  /// Select Structure
+  std::reverse(selects.attributes, selects.attributes + selects.attr_num);
   /// Test log
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Select from tables: " COLOR_GREEN);
   for (int i = 0; i < selects.relation_num; i++)
@@ -383,6 +385,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     }
   printf("\n");
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "The selected attributes are: " COLOR_GREEN);
+  
   for (int i = 0; i < selects.attr_num; i++)
     {
       printf(COLOR_GREEN "%s" COLOR_WHITE "." COLOR_CYAN "%s" COLOR_WHITE ", ",
@@ -425,14 +428,14 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             sprintf(buf, COLOR_RED "[ERROR] " COLOR_YELLOW "No such table ["
                     COLOR_GREEN "%s" COLOR_YELLOW "] in db ["
                     COLOR_GREEN "%s" COLOR_YELLOW "]\n", selects.relations[i], db);
-            session_event->set_response(buf);
+            ///session_event->set_response(buf);
             end_trx_if_need(session, transaction, false);
             return RC::SCHEMA_TABLE_NOT_EXIST;
           }
         auto pr = Resolve_Attr_Scope(attr_array, table);
         if(pr.first != RC::SUCCESS)
           {
-            session_event->set_response(pr.second.c_str());
+            ///session_event->set_response(pr.second.c_str());
             end_trx_if_need(session, transaction, false);
             return pr.first;
           }
@@ -441,20 +444,22 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     /// Check if there is an attribute that can't be attached
     for(auto it : attr_array)
       {
+      printf("The attachment of %s is %p\n", it->attribute_name, it->related_table);
+      fflush(stdout);
         if(it->related_table == nullptr)
           {
-            char buf[256];
-            sprintf(buf, COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
-                    COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
-                    it->relation_name != nullptr?it->relation_name:"(NULL)",
-                    it->attribute_name);
-            session_event->set_response(buf);
-            end_trx_if_need(session, transaction, false);
-            return RC::SCHEMA_FIELD_NOT_EXIST;
+          char buf[256];
+          sprintf(buf, COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
+                  COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
+                  it->relation_name != nullptr?it->relation_name:"(NULL)",
+                  it->attribute_name);
+          ///session_event->set_response(buf);
+          end_trx_if_need(session, transaction, false);
+          return RC::SCHEMA_FIELD_NOT_EXIST;
                 
           }
       }
-        
+    
   }
 
   /**
@@ -489,7 +494,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               {
                 delete tmp_node;
               }
-            session_event->set_response(pr.second.c_str());
+            ///session_event->set_response(pr.second.c_str());
             end_trx_if_need(session, transaction, false);
             return pr.first;
           }
@@ -500,7 +505,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     if (select_nodes.empty())
       {
         char buf[] = COLOR_RED "[ERROR]" COLOR_YELLOW "No table given.";
-        session_event->set_response(buf);
+        ///session_event->set_response(buf);
         LOG_ERROR(buf);
         end_trx_if_need(session, transaction, false);
         return RC::SQL_SYNTAX;
@@ -561,8 +566,8 @@ std::pair<RC, std::string> Resolve_Attr_Scope(
                                               Table* table
                                               )
 {
-  for (auto p = attr_array.rbegin();
-       p != attr_array.rend();
+  for (auto p = attr_array.begin();
+       p != attr_array.end();
        ++p)
     {
       assert(*p != nullptr);
