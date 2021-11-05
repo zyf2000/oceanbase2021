@@ -43,6 +43,13 @@ public:
    */
   RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
 
+    /**
+     * Drop current table
+     * @return RC: Return code
+     @ @note Call destructors after drop the table.
+     */
+  RC drop();
+
   /**
    * 打开一个表
    * @param meta_file 保存表元数据的文件完整路径

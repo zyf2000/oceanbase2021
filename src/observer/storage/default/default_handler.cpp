@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/os/path.h"
 #include "common/log/log.h"
+#include "common/manual.h"
 #include "common/lang/string.h"
 #include "storage/common/record_manager.h"
 #include "storage/common/bplus_tree.h"
@@ -127,8 +128,14 @@ RC DefaultHandler::create_table(const char *dbname, const char *relation_name, i
   return db->create_table(relation_name, attribute_count, attributes);
 }
 
-RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) {
-  return RC::GENERIC_ERROR;
+RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) 
+{
+  Db* db = find_db(dbname);
+  if (db == nullptr) {
+    return RC::SCHEMA_DB_NOT_OPENED;
+  }
+  return db->drop_table(relation_name);
+
 }
 
 RC DefaultHandler::create_index(Trx *trx, const char *dbname, const char *relation_name, const char *index_name, const char *attribute_name) {

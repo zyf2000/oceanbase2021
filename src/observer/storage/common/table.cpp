@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
 #include "common/log/log.h"
+#include "common/manual.h"
 #include "common/lang/string.h"
 #include "storage/default/disk_buffer_pool.h"
 #include "storage/common/record_manager.h"
@@ -110,6 +111,37 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }
+
+RC Table::drop()
+{
+  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Drop base dir: "
+         COLOR_GREEN "%s" COLOR_YELLOW ".\n",this->base_dir_.c_str());
+
+  /// Close Buffer Pool
+  if (this->data_buffer_pool_ != nullptr
+      && this->file_id_ >= 0) {
+    this->data_buffer_pool_->close_file(this->file_id_);
+    this->data_buffer_pool_ = nullptr;
+    this->file_id_ = -1;
+  }
+  
+  /// Remove files on disk
+  std::string prefix = this->base_dir_ +"/"+ this->table_meta().name();
+  if(remove((prefix + TABLE_INDEX_SUFFIX).c_str()) != 0)
+    {
+      if(errno == ENOENT)
+        printf(COLOR_WHITE "[INFO] "
+               COLOR_YELLOW "Index file does not exist"), fflush(stdout);
+      else
+        return RC::GENERIC_ERROR;
+    }
+  if(remove((prefix + TABLE_META_SUFFIX).c_str()) != 0)
+    return RC::GENERIC_ERROR;
+  if(remove((prefix + TABLE_DATA_SUFFIX).c_str()) != 0)
+    return RC::GENERIC_ERROR;
+  fflush(stdout);
+}
+
 
 RC Table::open(const char *meta_file, const char *base_dir) {
   // 加载元数据文件

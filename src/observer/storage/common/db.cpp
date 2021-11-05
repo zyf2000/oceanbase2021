@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include <vector>
 
 #include "common/log/log.h"
+#include "common/manual.h"
 #include "common/os/path.h"
 #include "common/lang/string.h"
 #include "storage/common/table_meta.h"
@@ -68,6 +69,36 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
 
   opened_tables_[table_name] = table;
   LOG_INFO("Create table success. table name=%s", table_name);
+  return RC::SUCCESS;
+}
+
+RC Db::drop_table(const char *table_name)
+{
+  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Dropping Table ["
+         COLOR_GREEN "%s" COLOR_YELLOW "] from database [" COLOR_GREEN
+         "%s" COLOR_YELLOW "].\n", table_name, this->name());
+  fflush(stdout);
+  if(opened_tables_.count(table_name) == 0)
+    {
+      return RC::SCHEMA_TABLE_NOT_EXIST;
+    }
+  /**
+   * Pass 1. Drop this table from [opened_tables_]
+   */
+  assert(opened_tables_.count(table_name));
+  Table* table = opened_tables_.at(table_name);
+  assert(table != nullptr);
+  opened_tables_.erase(table_name);
+  /**
+   * Pass 2. Drop current table
+   */
+  table->drop();
+
+  /**
+   * Pass 3. free the allocated memory
+   */
+  delete table;
+  
   return RC::SUCCESS;
 }
 
