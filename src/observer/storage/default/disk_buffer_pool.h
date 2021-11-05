@@ -207,6 +207,7 @@ protected:
 private:
   BPManager bp_manager_;
   BPFileHandle *open_list_[MAX_OPEN_FILE] = {nullptr};
+  int open_list_time[MAX_OPEN_FILE] = {0};
 };
 
 DiskBufferPool *theGlobalDiskBufferPool();
