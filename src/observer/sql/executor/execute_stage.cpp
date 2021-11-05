@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <algorithm>
 #include "execute_stage.h"
 
 #include "common/io/io.h"
@@ -375,6 +376,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   Session* session     = session_event->get_client()->session; /// Session struct
   Trx*     transaction = session->current_trx(); /// Transaction
   Selects& selects     = sql->sstr.selection;  /// Select Structure
+  std::reverse(selects.attributes, selects.attributes + selects.attr_num);
   /// Test log
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Select from tables: " COLOR_GREEN);
   for (int i = 0; i < selects.relation_num; i++)
@@ -383,6 +385,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     }
   printf("\n");
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "The selected attributes are: " COLOR_GREEN);
+  
   for (int i = 0; i < selects.attr_num; i++)
     {
       printf(COLOR_GREEN "%s" COLOR_WHITE "." COLOR_CYAN "%s" COLOR_WHITE ", ",
@@ -561,8 +564,8 @@ std::pair<RC, std::string> Resolve_Attr_Scope(
                                               Table* table
                                               )
 {
-  for (auto p = attr_array.rbegin();
-       p != attr_array.rend();
+  for (auto p = attr_array.begin();
+       p != attr_array.end();
        ++p)
     {
       assert(*p != nullptr);
