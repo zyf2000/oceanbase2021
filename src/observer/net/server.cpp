@@ -423,7 +423,7 @@ int Server::serve() {
     LOG_PANIC("Failed to start network");
     exit(-1);
   }
-  std::cerr<<"Dispatching!!!!!!"<<std::endl;
+  //std::cerr<<"Dispatching!!!!!!"<<std::endl;
   event_base_dispatch(event_base_);
 
   return 0;

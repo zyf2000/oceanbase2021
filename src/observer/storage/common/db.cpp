@@ -74,10 +74,10 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
 
 RC Db::drop_table(const char *table_name)
 {
-  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Dropping Table ["
+/*  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Dropping Table ["
          COLOR_GREEN "%s" COLOR_YELLOW "] from database [" COLOR_GREEN
          "%s" COLOR_YELLOW "].\n", table_name, this->name());
-  fflush(stdout);
+  fflush(stdout);*/
   if(opened_tables_.count(table_name) == 0)
     {
       return RC::SCHEMA_TABLE_NOT_EXIST;
