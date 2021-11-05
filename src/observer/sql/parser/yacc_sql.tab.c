@@ -1691,7 +1691,7 @@ yyreduce:
 
   case 41:
 #line 272 "yacc_sql.y"
-                { (yyval.number)=CHARS; }
+                { (yyval.number)=DATES; }
 #line 1696 "yacc_sql.tab.c"
     break;
 

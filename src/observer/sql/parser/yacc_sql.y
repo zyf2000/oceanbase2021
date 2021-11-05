@@ -269,7 +269,7 @@ type:
 	INT_T { $$=INTS; }
        | STRING_T { $$=CHARS; }
        | FLOAT_T { $$=FLOATS; }
-       | DATE_T { $$=CHARS; }
+       | DATE_T { $$=DATES; }
        ;
 ID_get:
 	ID 
