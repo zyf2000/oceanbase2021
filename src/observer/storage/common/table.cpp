@@ -125,8 +125,8 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
 
 RC Table::drop()
 {
-    printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Drop base dir: "
-           COLOR_GREEN "%s" COLOR_YELLOW ".\n", this->base_dir_.c_str());
+   /* printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Drop base dir: "
+           COLOR_GREEN "%s" COLOR_YELLOW ".\n", this->base_dir_.c_str());*/
 
     /// Close Buffer Pool
     if (this->data_buffer_pool_ != nullptr
@@ -141,8 +141,9 @@ RC Table::drop()
     std::string prefix = this->base_dir_ + "/" + this->table_meta().name();
     if (remove((prefix + TABLE_INDEX_SUFFIX).c_str()) != 0)
     {
-        if (errno == ENOENT) printf(COLOR_WHITE "[INFO] "
-                                    COLOR_YELLOW "Index file does not exist"), fflush(stdout);
+        if (errno == ENOENT) ;
+        /*printf(COLOR_WHITE "[INFO] "
+                                    COLOR_YELLOW "Index file does not exist\n"), fflush(stdout);*/
         else return RC::GENERIC_ERROR;
     }
     if (remove((prefix + TABLE_META_SUFFIX).c_str()) != 0) return RC::GENERIC_ERROR;
