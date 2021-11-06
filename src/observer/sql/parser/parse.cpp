@@ -54,6 +54,38 @@ void value_init_string(Value *value, const char *v) {
   value->type = CHARS;
   value->data = strdup(v);
 }
+void value_init_dates(Value *value, const char *v)
+{
+    int dates_int, yy, mm, dd, l, r;
+    int len = strlen(v);
+    for (int i = 0; i < len; ++i)
+        if (v[i] == '-')
+        {
+            l = i;
+            break;
+        }
+    for (int i = len - 1; i >=0; --i)
+        if (v[i] == '-')
+        {
+            r = i;
+            break;
+        }
+    yy = char_to_int(v, 0, l - 1);
+    mm = char_to_int(v, l + 1, r - 1);
+    dd = char_to_int(v, r + 1, len - 1);
+    dates_int = yy * 10000 + mm * 100 + dd;
+
+    value->type = DATES;
+    value->data = malloc(sizeof(dates_int));
+    memcpy(value->data, &dates_int, sizeof(dates_int));
+}
+int char_to_int(const char *v, int l, int r)
+{
+    int re = 0;
+    for (int i = l; i <= r; ++i)
+        re = re * 10 + v[i] - '0';
+    return re;
+}
 void value_destroy(Value *value) {
   value->type = UNDEFINED;
   free(value->data);

@@ -152,6 +152,7 @@ public:
   TupleRecordConverter(Table *table, TupleSet &tuple_set);
 
   void add_record(const char *record);
+  const char * int_to_char(int date_int);
 private:
   Table *table_;
   TupleSet &tuple_set_;

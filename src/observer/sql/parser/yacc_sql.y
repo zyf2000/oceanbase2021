@@ -118,6 +118,7 @@ ParserContext *get_context(yyscan_t scanner)
 %token <floats> FLOAT 
 %token <string> ID
 %token <string> PATH
+%token <string> DATESSS
 %token <string> SSS
 %token <string> STAR
 %token <string> STRING_V
@@ -314,6 +315,10 @@ value:
 			$1 = substr($1,1,strlen($1)-2);
   		value_init_string(&CONTEXT->values[CONTEXT->value_length++], $1);
 		}
+    |DATESSS {
+            $1 = substr($1,1,strlen($1)-2);
+            value_init_dates(&CONTEXT->values[CONTEXT->value_length++], $1);
+    }
     ;
     
 delete:		/*  delete 语句的语法解析树*/

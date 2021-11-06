@@ -234,6 +234,12 @@ void TupleRecordConverter::add_record(const char *record) {
         tuple.add(s, strlen(s));
       }
       break;
+      case DATES: {
+          int value = *(int*)(record + field_meta->offset());
+          const char *s = int_to_char(value);
+          tuple.add(s, strlen(s));
+      }
+      break;
       default: {
         LOG_PANIC("Unsupported field type. type=%d", field_meta->type());
       }
@@ -241,6 +247,33 @@ void TupleRecordConverter::add_record(const char *record) {
   }
 
   tuple_set_.add(std::move(tuple));
+}
+
+const char * TupleRecordConverter::int_to_char(int dates_int)
+{
+    char *re = new char[11];
+    memset(re, 0, sizeof(re));
+    int yy = dates_int / 10000;
+    int mm = dates_int % 10000 / 100;
+    int dd = dates_int % 100;
+    for (int i = 3; i >= 0; --i)
+    {
+        re[i] = yy % 10 + '0';
+        yy /= 10;
+    }
+    re[4] = '-';
+    for (int i = 6; i >= 5; --i)
+    {
+        re[i] = mm % 10 + '0';
+        mm /= 10;
+    }
+    re[7] = '-';
+    for (int i = 9; i >= 8; --i)
+    {
+        re[i] = dd % 10 + '0';
+        dd /= 10;
+    }
+    return re;
 }
 
 

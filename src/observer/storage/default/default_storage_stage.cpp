@@ -344,6 +344,23 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
         value_init_string(&record_values[i], file_value.c_str());
       }
       break;
+      case DATES: {
+        //   value_init_dates(&record_values[i], file_value.c_str());
+        deserialize_stream.clear();
+        deserialize_stream.str(file_value);
+
+        int int_value;
+        deserialize_stream >> int_value;
+        if (!deserialize_stream || !deserialize_stream.eof()) {
+          errmsg << "need an integer but got '" << file_values[i] 
+                 << "' (field index:" << i << ")";
+
+          rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        } else {
+          value_init_integer(&record_values[i], int_value);
+        }
+      }
+      break;
       default: {
         errmsg << "Unsupported field type to loading: " << field->type();
         rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
