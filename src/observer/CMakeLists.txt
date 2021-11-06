@@ -3,7 +3,6 @@ MESSAGE("Begin to build " ${PROJECT_NAME})
 MESSAGE(STATUS "This is PROJECT_BINARY_DIR dir " ${PROJECT_BINARY_DIR})
 MESSAGE(STATUS "This is PROJECT_SOURCE_DIR dir " ${PROJECT_SOURCE_DIR})
 
-
 #INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
 INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/../../deps /usr/local/include SYSTEM)
 # 父cmake 设置的include_directories 和link_directories并不传导到子cmake里面
