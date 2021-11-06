@@ -12,9 +12,12 @@ See the Mulan PSL v2 for more details. */
 // Created by Wangyunlai on 2021/5/13.
 //
 
+#include <string>
+#include <sstream>
 #include <limits.h>
 #include <string.h>
 #include <algorithm>
+#include <list>
 
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
@@ -652,9 +655,41 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
            " on table " COLOR_GREEN "%s" COLOR_YELLOW ".\n",
            attribute_name, this->name());
 
-    /// Pass 1. Test attachment
+    RC rc = RC::SUCCESS;
+    /// Pass 1. check if set attribute is right on the table
+    const int normal_field_start_index = table_meta_.sys_field_num();
+    const int attr_num = table_meta_.field_num() - normal_field_start_index;
+    rc = RC::INVALID_ARGUMENT;
+    for (int i = 0; i < attr_num; ++i)
+    {
+        const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
+        if (strcmp(field->name(), attribute_name) == 0)
+        {
+            rc = RC::SUCCESS;
+            break;
+        }
+    }
+    if (rc != RC::SUCCESS)
+    {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
+           COLOR_GREEN "%s" COLOR_YELLOW
+           " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
+           "No such attribute in this table" COLOR_YELLOW ".\n",
+           attribute_name, this->name());
+        return rc;
+    }
 
-    /// Pass 2.
+    /// Pass 2. check if all the attributes mentioned in conditions if valid
+    // std::list<const RelAttr *> attr_array;
+    // for(int i = 0; i < condition_num; i++)
+    //   {
+    //     if(conditions[i].left_is_attr)
+    //       attr_array.push_back(&conditions[i].left_attr);
+    //     if(conditions[i].right_is_attr)
+    //       attr_array.push_back(&conditions[i].right_attr);
+    //   }
+    
+
     return RC::GENERIC_ERROR;
 }
 
