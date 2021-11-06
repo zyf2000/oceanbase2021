@@ -242,10 +242,13 @@ RC Table::insert_record(Trx *trx, Record *record)
 {
     RC rc = RC::SUCCESS;
 
+    /// Transaction initialization.
     if (trx != nullptr)
     {
         trx->init_trx_info(this, *record);
     }
+
+    /// Perform insertion
     rc = record_handler_->insert_record(record->data, table_meta_.record_size(), &record->rid);
     if (rc != RC::SUCCESS)
     {
@@ -253,6 +256,7 @@ RC Table::insert_record(Trx *trx, Record *record)
         return rc;
     }
 
+    /// Transaction logging
     if (trx != nullptr)
     {
         rc = trx->insert_record(this, record);
@@ -270,6 +274,7 @@ RC Table::insert_record(Trx *trx, Record *record)
         }
     }
 
+    /// Indexing
     rc = insert_entry_of_indexes(record->data, record->rid);
     if (rc != RC::SUCCESS)
     {
