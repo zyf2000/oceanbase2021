@@ -22,7 +22,9 @@ RC parse(char *st, Query *sqln);
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name) {
+void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name,
+                        const char *groupby_func_name)
+{
   if (relation_name != nullptr) {
     relation_attr->relation_name = strdup(relation_name);
   } else {
@@ -31,6 +33,17 @@ void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const
   relation_attr->attribute_name = strdup(attribute_name);
   relation_attr->used_count = 0;
   relation_attr->related_table = nullptr;
+
+  relation_attr->groupby_func = 0;
+  if (groupby_func_name != nullptr)
+  {
+      for (int i = sizeof(GB_FUNC_NAME)/sizeof(GB_FUNC_NAME[0]); i > 0; --i)
+        if (strcmp(groupby_func_name, GB_FUNC_NAME[i]) == 0)
+        {
+            relation_attr->groupby_func = i;
+            break;
+        }
+  }
 }
 
 void relation_attr_destroy(RelAttr *relation_attr) {

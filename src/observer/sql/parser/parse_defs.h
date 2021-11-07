@@ -31,7 +31,29 @@ typedef struct {
     /// Execution Stage
     int used_count;    /// Used Count [deprecated]
     void* related_table;  /// Related table
+
+    /// Group-by function
+    GroupByFunction groupby_func;
 } RelAttr;
+
+/// Group by function enum
+typedef enum
+{
+    UNDEFINED,
+    GB_COUNT,
+    GB_MAX,
+    GB_MIN,
+    GB_AVG
+}GroupByFunction;
+
+/// Group by function name
+const char *GB_FUNC_NAME[] = {
+  "undefined"
+  "count",
+  "max",
+  "min",
+  "avg"
+};
 
 typedef enum {
   EQUAL_TO,     //"="     0

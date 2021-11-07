@@ -365,38 +365,52 @@ select:				/*  select 语句的语法解析树*/
 // SELECT count(*)
 // SELECT count(1)
 select_attr:    select_attr_expr attr_list  // Multiple
-                {
-                }
+                {}
         |       select_attr_expr            // Unary
-                {
-                }
+                {}
         ;
 select_attr_expr: STAR
                 {
                     RelAttr attr;
-                    relation_attr_init(&attr, NULL, "*");
+                    relation_attr_init(&attr, NULL, "*", NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
         |       ID
                 {
                     RelAttr attr;
-                    relation_attr_init(&attr, NULL, $1);
+                    relation_attr_init(&attr, NULL, $1, NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
         |       ID DOT ID
                 {
                     RelAttr attr;
-                    relation_attr_init(&attr, $1, $3);
+                    relation_attr_init(&attr, $1, $3, NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
         |       ID LBRACE STAR RBRACE
-                {}
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, NULL, *, $1);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
         |       ID LBRACE ID RBRACE
-                {}
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, NULL, $3, $1);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
         |       ID LBRACE ID DOT ID RBRACE
-                {}
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, $3, $5, $1);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
         |       ID LBRACE NUMBER RBRACE
-                {}
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, NULL, *, $1);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
         ;
 attr_list:      COMMA select_attr_expr
                 {}
@@ -443,7 +457,7 @@ condition:
     ID comOp value 
 		{
 			RelAttr left_attr;
-			relation_attr_init(&left_attr, NULL, $1);
+			relation_attr_init(&left_attr, NULL, $1, NULL);
 
 			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
@@ -484,9 +498,9 @@ condition:
 		|ID comOp ID 
 		{
 			RelAttr left_attr;
-			relation_attr_init(&left_attr, NULL, $1);
+			relation_attr_init(&left_attr, NULL, $1, NULL);
 			RelAttr right_attr;
-			relation_attr_init(&right_attr, NULL, $3);
+			relation_attr_init(&right_attr, NULL, $3, NULL);
 
 			Condition condition;
 			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 1, &right_attr, NULL);
@@ -505,7 +519,7 @@ condition:
 		{
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 			RelAttr right_attr;
-			relation_attr_init(&right_attr, NULL, $3);
+			relation_attr_init(&right_attr, NULL, $3, NULL);
 
 			Condition condition;
 			condition_init(&condition, CONTEXT->comp, 0, NULL, left_value, 1, &right_attr, NULL);
@@ -526,7 +540,7 @@ condition:
     |ID DOT ID comOp value
 		{
 			RelAttr left_attr;
-			relation_attr_init(&left_attr, $1, $3);
+			relation_attr_init(&left_attr, $1, $3, NULL);
 			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
 			Condition condition;
@@ -549,7 +563,7 @@ condition:
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
 			RelAttr right_attr;
-			relation_attr_init(&right_attr, $3, $5);
+			relation_attr_init(&right_attr, $3, $5, NULL);
 
 			Condition condition;
 			condition_init(&condition, CONTEXT->comp, 0, NULL, left_value, 1, &right_attr, NULL);
@@ -568,9 +582,9 @@ condition:
     |ID DOT ID comOp ID DOT ID
 		{
 			RelAttr left_attr;
-			relation_attr_init(&left_attr, $1, $3);
+			relation_attr_init(&left_attr, $1, $3, NULL);
 			RelAttr right_attr;
-			relation_attr_init(&right_attr, $5, $7);
+			relation_attr_init(&right_attr, $5, $7, NULL);
 
 			Condition condition;
 			condition_init(&condition, CONTEXT->comp, 1, &left_attr, NULL, 1, &right_attr, NULL);
