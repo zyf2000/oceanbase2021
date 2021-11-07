@@ -77,6 +77,7 @@ public:
   RC commit_delete(Trx *trx, const RID &rid);
   RC rollback_insert(Trx *trx, const RID &rid);
   RC rollback_delete(Trx *trx, const RID &rid);
+  RC check_dates(const Value *value);
 
 private:
   RC scan_record(Trx *trx, ConditionFilter *filter, int limit, void *context, RC (*record_reader)(Record *record, void *context));
@@ -96,7 +97,6 @@ private:
 private:
   RC init_record_handler(const char *base_dir);
   RC make_record(int value_num, const Value *values, char * &record_out);
-  RC check_dates(const Value *value);
 
 private:
   Index *find_index(const char *index_name) const;

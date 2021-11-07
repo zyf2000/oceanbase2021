@@ -414,13 +414,39 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         attr_array.push_back(&selects.attributes[i]);
       }
     /// SELECT ... from ... WHERE [***]
+    Table *table_temp = new Table;
     for(int i = 0; i < selects.condition_num; i++)
       {
         if(selects.conditions[i].left_is_attr)
           attr_array.push_back(&selects.conditions[i].left_attr);
+        else
+        {
+            if (selects.conditions[i].left_value.type == DATES)
+            {
+                RC rc = table_temp->check_dates(&selects.conditions[i].left_value);
+                if (rc != RC::SUCCESS)
+                {
+                    printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                    return rc;
+                }
+            }
+        }
         if(selects.conditions[i].right_is_attr)
           attr_array.push_back(&selects.conditions[i].right_attr);
+        else
+        {
+            if (selects.conditions[i].right_value.type == DATES)
+            {
+                RC rc = table_temp->check_dates(&selects.conditions[i].right_value);
+                if (rc != RC::SUCCESS)
+                {
+                    printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                    return rc;
+                }
+            }
+        }
       }
+    delete table_temp;
         
     for(size_t i = 0;
         i < selects.relation_num;

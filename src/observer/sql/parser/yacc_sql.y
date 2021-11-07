@@ -84,6 +84,10 @@ ParserContext *get_context(yyscan_t scanner)
         STRING_T
         FLOAT_T
         DATE_T
+        COUNT_G
+        MAX_G
+        MIN_G
+        AVG_G
         HELP
         EXIT
         DOT //QUOTE

@@ -72,33 +72,37 @@ extern int yydebug;
     STRING_T = 278,
     FLOAT_T = 279,
     DATE_T = 280,
-    HELP = 281,
-    EXIT = 282,
-    DOT = 283,
-    INTO = 284,
-    VALUES = 285,
-    FROM = 286,
-    WHERE = 287,
-    AND = 288,
-    SET = 289,
-    ON = 290,
-    LOAD = 291,
-    DATA = 292,
-    INFILE = 293,
-    EQ = 294,
-    LT = 295,
-    GT = 296,
-    LE = 297,
-    GE = 298,
-    NE = 299,
-    NUMBER = 300,
-    FLOAT = 301,
-    ID = 302,
-    PATH = 303,
-    DATESSS = 304,
-    SSS = 305,
-    STAR = 306,
-    STRING_V = 307
+    COUNT_G = 281,
+    MAX_G = 282,
+    MIN_G = 283,
+    AVG_G = 284,
+    HELP = 285,
+    EXIT = 286,
+    DOT = 287,
+    INTO = 288,
+    VALUES = 289,
+    FROM = 290,
+    WHERE = 291,
+    AND = 292,
+    SET = 293,
+    ON = 294,
+    LOAD = 295,
+    DATA = 296,
+    INFILE = 297,
+    EQ = 298,
+    LT = 299,
+    GT = 300,
+    LE = 301,
+    GE = 302,
+    NE = 303,
+    NUMBER = 304,
+    FLOAT = 305,
+    ID = 306,
+    PATH = 307,
+    DATESSS = 308,
+    SSS = 309,
+    STAR = 310,
+    STRING_V = 311
   };
 #endif
 
@@ -106,7 +110,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 107 "./src/observer/sql/parser/yacc_sql.y"
+#line 111 "./src/observer/sql/parser/yacc_sql.y"
 
   struct _Attr *attr;
   struct _Condition *condition1;
@@ -116,7 +120,7 @@ union YYSTYPE
   float floats;
   char *position; 
 
-#line 120 "./src/observer/sql/parser/yacc_sql.tab.h"
+#line 124 "./src/observer/sql/parser/yacc_sql.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
