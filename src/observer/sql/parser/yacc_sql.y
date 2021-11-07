@@ -365,9 +365,11 @@ select:				/*  select 语句的语法解析树*/
 // SELECT count(*)
 // SELECT count(1)
 select_attr:    select_attr_expr attr_list  // Multiple
-                {}
+                {
+                }
         |       select_attr_expr            // Unary
-                {}
+                {
+                }
         ;
 select_attr_expr: STAR
                 {
@@ -396,23 +398,27 @@ select_attr_expr: STAR
         |       ID LBRACE NUMBER RBRACE
                 {}
         ;
-attr_list:
-    /* empty */
-    | COMMA ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, $2);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-     	  // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].relation_name = NULL;
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].attribute_name=$2;
-      }
-    | COMMA ID DOT ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, $2, $4);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].attribute_name=$4;
-        // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].relation_name=$2;
-  	  }
-  	;
+attr_list:      COMMA select_attr_expr
+                {}
+        |       COMMA select_attr_expr attr_list      
+        ;
+/* attr_list: */
+/*     /\* empty *\/ */
+/*     | COMMA ID attr_list { */
+/* 			RelAttr attr; */
+/* 			relation_attr_init(&attr, NULL, $2); */
+/* 			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr); */
+/*      	  // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].relation_name = NULL; */
+/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].attribute_name=$2; */
+/*       } */
+/*     | COMMA ID DOT ID attr_list { */
+/* 			RelAttr attr; */
+/* 			relation_attr_init(&attr, $2, $4); */
+/* 			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr); */
+/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].attribute_name=$4; */
+/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].relation_name=$2; */
+/*   	  } */
+/*   	; */
 
 rel_list:
     /* empty */
