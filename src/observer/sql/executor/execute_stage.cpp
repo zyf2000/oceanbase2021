@@ -406,7 +406,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
    * Pass 1, Resolve each attribute's valid scopes.
    */
   {
-    /// Collect all attributes.
+    /// Collect all attributes to attr_array
     std::list<RelAttr*> attr_array;
     /// SELECT [***] from ......
     for (int i = 0; i < selects.attr_num; i++)
@@ -421,6 +421,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
           attr_array.push_back(&selects.conditions[i].left_attr);
         else
         {
+            // check if DATES is valid (left condition is value)
             if (selects.conditions[i].left_value.type == DATES)
             {
                 RC rc = table_temp->check_dates(&selects.conditions[i].left_value);
@@ -435,6 +436,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
           attr_array.push_back(&selects.conditions[i].right_attr);
         else
         {
+            // check if DATES is valid (right condition is value)
             if (selects.conditions[i].right_value.type == DATES)
             {
                 RC rc = table_temp->check_dates(&selects.conditions[i].right_value);
