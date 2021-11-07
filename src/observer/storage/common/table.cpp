@@ -361,6 +361,15 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
                       field->name(), field->type(), value.type);
             return RC::SCHEMA_FIELD_TYPE_MISMATCH;
         }
+        if (value.type == DATES)
+        {
+            RC ret = check_dates(&value);
+            if (ret != RC::SUCCESS)
+            {
+                printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                return RC::INVALID_ARGUMENT;
+            }
+        }
     }
 
     // 复制所有字段的值
@@ -569,17 +578,26 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
     if (index_name == nullptr || common::is_blank(index_name) ||
         attribute_name == nullptr || common::is_blank(attribute_name))
     {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create index ["
+         COLOR_GREEN "%s" COLOR_YELLOW "] on database [" COLOR_GREEN
+         "%s" COLOR_YELLOW "]. " COLOR_RED ": INVALID ARGUMENT\n", index_name, this->name());
         return RC::INVALID_ARGUMENT;
     }
     if (table_meta_.index(index_name) != nullptr ||
         table_meta_.find_index_by_field((attribute_name)))
     {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create index ["
+         COLOR_GREEN "%s" COLOR_YELLOW "] on database [" COLOR_GREEN
+         "%s" COLOR_YELLOW "]. " COLOR_RED ": SCHEMA INDEX EXIST\n", index_name, this->name());
         return RC::SCHEMA_INDEX_EXIST;
     }
 
     const FieldMeta *field_meta = table_meta_.field(attribute_name);
     if (!field_meta)
     {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create index ["
+         COLOR_GREEN "%s" COLOR_YELLOW "] on database [" COLOR_GREEN
+         "%s" COLOR_YELLOW "]. " COLOR_RED ": SCHEMA FIELD MISSING\n", index_name, this->name());
         return RC::SCHEMA_FIELD_MISSING;
     }
 
@@ -587,6 +605,9 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
     RC rc = new_index_meta.init(index_name, *field_meta);
     if (rc != RC::SUCCESS)
     {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create index ["
+         COLOR_GREEN "%s" COLOR_YELLOW "] on database [" COLOR_GREEN
+         "%s" COLOR_YELLOW "]. " COLOR_RED ": INIT NEW_INDEX_META FAIL\n", index_name, this->name());
         return rc;
     }
 
@@ -655,13 +676,14 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
 RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num, const Condition conditions[], int *updated_count)
 {
     /// DEBUG INFO
-    printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Update attribute "
+    printf(COLOR_WHITE "\n[INFO] " COLOR_YELLOW "Update attribute "
            COLOR_GREEN "%s" COLOR_YELLOW
            " on table " COLOR_GREEN "%s" COLOR_YELLOW ".\n",
            attribute_name, this->name());
 
     RC rc = RC::SUCCESS;
-    /// Pass 1. check if set attribute is right on the table
+    /// Pass 1. check if the set attribute is valid
+    int update_attr_id = -1;
     const int normal_field_start_index = table_meta_.sys_field_num();
     const int attr_num = table_meta_.field_num() - normal_field_start_index;
     rc = RC::INVALID_ARGUMENT;
@@ -670,6 +692,7 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
         const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
         if (strcmp(field->name(), attribute_name) == 0)
         {
+            update_attr_id = i;
             rc = RC::SUCCESS;
             break;
         }
@@ -679,23 +702,153 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
         printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
            COLOR_GREEN "%s" COLOR_YELLOW
            " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
-           "No such attribute in this table" COLOR_YELLOW ".\n",
+           "No such attribute in this table\n",
            attribute_name, this->name());
         return rc;
     }
 
-    /// Pass 2. check if all the attributes mentioned in conditions if valid
-    // std::list<const RelAttr *> attr_array;
-    // for(int i = 0; i < condition_num; i++)
-    //   {
-    //     if(conditions[i].left_is_attr)
-    //       attr_array.push_back(&conditions[i].left_attr);
-    //     if(conditions[i].right_is_attr)
-    //       attr_array.push_back(&conditions[i].right_attr);
-    //   }
-    
+    /// Pass 2. Collect conditional filters
+    std::list<const Condition*> cond_list;
+    for (int i = 0; i < condition_num; ++i)
+    {
+        cond_list.push_back(&conditions[i]);
+    }    
+    std::vector<DefaultConditionFilter*> condition_filters;
+    for(auto it : cond_list)
+    {
+        if (it->left_is_attr == 1 && it->left_attr.relation_name != nullptr)
+        {
+            return RC::INVALID_ARGUMENT;
+        }
 
-    return RC::GENERIC_ERROR;
+        if (it->right_is_attr == 1 && it->right_attr.relation_name != nullptr)
+        {
+            return RC::INVALID_ARGUMENT;
+        }
+
+    //   if(
+    //      ( it->left_is_attr == 0 && it->right_is_attr == 0 ) ||
+         
+    //      ( it->left_is_attr == 1 && it->right_is_attr == 0
+    //        && it->left_attr.related_table == this->name()) ||
+
+    //      ( it->left_is_attr == 0 && it->right_is_attr == 1
+    //        && it->right_attr.related_table == this->name()) ||
+
+    //      ( it->left_is_attr == 1 && it->right_is_attr == 1
+    //        && it->left_attr.related_table == this->name()
+    //        && it->right_attr.related_table == this->name())
+    //      )
+    //     /// Local to current table
+        {
+          DefaultConditionFilter *condition_filter_ = new DefaultConditionFilter();
+          RC rc = condition_filter_->init(*this, *it);
+          if (rc != RC::SUCCESS)
+            {
+              delete condition_filter_;
+              for (DefaultConditionFilter *&filter : condition_filters)
+                {
+                  delete filter;
+                }
+              return rc;
+            }
+          condition_filters.push_back(condition_filter_);
+        }
+    }
+
+    /// Pass 3. Find records and update
+    RecordFileScanner scanner;
+    CompositeConditionFilter condition_filter;
+    condition_filter.init((const ConditionFilter **)condition_filters.data(), condition_filters.size());
+    rc = scanner.open_scan(*data_buffer_pool_, file_id_, &condition_filter);
+    if (rc != RC::SUCCESS)
+    {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
+           COLOR_GREEN "%s" COLOR_YELLOW
+           " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
+           "failed to open scanner. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
+           COLOR_YELLOW, "rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
+           attribute_name, this->name(), file_id_, rc, strrc(rc));
+        return rc;
+    }
+
+    int record_count = 0;
+    Record record;
+    rc = scanner.get_first_record(&record);
+    for (; RC::SUCCESS == rc && record_count < INT_MAX; rc = scanner.get_next_record(&record))
+    {
+        Record update_record_ = record;
+        RC ret = RC::SUCCESS;
+        const FieldMeta *field = table_meta_.field(update_attr_id + normal_field_start_index);
+        if (field->type() != value->type)
+        {
+            printf(COLOR_RED "[ERROR]"
+            COLOR_YELLOW "Invalid value type. field name=" COLOR_GREEN "%s"
+            COLOR_GREEN ", type=" COLOR_YELLOW "%d" COLOR_YELLOW ", but given="
+            COLOR_GREEN "%d", field->name(), field->type(), value->type);
+            return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        }
+        if (value->type == DATES)
+        {
+            ret = check_dates(value);
+            if (ret != RC::SUCCESS)
+            {
+                printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                return RC::INVALID_ARGUMENT;
+            }
+        }
+        memcpy(record.data + field->offset(), value->data, field->len());
+
+        ret = record_handler_->update_record(&update_record_);
+        if (ret != RC::SUCCESS)
+        {
+            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
+           COLOR_GREEN "%s" COLOR_YELLOW
+           " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
+           "failed to get record. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
+           COLOR_YELLOW, "ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
+           attribute_name, this->name(), file_id_, ret, strrc(ret));
+           return ret;
+        }
+        ++record_count;
+    }
+
+    *updated_count = record_count;
+    printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Update: "
+    COLOR_GREEN "%d " COLOR_YELLOW "rows influenced.\n", record_count);
+    scanner.close_scan();
+    return RC::SUCCESS;
+    // return RC::SQL_SYNTAX;
+}
+
+RC Table::check_dates(const Value *value)
+{
+    int dates_check;
+    memcpy(&dates_check, value->data, sizeof(int));
+    int yy = dates_check / 10000;
+    int mm = dates_check % 10000 / 100;
+    int dd = dates_check % 100;
+    if (dd < 1) return RC::INVALID_ARGUMENT;
+    if (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12)
+    {
+        if (dd > 31) return RC::INVALID_ARGUMENT;
+    }
+    else if (mm == 4 || mm == 6 || mm == 9 || mm == 11)
+    {
+        if (dd > 30) return RC::INVALID_ARGUMENT;
+    }
+    else // mm == 2
+    {
+        if (yy % 400 == 0 || (yy % 4 == 0 && yy % 100 != 0))
+        {
+            if (dd > 29) return RC::INVALID_ARGUMENT;
+        }
+        else
+        {
+            if (dd > 28) return RC::INVALID_ARGUMENT;
+        }
+    }
+    return RC::SUCCESS;
 }
 
 class RecordDeleter

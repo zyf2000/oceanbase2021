@@ -96,6 +96,7 @@ private:
 private:
   RC init_record_handler(const char *base_dir);
   RC make_record(int value_num, const Value *values, char * &record_out);
+  RC check_dates(const Value *value);
 
 private:
   Index *find_index(const char *index_name) const;

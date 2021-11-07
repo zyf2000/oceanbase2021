@@ -186,6 +186,7 @@ RC DefaultHandler::update_record(Trx *trx,                   /// Transaction
   if (nullptr == table) {
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
+  
   return table->update_record(trx, attribute_name, value, condition_num, conditions, updated_count);
 }
 
