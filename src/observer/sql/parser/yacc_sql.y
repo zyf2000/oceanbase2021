@@ -400,7 +400,8 @@ select_attr_expr: STAR
         ;
 attr_list:      COMMA select_attr_expr
                 {}
-        |       COMMA select_attr_expr attr_list      
+        |       COMMA select_attr_expr attr_list
+                {}
         ;
 /* attr_list: */
 /*     /\* empty *\/ */

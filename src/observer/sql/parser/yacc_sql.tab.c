@@ -546,9 +546,9 @@ static const yytype_uint16 yyrline[] =
      213,   221,   228,   237,   239,   243,   254,   267,   270,   271,
      272,   273,   276,   285,   301,   303,   308,   311,   314,   318,
      325,   335,   345,   367,   370,   374,   380,   386,   392,   394,
-     396,   398,   401,   403,   423,   425,   429,   431,   435,   437,
-     442,   463,   483,   503,   525,   546,   567,   589,   590,   591,
-     592,   593,   594,   598
+     396,   398,   401,   403,   424,   426,   430,   432,   436,   438,
+     443,   464,   484,   504,   526,   547,   568,   590,   591,   592,
+     593,   594,   595,   599
 };
 #endif
 
@@ -1798,32 +1798,38 @@ yyreduce:
 #line 1799 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
+  case 63:
+#line 404 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+    {}
+#line 1805 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+    break;
+
   case 65:
-#line 425 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 426 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {	
 				selects_append_relation(&CONTEXT->ssql->sstr.selection, (yyvsp[-1].string));
 		  }
-#line 1807 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1813 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 431 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 432 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {	
 				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
 			}
-#line 1815 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1821 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 437 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 438 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
 			}
-#line 1823 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1829 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 443 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 444 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, (yyvsp[-2].string));
@@ -1844,11 +1850,11 @@ yyreduce:
 			// $$->right_value = *$3;
 
 		}
-#line 1848 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1854 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 464 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 465 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 2];
 			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
@@ -1868,11 +1874,11 @@ yyreduce:
 			// $$->right_value = *$3;
 
 		}
-#line 1872 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1878 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 484 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 485 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, (yyvsp[-2].string));
@@ -1892,11 +1898,11 @@ yyreduce:
 			// $$->right_attr.attribute_name=$3;
 
 		}
-#line 1896 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1902 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 504 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 505 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 			RelAttr right_attr;
@@ -1918,11 +1924,11 @@ yyreduce:
 			// $$->right_attr.attribute_name=$3;
 		
 		}
-#line 1922 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1928 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 526 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 527 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, (yyvsp[-4].string), (yyvsp[-2].string));
@@ -1943,11 +1949,11 @@ yyreduce:
 			// $$->right_value =*$5;			
 							
     }
-#line 1947 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1953 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 547 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 548 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
@@ -1968,11 +1974,11 @@ yyreduce:
 			// $$->right_attr.attribute_name = $5;
 									
     }
-#line 1972 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1978 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 568 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 569 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, (yyvsp[-6].string), (yyvsp[-4].string));
@@ -1991,56 +1997,56 @@ yyreduce:
 			// $$->right_attr.relation_name=$5;
 			// $$->right_attr.attribute_name=$7;
     }
-#line 1995 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 77:
-#line 589 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = EQUAL_TO; }
 #line 2001 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
-  case 78:
+  case 77:
 #line 590 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = LESS_THAN; }
+    { CONTEXT->comp = EQUAL_TO; }
 #line 2007 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
-  case 79:
+  case 78:
 #line 591 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = GREAT_THAN; }
+    { CONTEXT->comp = LESS_THAN; }
 #line 2013 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
-  case 80:
+  case 79:
 #line 592 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = LESS_EQUAL; }
+    { CONTEXT->comp = GREAT_THAN; }
 #line 2019 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
-  case 81:
+  case 80:
 #line 593 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = GREAT_EQUAL; }
+    { CONTEXT->comp = LESS_EQUAL; }
 #line 2025 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
-  case 82:
+  case 81:
 #line 594 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    { CONTEXT->comp = NOT_EQUAL; }
+    { CONTEXT->comp = GREAT_EQUAL; }
 #line 2031 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
+  case 82:
+#line 595 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+    { CONTEXT->comp = NOT_EQUAL; }
+#line 2037 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+    break;
+
   case 83:
-#line 599 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 600 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 		  CONTEXT->ssql->flag = SCF_LOAD_DATA;
 			load_data_init(&CONTEXT->ssql->sstr.load_data, (yyvsp[-1].string), (yyvsp[-4].string));
 		}
-#line 2040 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2046 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2044 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2050 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2268,7 +2274,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 604 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1906  */
+#line 605 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1906  */
 
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);

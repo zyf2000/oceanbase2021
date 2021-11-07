@@ -381,7 +381,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   Session* session     = session_event->get_client()->session; /// Session struct
   Trx*     transaction = session->current_trx(); /// Transaction
   Selects& selects     = sql->sstr.selection;  /// Select Structure
-  std::reverse(selects.attributes, selects.attributes + selects.attr_num);
+  // std::reverse(selects.attributes, selects.attributes + selects.attr_num);
   /// Test log
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Select from tables: " COLOR_GREEN);
   for (int i = 0; i < selects.relation_num; i++)
