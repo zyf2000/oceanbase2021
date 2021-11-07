@@ -84,10 +84,6 @@ ParserContext *get_context(yyscan_t scanner)
         STRING_T
         FLOAT_T
         DATE_T
-        COUNT_G
-        MAX_G
-        MIN_G
-        AVG_G
         HELP
         EXIT
         DOT //QUOTE
@@ -363,24 +359,43 @@ select:				/*  select 语句的语法解析树*/
 			CONTEXT->value_length = 0;
 	}
 	;
-
-select_attr:
-    STAR {  
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, "*");
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
-    | ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, NULL, $1);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
-  	| ID DOT ID attr_list {
-			RelAttr attr;
-			relation_attr_init(&attr, $1, $3);
-			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
-		}
-    ;
+// SELECT *
+// SELECT id
+// SELECT max(count)
+// SELECT count(*)
+// SELECT count(1)
+select_attr:    select_attr_expr attr_list  // Multiple
+                {}
+        |       select_attr_expr            // Unary
+                {}
+        ;
+select_attr_expr: STAR
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, NULL, "*");
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
+        |       ID
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, NULL, $1);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
+        |       ID DOT ID
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, $1, $3);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
+        |       ID LBRACE STAR RBRACE
+                {}
+        |       ID LBRACE ID RBRACE
+                {}
+        |       ID LBRACE ID DOT ID RBRACE
+                {}
+        |       ID LBRACE NUMBER RBRACE
+                {}
+        ;
 attr_list:
     /* empty */
     | COMMA ID attr_list {
