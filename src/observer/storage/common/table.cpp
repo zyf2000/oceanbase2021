@@ -389,7 +389,7 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
             RC ret = check_dates(&value);
             if (ret != RC::SUCCESS)
             {
-                printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                printf(COLOR_RED "[ERROR] Invalid dates!\n");
                 return RC::INVALID_ARGUMENT;
             }
         }
