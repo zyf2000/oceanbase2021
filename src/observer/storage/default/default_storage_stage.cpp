@@ -173,7 +173,7 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
           if (rc != RC::SUCCESS)
             break;
       }
-      if (rc != RC::SUCCESS)
+      if (rc != RC::SUCCESS && i != 0)
       {
           // make delete infos and delete records
           Deletes deletes;
@@ -209,7 +209,8 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
 
               ret = handler_->delete_record(current_trx, current_db, table_name, deletes.condition_num, deletes.conditions, &delete_count);
               assert(ret == RC::SUCCESS);
-              assert(delete_count == 1);
+            //   printf("%d\n", delete_count);
+            //   assert(delete_count == 1);
           }
       }
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
