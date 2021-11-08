@@ -38,6 +38,12 @@
 
 using namespace common;
 
+void attr_to_number(const TupleSchema& tsc,
+                    const char* relation_name,
+                    const char* attribute_name,
+                    const std::vector<Table*>& tables,
+                    std::vector<int>& numbers);
+
 
 char* concat_rel_attr(const char* relation,
                             const char* attr);
@@ -65,9 +71,9 @@ void dfs_cartesian(const std::vector<TupleSet>& ts,
                    Tuple& current_tuple,
                    std::vector<Tuple>& output);
 
-void check_tuple(TupleSchema& tsc,
-                 std::vector<Tuple>& tup,
-                 Condition* rule);
+RC check_tuple(TupleSchema& tsc,
+               std::vector<Tuple>& tup,
+               Condition* rule);
 
 //! Constructor
 ExecuteStage::ExecuteStage(const char *tag) : Stage(tag) { }
@@ -291,6 +297,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   Trx*     transaction = session->current_trx(); /// Transaction
   Selects& selects     = sql->sstr.selection;  /// Select Structure
   // std::reverse(selects.attributes, selects.attributes + selects.attr_num);
+  std::reverse(selects.relations, selects.relations + selects.relation_num);
   /// Test log
   printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Select from tables: " COLOR_GREEN);
   for (int i = 0; i < selects.relation_num; i++)
@@ -314,6 +321,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   /**
    * Pass 1, Resolve each attribute's valid scopes.
    */
+  std::vector<Table*> tables;
   {
     /// Collect all attributes to attr_array
     std::list<RelAttr*> attr_array;
@@ -373,6 +381,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             end_trx_if_need(session, transaction, false);
             return RC::SCHEMA_TABLE_NOT_EXIST;
           }
+        tables.emplace_back(table);
         // modify selects.conditions.related_table
         auto pr = Resolve_Attr_Scope(attr_array, table);
         if(pr.first != RC::SUCCESS)
@@ -388,7 +397,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
       {
       LOG_ERROR("The attachment of %s is %p\n", it->attribute_name, it->related_table);
       fflush(stdout);
-        if(it->related_table == nullptr)
+      if(it->related_table == nullptr && strcmp(it->attribute_name, "*") != 0)
           {
           printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
                  COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
@@ -516,14 +525,34 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             {
               check_tuple(tsc, tup_vec, it.first);
             }
-        TupleSet tus;
-        for(auto& it : tup_vec)
-          {
-            tus.add(std::move(it));
-          }
-
         /// TODO: prettify.
-        tus.set_schema(tsc);
+        TupleSchema real_tsc;
+        std::vector<Tuple> real_tup_vec;
+        std::vector<int> order;
+        for(int i = 0; i < selects.attr_num; i++)
+          attr_to_number(tsc,
+                         selects.attributes[i].relation_name,
+                         selects.attributes[i].attribute_name,
+                         tables, order);
+
+        TupleSet tus;
+        for(auto it : order)
+          {
+            real_tsc.add(tsc.field(it).type(),
+                         tsc.field(it).table_name(),
+                         tsc.field(it).field_name());
+          }
+        tus.set_schema(real_tsc);
+
+        for(auto it : tup_vec)
+          {
+            Tuple tp;
+            for(auto itt : order)
+              {
+                tp.add(it.get_pointer(itt));
+              }
+            tus.add(std::move(tp));
+          }
         tus.print(ss);
       }
     else
@@ -589,9 +618,9 @@ std::pair<RC, std::string> Resolve_Attr_Scope(
       else /// Headless attach
         {
           if(strcmp(attr.attribute_name, "*") == 0)
-            /// Star
+            /// Star, this selection shouldn't be attached to any table.
             {
-              attr.related_table = table;
+              // attr.related_table = table;
             }
           /// This method is of LOW PERFORMANCE
           else if (table->table_meta().field(attr.attribute_name) != nullptr)
@@ -659,7 +688,9 @@ Create_Select_Table_Executor(Trx* transaction,
   // Perform selection
   for(auto it : attr_list)
     {
-      if(it->related_table == table)
+      if(it->related_table == table ||
+         (strcmp("*", it->attribute_name) == 0 &&
+          it->related_table == nullptr))
         {
           if(strcmp("*", it->attribute_name) == 0)
             {
@@ -824,7 +855,7 @@ TupleValue* build_value(Value* immediate)
   
 }
 
-void check_tuple(TupleSchema& tsc,
+RC check_tuple(TupleSchema& tsc,
                  std::vector<Tuple>& tup,
                  Condition* rule)
 {
@@ -835,39 +866,49 @@ void check_tuple(TupleSchema& tsc,
   if(!rule->right_is_attr)
     rhs = -2;
 
-  if(lhs == -2 && rhs == -2) // SPJ: Const
-    {assert(0);}
-  else
-    for(int i = 0; i < tsc.fields().size(); i++)
-      {
-        auto& it = tsc.fields()[i];
-        if(lhs == -1 &&
-           strcmp(it.field_name(),rule->left_attr.attribute_name) == 0 &&
-           strcmp(it.table_name(),rule->left_attr.relation_name) == 0)
-          {
-            lhs = i;
-          }
-        if(rhs == -1 &&
-           strcmp(it.field_name(),rule->right_attr.attribute_name) == 0 &&
-           strcmp(it.table_name(),rule->right_attr.relation_name) == 0)
-          {
-            rhs = i;
-          }
-      }
-  if(lhs == -1 || rhs == -1)
-    assert(0); // Field Missing
-
-  // 2. Type Check
-  if(lhs >= 0 && rhs >= 0 &&
-     tsc.fields()[lhs].type() != tsc.fields()[rhs].type())
+  // if(lhs == -2 && rhs == -2) // SPJ: Const
+  //   {assert(0);}
+  // else
+  
+  for(int i = 0; i < tsc.fields().size(); i++)
     {
-      assert(0); // Type Conflict
+      auto& it = tsc.fields()[i];
+      if(lhs == -1 &&
+         strcmp(it.field_name(),rule->left_attr.attribute_name) == 0 &&
+         strcmp(it.table_name(),rule->left_attr.relation_name) == 0)
+        {
+          lhs = i;
+        }
+      if(rhs == -1 &&
+         strcmp(it.field_name(),rule->right_attr.attribute_name) == 0 &&
+         strcmp(it.table_name(),rule->right_attr.relation_name) == 0)
+        {
+          rhs = i;
+        }
     }
+  if(lhs == -1 || rhs == -1)
+    {
+      LOG_ERROR(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "A field specified in WHERE clause not exists in any table.");
+      return RC::SCHEMA_FIELD_NOT_EXIST;
+    }
+
+
 
   TupleValue* ltv = NULL;
   TupleValue* rtv = NULL;
   if(lhs == -2) ltv = build_value(&rule->left_value);
   if(rhs == -2) rtv = build_value(&rule->right_value);
+  
+  // 2. Type Check
+  AttrType ltype = (lhs == -2)?rule->left_value.type :tsc.fields()[lhs].type();
+  AttrType rtype = (lhs == -2)?rule->right_value.type:tsc.fields()[rhs].type();
+  if(ltype != rtype)
+    {
+      LOG_ERROR(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "The type of a WHERE clause mismatches.");
+      return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
 
   // 3. Compare and match result
 #define GET(lr,cnt) cnt >= 0? &p->get(cnt) : (lr ## tv)
@@ -881,28 +922,66 @@ void check_tuple(TupleSchema& tsc,
       else
         { p = tup.erase(p); }
     }
+  return RC::SUCCESS;
 }
+#undef GET
 
-
-bool binary_eval(CompOp oper, Value* lval, Value* rval)
+void attr_to_number(const TupleSchema& tsc,
+                    const char* relation_name,
+                    const char* attribute_name,
+                    const std::vector<Table*>& tables,
+                    std::vector<int>& numbers)
 {
-  assert(lval->type == rval->type);
-  switch(oper)
+  printf("Trying to attach to number for %s.%s\n",
+         relation_name, attribute_name);
+  if(strcmp(attribute_name, "*") == 0)
     {
-    case EQUAL_TO:
-      {
-        
-      }
-    case LESS_EQUAL:
-    case NOT_EQUAL:
-    case LESS_THAN:
-    case GREAT_EQUAL:
-    case GREAT_THAN:
-    default:
-      {
-        assert(0);
-      }
+      if(relation_name == nullptr)
+        for(int i = 0; i < tables.size(); i++)
+          {
+            for(int j = 1; j < tables[i]->table_meta().field_num(); j++)
+              {
+                attr_to_number(tsc,
+                               tables[i]->name(),
+                               tables[i]->table_meta().field(j)->name(),
+                               tables,
+                               numbers);
+              }
+          }
+      else
+        {
+          bool found = false;
+          for(int i = 1; i < tables.size(); i++)
+            if(strcmp(tables[i]->name(), relation_name) == 0)
+              {
+                for(int j = 0; j < tables[i]->table_meta().field_num(); j++)
+                  {
+                    attr_to_number(tsc,
+                                   tables[i]->name(),
+                                   tables[i]->table_meta().field(j)->name(),
+                                   tables,
+                                   numbers);
+                  }
+                found = true;
+                break;
+              }
+          
+          assert(found);
+        }
+    }
+  else
+    {
+      for(int i = 0; i < tsc.fields().size(); i++)
+        {
+          const auto& it = tsc.fields().at(i);
+          if(strcmp(it.table_name(), relation_name) == 0 &&
+             strcmp(it.field_name(), attribute_name) == 0)
+            {
+              numbers.emplace_back(i);
+              return;
+            }
+        }
+      
+      assert(0); // Should not reach here.
     }
 }
-
-  
