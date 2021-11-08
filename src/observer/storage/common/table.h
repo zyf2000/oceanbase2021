@@ -42,7 +42,7 @@ public:
    * @param attributes 字段
    */
   RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
-
+  
     /**
      * Drop current table
      * @return RC: Return code
@@ -65,6 +65,7 @@ public:
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
 
+  RC set_meta(const TableMeta& meta);
 public:
   const char *name() const;
 

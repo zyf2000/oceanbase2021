@@ -640,10 +640,38 @@ RC ExecuteStage::manual_do_multi_select(const char *db, Query *sql, SessionEvent
   }
 
   /**
+   * Pass 2, Joining all tables
+   */
+  Table* temp_table = new Table;
+  TableMeta meta;
+  std::vector<AttrInfo> metas;
+  int glb_offset = 0;
+  for(int i = 0; i < selects.relation_num; i++)
+    {
+        Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
+        for(int j = 0; j < table->table_meta().field_num(); j++)
+          {
+            auto refmeta = table->table_meta().field(j);
+            auto sname = std::string(table->name()) + "." + refmeta->name();
+            char* name = new char[sname.size() + 2];
+            strcpy(name, sname.c_str());
+
+            AttrInfo attr;
+            attr.name = name;
+            attr.length = refmeta->len();
+            attr.type = refmeta->type();
+            metas.emplace_back(attr);
+          }
+    }
+  AttrInfo* attrs = new AttrInfo[metas.size()];
+  std::copy(metas.begin(), metas.end(), attrs);
+  meta.init("tmp_table", metas.size(), attrs);
+  temp_table->set_meta(meta);
+  /**
    * Pass 2, Mapping local WHERE statements to each table 
    **/
   std::vector<SelectExeNode*> select_nodes;
-  std::list<std::pair<Condition*, bool>> cond_list;
+  std::list<Condition*> cond_list;
   /// The second element yields if this condition is used.
   {
     /// Collect all attributions and conditions
@@ -655,37 +683,11 @@ RC ExecuteStage::manual_do_multi_select(const char *db, Query *sql, SessionEvent
 
     for(int i = 0; i < selects.condition_num; i++)
       {
-        cond_list.push_back({&selects.conditions[i], false});
-      }
-    for(size_t i = 0;
-        i < selects.relation_num;
-        i++)
-      {
-        SelectExeNode *select_node = new SelectExeNode;
-        Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
-        assert(table != nullptr);
-        auto pr = Create_Select_Table_Executor(transaction, table, attr_list, cond_list, *select_node);
-        if(pr.first != RC::SUCCESS)
-          {
-            delete select_node;
-            for (SelectExeNode *&tmp_node: select_nodes)
-              {
-                delete tmp_node;
-              }
-            LOG_ERROR(pr.second.c_str());
-            end_trx_if_need(session, transaction, false);
-            return pr.first;
-          }
-        select_nodes.push_back(select_node);
+        cond_list.push_back(&selects.conditions[i]);
       }
 
-    /// If there is no table given
-    if (select_nodes.empty())
-      {
-        LOG_ERROR(COLOR_RED "[ERROR]" COLOR_YELLOW "No table given.");
-        end_trx_if_need(session, transaction, false);
-        return RC::SQL_SYNTAX;
-      }
+    
+    
   }
 
   /**
@@ -942,4 +944,20 @@ void dfs_cartesian(const std::vector<TupleSet>& ts,
       for(int i = 0; i < it.size(); i++)
         current_tuple.pop_back();
     }
+}
+
+const char* concat_rel_attr(const char* relation,
+                            const char* attr)
+{
+  int l1 = strlen(relation),
+    l2 = strlen(attr);
+  char* ans = new char[l1+l2+3];
+  memset(ans, 0, l1+l2+3);
+  int cur = 0;
+  for(int i = 0; i < l1; i++)
+    ans[cur++] = relation[i];
+  ans[cur++] = '.';
+  for(int i = 0; i < l2; i++)
+    ans[cur++] = attr[i];
+  return ans;
 }
