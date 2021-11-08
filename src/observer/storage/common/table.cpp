@@ -382,7 +382,6 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
         const Value &value = values[i];
         memcpy(record + field->offset(), value.data, field->len());
     }
-
     record_out = record;
     return RC::SUCCESS;
 }

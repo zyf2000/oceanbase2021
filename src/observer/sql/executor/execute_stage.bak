@@ -38,7 +38,7 @@
 
 using namespace common;
 
-
+char* tmp_table_name = "tmp_table";
 char* concat_rel_attr(const char* relation,
                             const char* attr);
 
@@ -60,14 +60,10 @@ Create_Select_Table_Executor(Trx* transaction,                // Transaction
                              std::list<std::pair<Condition*, bool>>& cond_list, // Condition list
                              SelectExeNode& select_node);     // [Select Node]
 
-void dfs_cartesian(const std::vector<TupleSet>& ts,
-                   int ts_depth,
-                   Tuple& current_tuple,
-                   std::vector<Tuple>& output);
-
-void check_tuple(TupleSchema& tsc,
-                 std::vector<Tuple>& tup,
-                 Condition* rule);
+void dfs_cartesian(const std::vector<std::vector<std::vector<Value>> >& table_values,
+                   int current_depth,
+                   std::vector<Value>& current,
+                   std::vector<std::vector<Value>>& output);
 
 //! Constructor
 ExecuteStage::ExecuteStage(const char *tag) : Stage(tag) { }
@@ -168,7 +164,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case SCF_SELECT:
       { // select
         //do_select(current_db, sql, exe_event->sql_event()->session_event());
-        RC rc = manual_do_select(current_db, sql, exe_event->sql_event()->session_event());
+        RC rc = manual_do_multi_select(current_db, sql, exe_event->sql_event()->session_event());
         if (rc)
         {
             session_event->set_response("FAILURE\n");
@@ -410,7 +406,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   {
     /// Collect all attributions and conditions
     std::list<RelAttr*> attr_list;
-    
     for (int i = 0; i < selects.attr_num; i++)
       {
         attr_list.push_back(&selects.attributes[i]);
@@ -419,16 +414,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     for(int i = 0; i < selects.condition_num; i++)
       {
         cond_list.push_back({&selects.conditions[i], false});
-
-        // Patch: Cross-table query
-        if(selects.conditions[i].left_is_attr)
-            attr_list.push_back(&selects.conditions[i].left_attr);
-
-        if(selects.conditions[i].right_is_attr)
-            attr_list.push_back(&selects.conditions[i].right_attr);
       }
-    
-    
     for(size_t i = 0;
         i < selects.relation_num;
         i++)
@@ -489,6 +475,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     std::stringstream ss;
     if (tuple_sets.size() > 1)
       {
+        assert(0);
         /// Hint: this query is O(n^k) for [k] tables.
         
         /// Note: This algorithm is of LOW PERFORMANCE, 
@@ -497,31 +484,30 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
 
           /// Note: This algorithm is only valid in condition between 2 tables.
         /// Pass 3.1. Cartesian Product
-        std::vector<Tuple> tup_vec;
+        Tuple tup;
+        TupleSet opt;
         TupleSchema tsc;
         for(const auto& it : tuple_sets)
           {
             tsc.append(it.get_schema());
           }
-        Tuple current_tuple;
+        opt.set_schema(tsc);
 
-        dfs_cartesian(tuple_sets, 0, current_tuple, tup_vec);
         /// Pass 3.2. Selection under WHERE condition
+        CompositeConditionFilter ccf;
+        std::vector<Condition*> cross_cond_list;
         for(const auto& it : cond_list)
           if(it.second == false)
             // Cross-table condition
             {
-              check_tuple(tsc, tup_vec, it.first);
+              cross_cond_list.emplace_back(it.first);
             }
-        TupleSet tus;
-        for(auto& it : tup_vec)
-          {
-            tus.add(std::move(it));
-          }
 
-        /// TODO: prettify.
-        tus.set_schema(tsc);
-        tus.print(ss);
+        Table vtable;
+          
+          
+
+          opt.print(ss);
       }
     else
       {
@@ -541,6 +527,372 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   assert(0);
 }
 
+RC ExecuteStage::manual_do_multi_select(const char *db, Query *sql, SessionEvent *session_event)
+{
+  Session* session     = session_event->get_client()->session; /// Session struct
+  Trx*     transaction = session->current_trx(); /// Transaction
+  Selects& selects     = sql->sstr.selection;  /// Select Structure
+  // std::reverse(selects.attributes, selects.attributes + selects.attr_num);
+  /// Test log
+  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Select from tables: " COLOR_GREEN);
+  for (int i = 0; i < selects.relation_num; i++)
+    {
+      printf("%s, ", selects.relations[i]);
+    }
+  printf("\n");
+  printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "The selected attributes are: " COLOR_GREEN);
+  
+  for (int i = 0; i < selects.attr_num; i++)
+    {
+      LOG_ERROR(COLOR_GREEN "%s" COLOR_WHITE "." COLOR_CYAN "%s" COLOR_WHITE ", ",
+             selects.attributes[i].relation_name == NULL ?
+             "(NULL)" : selects.attributes[i].relation_name,
+             selects.attributes[i].attribute_name);
+    }
+  LOG_ERROR("\n");
+  fflush(stdout);
+  /// Test log END
+    
+  /**
+   * Pass 1, Resolve each attribute's valid scopes.
+   */
+  {
+    /// Collect all attributes to attr_array
+    std::list<RelAttr*> attr_array;
+    /// SELECT [***] from ......
+    for (int i = 0; i < selects.attr_num; i++)
+      {
+        attr_array.push_back(&selects.attributes[i]);
+      }
+    /// SELECT ... from ... WHERE [***]
+    Table *table_temp = new Table;
+    for(int i = 0; i < selects.condition_num; i++)
+      {
+        if(selects.conditions[i].left_is_attr)
+          attr_array.push_back(&selects.conditions[i].left_attr);
+        else
+        {
+            // check if DATES is valid (left condition is value)
+            if (selects.conditions[i].left_value.type == DATES)
+            {
+                RC rc = table_temp->check_dates(&selects.conditions[i].left_value);
+                if (rc != RC::SUCCESS)
+                {
+                    printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                    return rc;
+                }
+            }
+        }
+        if(selects.conditions[i].right_is_attr)
+          attr_array.push_back(&selects.conditions[i].right_attr);
+        else
+        {
+            // check if DATES is valid (right condition is value)
+            if (selects.conditions[i].right_value.type == DATES)
+            {
+                RC rc = table_temp->check_dates(&selects.conditions[i].right_value);
+                if (rc != RC::SUCCESS)
+                {
+                    printf(COLOR_RED "[ERROR] Invalid dates.\n");
+                    return rc;
+                }
+            }
+        }
+      }
+    delete table_temp;
+        
+    for(size_t i = 0;
+        i < selects.relation_num;
+        i++)
+      {
+        Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
+        if(table == nullptr)
+          {
+            LOG_ERROR(COLOR_RED "[ERROR] " COLOR_YELLOW "No such table ["
+                 COLOR_GREEN "%s" COLOR_YELLOW "] in db ["
+                 COLOR_GREEN "%s" COLOR_YELLOW "]\n", selects.relations[i], db);
+            end_trx_if_need(session, transaction, false);
+            return RC::SCHEMA_TABLE_NOT_EXIST;
+          }
+        auto pr = Resolve_Attr_Scope(attr_array, table);
+        if(pr.first != RC::SUCCESS)
+          {
+            LOG_ERROR("%s", pr.second.c_str());
+            end_trx_if_need(session, transaction, false);
+            return pr.first;
+          }
+      }
+        
+    /// Check if there is an attribute that can't be attached
+    for(auto it : attr_array)
+      {
+      LOG_ERROR("The attachment of %s is %p\n", it->attribute_name, it->related_table);
+      fflush(stdout);
+        if(it->related_table == nullptr)
+          {
+          printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Attribute ["
+                 COLOR_GREEN "%s.%s" COLOR_YELLOW "] is not attached in any table.\n",
+                 it->relation_name != nullptr?it->relation_name:"(NULL)",
+                 it->attribute_name);
+          fflush(stdout);
+          end_trx_if_need(session, transaction, false);
+          return RC::SCHEMA_FIELD_NOT_EXIST;
+                
+          }
+      }
+    
+  }
+
+  /**
+   * Pass 2, Joining All Tables
+   */
+
+  /////////////////////////////////
+  ///2.1 Create Table Metadata/////
+  /////////////////////////////////
+  Table* temp_table = new Table;
+  TableMeta meta;
+  std::vector<AttrInfo> metas;
+  for(int i = 0; i < selects.relation_num; i++)
+    {
+        Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
+        for(int j = 0; j < table->table_meta().field_num(); j++)
+          {
+            auto refmeta = table->table_meta().field(j);
+            char* name;
+            if(selects.relation_num > 1)
+              name = concat_rel_attr(table->name(), refmeta->name());
+            else
+              {
+                int len = strlen(refmeta->name());
+                name = new char[len+1];
+                strcpy(name, refmeta->name());
+              }
+            AttrInfo attr;
+            attr.name = name;
+            attr.length = refmeta->len();
+            attr.type = refmeta->type();
+            metas.emplace_back(attr);
+          }
+    }
+  
+  AttrInfo* attrs = new AttrInfo[metas.size()];
+  std::copy(metas.begin(), metas.end(), attrs);
+  meta.init(tmp_table_name, metas.size(), attrs);
+  temp_table->set_meta(meta);
+
+  ////////////////////////////////////////
+  ///2.2 Collect values from each table //
+  ////////////////////////////////////////
+  
+  std::vector<SelectExeNode*> select_nodes;
+  std::list<std::pair<Condition*, bool>> cond_list;
+  /// The second element yields if this condition is used.
+  {
+    /// Collect all attributions and conditions
+    std::list<RelAttr*> attr_list;
+    for (int i = 0; i < selects.attr_num; i++)
+      {
+        attr_list.push_back(&selects.attributes[i]);
+      }
+
+    for(int i = 0; i < selects.condition_num; i++)
+      {
+        cond_list.push_back({&selects.conditions[i], false});
+      }
+    for(size_t i = 0;
+        i < selects.relation_num;
+        i++)
+      {
+        SelectExeNode *select_node = new SelectExeNode;
+        Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
+        assert(table != nullptr);
+        auto pr = Create_Select_Table_Executor(transaction, table, attr_list, cond_list, *select_node);
+        if(pr.first != RC::SUCCESS)
+          {
+            delete select_node;
+            for (SelectExeNode *&tmp_node: select_nodes)
+              {
+                delete tmp_node;
+              }
+            LOG_ERROR(pr.second.c_str());
+            end_trx_if_need(session, transaction, false);
+            return pr.first;
+          }
+        select_nodes.push_back(select_node);
+      }
+
+    /// If there is no table given
+    if (select_nodes.empty())
+      {
+        LOG_ERROR(COLOR_RED "[ERROR]" COLOR_YELLOW "No table given.");
+        end_trx_if_need(session, transaction, false);
+        return RC::SQL_SYNTAX;
+      }
+  }
+
+  std::vector<std::vector<std::vector<Value>>> table_values;
+  
+  for(const auto& it : select_nodes)
+    {
+      std::vector<std::vector<Value>> value_set;
+      it->execute_to_value(value_set);
+      table_values.emplace_back(std::move(value_set));
+    }
+
+  std::vector<Value> current;
+  std::vector<std::vector<Value>> output;
+  dfs_cartesian(table_values, 0, current, output);
+
+  for(const auto& it : output)
+    {
+      Value* val = new Value[it.size()];
+      for(int i = 0; i < it.size(); i++)
+        {
+          val[i] = it[i];
+        }
+      temp_table->insert_record(NULL, it.size(), val);
+    }
+
+  /**
+   * Pass 2.2 Renaming
+   */
+  if(selects.relation_num > 1)
+    {
+      for(int i = 0; i < selects.condition_num; i++)
+        {
+          auto& cond = selects.conditions[i];
+          if(cond.left_is_attr)
+            {
+              cond.left_attr.attribute_name
+                = concat_rel_attr(cond.left_attr.relation_name,
+                                  cond.left_attr.attribute_name);
+              cond.left_attr.relation_name = tmp_table_name;
+            }
+          if(cond.right_is_attr)
+            {
+              cond.right_attr.attribute_name
+                = concat_rel_attr(cond.right_attr.relation_name,
+                                  cond.right_attr.attribute_name);
+              cond.right_attr.relation_name = tmp_table_name;
+            }
+        }
+      for(int i = 0; i < selects.attr_num; i++)
+        {
+          auto& it = selects.attributes[i];
+            {
+              it.attribute_name 
+                = concat_rel_attr(it.relation_name,
+                                  it.attribute_name);
+              it.relation_name = tmp_table_name;
+            }
+        }
+    }
+  else // do nothing
+    {
+      for(int i = 0; i < selects.condition_num; i++)
+        {
+          auto& cond = selects.conditions[i];
+          if(cond.left_is_attr)
+            {
+              cond.left_attr.relation_name = tmp_table_name;
+            }
+          if(cond.right_is_attr)
+            {
+              cond.right_attr.relation_name = tmp_table_name;
+            }
+        }
+      for(int i = 0; i < selects.attr_num; i++)
+        {
+          auto& it = selects.attributes[i];
+          {
+            it.relation_name = tmp_table_name;
+          }
+        }
+    }
+  
+  SelectExeNode* select_node = new SelectExeNode;
+  
+  /**
+   * Pass 3, Perform execution of SELECT
+   **/
+  {
+    std::vector<TupleSet> tuple_sets;
+    for (SelectExeNode *&node: select_nodes)
+      {
+        TupleSet tuple_set;
+        RC rc = node->execute(tuple_set);
+        
+        if (rc != RC::SUCCESS)
+          {
+            for (SelectExeNode *&tmp_node: select_nodes)
+              {
+                delete tmp_node;
+              }
+            end_trx_if_need(session, transaction, false);
+            return rc;
+          }
+        else
+          {
+            tuple_sets.push_back(std::move(tuple_set));
+          }
+        
+      }
+    
+    std::stringstream ss;
+    if (tuple_sets.size() > 1)
+      {
+        assert(0);
+        /// Hint: this query is O(n^k) for [k] tables.
+        
+        /// Note: This algorithm is of LOW PERFORMANCE, 
+          /// use INNER JOIN for more efficiency (and restricted) 
+          /// algorithm.
+
+          /// Note: This algorithm is only valid in condition between 2 tables.
+        /// Pass 3.1. Cartesian Product
+        Tuple tup;
+        TupleSet opt;
+        TupleSchema tsc;
+        for(const auto& it : tuple_sets)
+          {
+            tsc.append(it.get_schema());
+          }
+        opt.set_schema(tsc);
+
+        /// Pass 3.2. Selection under WHERE condition
+        CompositeConditionFilter ccf;
+        std::vector<Condition*> cross_cond_list;
+        for(const auto& it : cond_list)
+          if(it.second == false)
+            // Cross-table condition
+            {
+              cross_cond_list.emplace_back(it.first);
+            }
+
+        Table vtable;
+          
+          
+
+          opt.print(ss);
+      }
+    else
+      {
+        // 当前只查询一张表，直接返回结果即可
+        tuple_sets.front().print(ss);
+      }
+
+    for (SelectExeNode *&tmp_node: select_nodes)
+      {
+        delete tmp_node;
+      }
+    session_event->set_response(ss.str());
+    end_trx_if_need(session, transaction, true);
+    return RC::SUCCESS;
+
+  }  
+  assert(0);
+}
 
 std::pair<RC, std::string> Resolve_Attr_Scope(
                                               std::list<RelAttr*> attr_array,
@@ -692,7 +1044,7 @@ Create_Select_Table_Executor(Trx* transaction,
 
       assert(it.first->right_is_attr == 0 ||
              it.first->right_attr.related_table != nullptr);
-      
+
       if(
          ( it.first->left_is_attr == 0 && it.first->right_is_attr == 0 ) ||
          
@@ -728,25 +1080,28 @@ Create_Select_Table_Executor(Trx* transaction,
     ""};
 }
 
-void dfs_cartesian(const std::vector<TupleSet>& ts,
-                   int ts_depth,
-                   Tuple& current_tuple,
-                   std::vector<Tuple>& output)
+void dfs_cartesian(const std::vector<std::vector<std::vector<Value>> >& table_values,
+                   int current_depth,
+                   std::vector<Value>& current,
+                   std::vector<std::vector<Value>>& output)
+
 {
-  if(ts_depth == ts.size())
+  if(current_depth == table_values.size())
     {
-      auto ct = current_tuple;
-      output.emplace_back(std::move(ct));
+      output.emplace_back(current);
       return;
     }
-
-  for(const auto& it : ts[ts_depth].tuples())
+  for(auto& it : table_values[current_depth])
     {
-      for(const auto& p : it.values())
-        current_tuple.add(p);
-      dfs_cartesian(ts, ts_depth+1, current_tuple, output);
       for(int i = 0; i < it.size(); i++)
-        current_tuple.pop_back();
+        current.emplace_back(it[i]);
+
+      dfs_cartesian(table_values,
+                    current_depth+1,
+                    current,
+                    output);
+      for(int i = 0; i < it.size(); i++)
+        current.pop_back();
     }
 }
 
@@ -765,140 +1120,3 @@ char* concat_rel_attr(const char* relation,
     ans[cur++] = attr[i];
   return ans;
 }
-
-bool match_result(CompOp oper, int result)
-{
-  switch(oper)
-    {
-    case EQUAL_TO:
-      return result == 0;
-    case LESS_EQUAL:
-      return result <= 0;
-    case NOT_EQUAL:
-      return result != 0;
-    case LESS_THAN:
-      return result  < 0;
-    case GREAT_EQUAL:
-      return result >= 0;
-    case GREAT_THAN:
-      return result  > 0;
-    default:
-      {
-        assert(0);
-      }
-    }
-}
-
-TupleValue* build_value(Value* immediate)
-{
-
-  TupleValue* tv;
-  switch(immediate->type)
-    {
-    case CHARS:
-      {
-        tv = new StringValue((char*)immediate->data,
-                             strlen((char*)immediate->data));
-        return tv;
-      }
-    case INTS:
-      {
-        tv = new IntValue(*(int*)immediate->data);
-        return tv;
-      }
-    case FLOATS:
-      {
-        tv = new FloatValue(*(float*)immediate->data);
-        return tv;
-      }
-    case DATES:
-      assert(0); // Not implemented yet.
-    case UNDEFINED:
-      assert(0);
-    }
-
-  
-}
-
-void check_tuple(TupleSchema& tsc,
-                 std::vector<Tuple>& tup,
-                 Condition* rule)
-{
-  // 1. Select correspond lane
-  int lhs = -1, rhs = -1;
-  if(!rule->left_is_attr)
-    lhs = -2; // Value type
-  if(!rule->right_is_attr)
-    rhs = -2;
-
-  if(lhs == -2 && rhs == -2) // SPJ: Const
-    {assert(0);}
-  else
-    for(int i = 0; i < tsc.fields().size(); i++)
-      {
-        auto& it = tsc.fields()[i];
-        if(lhs == -1 &&
-           strcmp(it.field_name(),rule->left_attr.attribute_name) == 0 &&
-           strcmp(it.table_name(),rule->left_attr.relation_name) == 0)
-          {
-            lhs = i;
-          }
-        if(rhs == -1 &&
-           strcmp(it.field_name(),rule->right_attr.attribute_name) == 0 &&
-           strcmp(it.table_name(),rule->right_attr.relation_name) == 0)
-          {
-            rhs = i;
-          }
-      }
-  if(lhs == -1 || rhs == -1)
-    assert(0); // Field Missing
-
-  // 2. Type Check
-  if(lhs >= 0 && rhs >= 0 &&
-     tsc.fields()[lhs].type() != tsc.fields()[rhs].type())
-    {
-      assert(0); // Type Conflict
-    }
-
-  TupleValue* ltv = NULL;
-  TupleValue* rtv = NULL;
-  if(lhs == -2) ltv = build_value(&rule->left_value);
-  if(rhs == -2) rtv = build_value(&rule->right_value);
-
-  // 3. Compare and match result
-#define GET(lr,cnt) cnt >= 0? &p->get(cnt) : (lr ## tv)
-  auto p = tup.begin();
-  while(p != tup.end())
-    {
-      const TupleValue* lval = GET(l, lhs);
-      const TupleValue* rval = GET(r, rhs);
-      if(match_result(rule->comp, lval->compare(*rval)))
-        { p++; }
-      else
-        { p = tup.erase(p); }
-    }
-}
-
-
-bool binary_eval(CompOp oper, Value* lval, Value* rval)
-{
-  assert(lval->type == rval->type);
-  switch(oper)
-    {
-    case EQUAL_TO:
-      {
-        
-      }
-    case LESS_EQUAL:
-    case NOT_EQUAL:
-    case LESS_THAN:
-    case GREAT_EQUAL:
-    case GREAT_THAN:
-    default:
-      {
-        assert(0);
-      }
-    }
-}
-
-  
