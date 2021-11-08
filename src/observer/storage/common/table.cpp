@@ -523,7 +523,7 @@ RC Table::scan_record(Trx *trx, ConditionFilter *filter, int limit, void *contex
         rc = RC::SUCCESS;
     } else
     {
-        LOG_ERROR("failed to scan record. file id=%d, rc=%d:%s", file_id_, rc, strrc(rc));
+        printf("failed to scan record. file id=%d, rc=%d:%s", file_id_, rc, strrc(rc));
     }
     scanner.close_scan();
     return rc;

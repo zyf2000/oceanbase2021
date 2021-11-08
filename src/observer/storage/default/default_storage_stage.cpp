@@ -185,8 +185,7 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
           {
               const FieldMeta *field = table->table_meta().field(j + normal_field_start_index);
               deletes.conditions[j].left_is_attr = 1;
-              deletes.conditions[j].left_attr.attribute_name = new char[20];
-              strcpy(deletes.conditions[j].left_attr.attribute_name, field->name());
+              deletes.conditions[j].left_attr.attribute_name = (char*)field->name();
               deletes.conditions[j].right_is_attr = 0;
               deletes.conditions[j].comp = EQUAL_TO;
           }
