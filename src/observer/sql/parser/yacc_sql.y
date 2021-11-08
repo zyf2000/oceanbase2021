@@ -366,9 +366,8 @@ select:				/*  select 语句的语法解析树*/
 // SELECT count(1)
 select_attr:    select_attr_expr attr_list  // Multiple
                 {}
-        |       select_attr_expr            // Unary
-                {}
         ;
+
 select_attr_expr: STAR
                 {
                     RelAttr attr;
@@ -387,10 +386,16 @@ select_attr_expr: STAR
                     relation_attr_init(&attr, $1, $3, NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
+        |       ID DOT STAR
+                {
+                    RelAttr attr;
+                    relation_attr_init(&attr, $1, "*", NULL);
+                    selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
+                }
         |       ID LBRACE STAR RBRACE
                 {
                     RelAttr attr;
-                    relation_attr_init(&attr, NULL, *, $1);
+                    relation_attr_init(&attr, NULL, "*", $1);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
         |       ID LBRACE ID RBRACE
@@ -408,11 +413,11 @@ select_attr_expr: STAR
         |       ID LBRACE NUMBER RBRACE
                 {
                     RelAttr attr;
-                    relation_attr_init(&attr, NULL, *, $1);
+                    relation_attr_init(&attr, NULL, "*", $1);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
         ;
-attr_list:      COMMA select_attr_expr
+attr_list: /* Empty */
                 {}
         |       COMMA select_attr_expr attr_list
                 {}

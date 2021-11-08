@@ -56,6 +56,10 @@ void Tuple::add(const char *s, int len) {
   add(new StringValue(s, len));
 }
 
+void Tuple::pop_back()
+{
+    values_.pop_back();
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string TupleField::to_string() const {
@@ -252,7 +256,8 @@ void TupleRecordConverter::add_record(const char *record) {
 const char * TupleRecordConverter::int_to_char(int dates_int)
 {
     char *re = new char[11];
-    memset(re, 0, sizeof(re));
+    // memset(re, 0, sizeof(re));
+    memset(re, 0, 11);
     int yy = dates_int / 10000;
     int mm = dates_int % 10000 / 100;
     int dd = dates_int % 100;
@@ -275,5 +280,3 @@ const char * TupleRecordConverter::int_to_char(int dates_int)
     }
     return re;
 }
-
-

@@ -17,6 +17,13 @@ build:
 
 	cd build && make -j16
 	./build/bin/observer -f ./etc/observer.ini
+build_pure:
+	cd build && make -j16
+	./build/bin/observer -f ./etc/observer.ini
+parse_pure:
+	@echo "Compiling the Yacc and Lex files"
+	@flex --outfile=./src/observer/sql/parser/lex.yy.c  --header-file=./src/observer/sql/parser/lex.yy.h ./src/observer/sql/parser/lex_sql.l               
+	@bison -o ./src/observer/sql/parser/yacc_sql.tab.c --defines=./src/observer/sql/parser/yacc_sql.tab.h ./src/observer/sql/parser/yacc_sql.y
 run_server:
 	./build/bin/observer -f ./etc/observer.ini
 run_client:

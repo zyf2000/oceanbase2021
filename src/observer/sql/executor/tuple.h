@@ -40,6 +40,8 @@ public:
   void add(float value);
   void add(const char *s, int len);
 
+  void pop_back();
+
   const std::vector<std::shared_ptr<TupleValue>> &values() const {
     return values_;
   }

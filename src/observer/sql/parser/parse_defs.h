@@ -23,6 +23,16 @@ See the Mulan PSL v2 for more details. */
 #define MAX_DATA 50
 
 //属性结构体
+/// Group by function enum
+typedef enum
+{
+    GB_UNDEFINED = 0,
+    GB_COUNT,
+    GB_MAX,
+    GB_MIN,
+    GB_AVG
+}GroupByFunction;
+
 typedef struct {
     /// Parsing Stage
     char *relation_name;   // relation name (may be NULL) 表名
@@ -36,18 +46,9 @@ typedef struct {
     GroupByFunction groupby_func;
 } RelAttr;
 
-/// Group by function enum
-typedef enum
-{
-    UNDEFINED,
-    GB_COUNT,
-    GB_MAX,
-    GB_MIN,
-    GB_AVG
-}GroupByFunction;
 
 /// Group by function name
-const char *GB_FUNC_NAME[] = {
+static const char *GB_FUNC_NAME[] = {
   "undefined"
   "count",
   "max",
@@ -203,7 +204,10 @@ typedef struct Query {
 extern "C" {
 #endif  // __cplusplus
 
-void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name);
+/* void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name); */
+  void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name,
+                          const char *groupby_func_name);
+
 void relation_attr_destroy(RelAttr *relation_attr);
 
 void value_init_integer(Value *value, int v);
