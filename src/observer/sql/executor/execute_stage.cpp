@@ -553,7 +553,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               }
             tus.add(std::move(tp));
           }
-        tus.print(ss);
+        tus.print(ss, true);
       }
     else
       {
