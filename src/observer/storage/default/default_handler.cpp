@@ -159,6 +159,16 @@ RC DefaultHandler::insert_record(Trx *trx, const char *dbname, const char *relat
 
   return table->insert_record(trx, value_num, values);
 }
+
+RC DefaultHandler::insert_record_tuples(Trx *trx, const char *dbname, const char *relation_name, int insert_tuple_num, const InsertTuple *insert_tuples)
+{
+    Table *table = find_table(dbname, relation_name);
+    if (nullptr == table)
+        return RC::SCHEMA_TABLE_NOT_EXIST;
+
+    return table->insert_record_tuples(trx, insert_tuple_num, insert_tuples);
+}
+
 RC DefaultHandler::delete_record(Trx *trx, const char *dbname, const char *relation_name,
                                  int condition_num, const Condition *conditions, int *deleted_count) {
   Table *table = find_table(dbname, relation_name);

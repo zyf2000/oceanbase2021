@@ -165,54 +165,55 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
       const Inserts &inserts = sql->sstr.insertion;
       const char *table_name = inserts.relation_name;
       const int tuple_num = inserts.insert_tuple_num;
-      int i;
-      for (i = 0; i < tuple_num; ++i)
-      {
-          rc = handler_->insert_record(current_trx, current_db, table_name,
-                                        inserts.insert_tuples[i].value_num, inserts.insert_tuples[i].values);
-          if (rc != RC::SUCCESS)
-            break;
-      }
-      if (rc != RC::SUCCESS && i != 0)
-      {
-          // make delete infos and delete records
-          Deletes deletes;
-          Table *table = handler_->find_table(current_db, table_name);
-          assert(table != nullptr);
-          const int normal_field_start_index = table->table_meta().sys_field_num();
-          const int attr_num = table->table_meta().field_num() - normal_field_start_index;
-          for (int j = 0; j < attr_num; ++j)
-          {
-              const FieldMeta *field = table->table_meta().field(j + normal_field_start_index);
-              deletes.conditions[j].left_is_attr = 1;
-              deletes.conditions[j].left_attr.attribute_name = (char*)field->name();
-              deletes.conditions[j].right_is_attr = 0;
-              deletes.conditions[j].comp = EQUAL_TO;
-          }
-          RC ret = RC::SUCCESS;
-          for (--i; i >= 0; --i)
-          {
-              deletes.condition_num = inserts.insert_tuples[i].value_num;
-              for (int j = 0; j < attr_num; ++j)
-                deletes.conditions[j].right_value = inserts.insert_tuples[i].values[j];
-              int delete_count = 0;
+      rc = handler_->insert_record_tuples(current_trx, current_db, table_name, inserts.insert_tuple_num, inserts.insert_tuples);
+    //   int i;
+    //   for (i = 0; i < tuple_num; ++i)
+    //   {
+    //       rc = handler_->insert_record(current_trx, current_db, table_name,
+    //                                     inserts.insert_tuples[i].value_num, inserts.insert_tuples[i].values);
+    //       if (rc != RC::SUCCESS)
+    //         break;
+    //   }
+    //   if (rc != RC::SUCCESS && i != 0)
+    //   {
+    //       // make delete infos and delete records
+    //       Deletes deletes;
+    //       Table *table = handler_->find_table(current_db, table_name);
+    //       assert(table != nullptr);
+    //       const int normal_field_start_index = table->table_meta().sys_field_num();
+    //       const int attr_num = table->table_meta().field_num() - normal_field_start_index;
+    //       for (int j = 0; j < attr_num; ++j)
+    //       {
+    //           const FieldMeta *field = table->table_meta().field(j + normal_field_start_index);
+    //           deletes.conditions[j].left_is_attr = 1;
+    //           deletes.conditions[j].left_attr.attribute_name = (char*)field->name();
+    //           deletes.conditions[j].right_is_attr = 0;
+    //           deletes.conditions[j].comp = EQUAL_TO;
+    //       }
+    //       RC ret = RC::SUCCESS;
+    //       for (--i; i >= 0; --i)
+    //       {
+    //           deletes.condition_num = inserts.insert_tuples[i].value_num;
+    //           for (int j = 0; j < attr_num; ++j)
+    //             deletes.conditions[j].right_value = inserts.insert_tuples[i].values[j];
+    //           int delete_count = 0;
 
-            //   for (int j = 0; j <= 1; ++j)
-            //   {
-            //       printf("j: %d\n", j);
-            //       printf("left_is_attr: %d\n", deletes.conditions[j].left_is_attr);
-            //       printf("left_attr: %s\n", deletes.conditions[j].left_attr.attribute_name);
-            //       printf("right_is_attr: %d\n", deletes.conditions[j].right_is_attr);
-            //       printf("right_value_data: %d\n", *(int*)deletes.conditions[j].right_value.data);
-            //       printf("insert: %d\n", *(int*)inserts.insert_tuples[0].values[j].data);
-            //   }
+    //         //   for (int j = 0; j <= 1; ++j)
+    //         //   {
+    //         //       printf("j: %d\n", j);
+    //         //       printf("left_is_attr: %d\n", deletes.conditions[j].left_is_attr);
+    //         //       printf("left_attr: %s\n", deletes.conditions[j].left_attr.attribute_name);
+    //         //       printf("right_is_attr: %d\n", deletes.conditions[j].right_is_attr);
+    //         //       printf("right_value_data: %d\n", *(int*)deletes.conditions[j].right_value.data);
+    //         //       printf("insert: %d\n", *(int*)inserts.insert_tuples[0].values[j].data);
+    //         //   }
 
-              ret = handler_->delete_record(current_trx, current_db, table_name, deletes.condition_num, deletes.conditions, &delete_count);
-              assert(ret == RC::SUCCESS);
-            //   printf("%d\n", delete_count);
-            //   assert(delete_count == 1);
-          }
-      }
+    //           ret = handler_->delete_record(current_trx, current_db, table_name, deletes.condition_num, deletes.conditions, &delete_count);
+    //           assert(ret == RC::SUCCESS);
+    //         //   printf("%d\n", delete_count);
+    //         //   assert(delete_count == 1);
+    //       }
+    //   }
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
     }
     break;

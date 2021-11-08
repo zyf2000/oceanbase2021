@@ -123,6 +123,7 @@ public:
    * @return
    */
   RC insert_record(Trx * trx, const char *dbname, const char *relation_name, int value_num, const Value *values);
+  RC insert_record_tuples(Trx *trx, const char *dbname, const char *relation_name, int insert_tuple_num, const InsertTuple *insert_tuples);
 
   /**
    * 该函数用来删除relName表中所有满足指定条件的元组以及该元组对应的索引项。
