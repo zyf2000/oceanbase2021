@@ -874,6 +874,12 @@ RC Table::check_dates(const Value *value)
     return RC::SUCCESS;
 }
 
+RC Table::set_meta(const TableMeta &meta)
+{
+  this->table_meta_ = meta;
+  return RC::SUCCESS;
+}
+
 class RecordDeleter
 {
 public:
@@ -1115,3 +1121,5 @@ RC Table::sync()
     LOG_INFO("Sync table over. table=%s", name());
     return rc;
 }
+
+

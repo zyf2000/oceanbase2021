@@ -73,6 +73,7 @@ public:
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);
 
+  RC set_meta(const TableMeta& meta);
 public:
   const char *name() const;
 
