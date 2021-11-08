@@ -42,7 +42,15 @@ public:
    * @param attributes 字段
    */
   RC create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]);
-  
+
+  /**
+   * 创建一个虚表
+   * @param name 表名
+   * @param attribute_count 字段个数
+   * @param attributes 字段
+   */
+  RC create_virtual_table(const char *name, int attribute_count, const AttrInfo attributes[]);
+
     /**
      * Drop current table
      * @return RC: Return code

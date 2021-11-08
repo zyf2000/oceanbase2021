@@ -363,6 +363,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         i < selects.relation_num;
         i++)
       {
+          // find each table's point
         Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
         if(table == nullptr)
           {
@@ -372,6 +373,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             end_trx_if_need(session, transaction, false);
             return RC::SCHEMA_TABLE_NOT_EXIST;
           }
+        // modify selects.conditions.related_table
         auto pr = Resolve_Attr_Scope(attr_array, table);
         if(pr.first != RC::SUCCESS)
           {
@@ -434,6 +436,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         i++)
       {
         SelectExeNode *select_node = new SelectExeNode;
+        // find each table's point
         Table* table = DefaultHandler::get_default().find_table(db, selects.relations[i]);
         assert(table != nullptr);
         auto pr = Create_Select_Table_Executor(transaction, table, attr_list, cond_list, *select_node);
@@ -665,6 +668,7 @@ Create_Select_Table_Executor(Trx* transaction,
             }
           else
             {
+                // Add this attribute to selection range
               RC rc = schema_add_field(table, it->attribute_name, schema);
               if(rc != RC::SUCCESS) // Failed
                 {

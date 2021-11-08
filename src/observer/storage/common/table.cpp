@@ -126,6 +126,29 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
     return rc;
 }
 
+RC Table::create_virtual_table(const char *name, int attribute_count, const AttrInfo attributes[])
+{
+    printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Create virtual table named: " COLOR_GREEN "%s", name);
+    if (nullptr == name || common::is_blank(name))
+    {
+        printf(COLOR_RED "[ERROR] Failed to create virtual table, name is not exist!\n");
+        return RC::INVALID_ARGUMENT;
+    }
+    if (attribute_count <= 0 || nullptr == attributes)
+    {
+        printf(COLOR_RED "[ERROR] Failed to create virtual table, invalid argument\n");
+        return RC::INVALID_ARGUMENT;
+    }
+    RC rc = RC::SUCCESS;
+        // 创建文件
+    if ((rc = table_meta_.init(name, attribute_count, attributes)) != RC::SUCCESS)
+        printf(COLOR_RED "[ERROR] Failed to init table meta. " COLOR_YELLOW "name:" COLOR_GREEN "%s"
+                COLOR_YELLOW ", ret:" COLOR_GREEN "%d", name, rc);
+    fflush(stdout);
+
+    return rc;
+}
+
 RC Table::drop()
 {
    /* printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Drop base dir: "
