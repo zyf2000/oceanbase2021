@@ -605,7 +605,11 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                             break;
                         }
                     }
-                //   assert(schema_field_type != UNDEFINED);
+                    if (schema_field_type == UNDEFINED)
+                    {
+                        if (attr->aggregate_func != AGG_COUNT)
+                            return RC::INVALID_ARGUMENT;
+                    }
                   // if aggregate function is count, then schema field type = INTS
                   // if aggregate function is avg, then schema field type = FLOATS
                   // if aggregate function is max or min, then schema field type is attributes' original type
@@ -686,7 +690,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          break;
                       }
                   }
-                  printf("%d %f\n", Count, Avg);
                   if (Count != 0)
                   {
                       Avg /= (float)Count;
