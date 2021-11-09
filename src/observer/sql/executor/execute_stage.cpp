@@ -179,11 +179,11 @@ void ExecuteStage::handle_request(common::StageEvent *event)
       { // select
         //do_select(current_db, sql, exe_event->sql_event()->session_event());
         RC rc = manual_do_select(current_db, sql, exe_event->sql_event()->session_event());
+        fflush(stdout);
         if (rc)
         {
             session_event->set_response("FAILURE\n");
         }
-
         exe_event->done_immediate();
       }
       break;
@@ -590,6 +590,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                   strcat(schema_field_name, "(");
                   strcat(schema_field_name, attr->attribute_name);
                   strcat(schema_field_name, ")");
+                //   printf("schema field name: %s\n", schema_field_name);
 
                   // make up schema_field_type
                   TableMeta table_meta_ = table->table_meta();
@@ -619,9 +620,11 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                     }
                     break;
                   }
+                //   printf("schema field type: %d\n", schema_field_type);
                   // add this attribute's schema
                   agg_schema.add_if_not_exists(schema_field_type, schema_field_table, schema_field_name);
                   fields_type.push_back(schema_field_type);
+                  delete[] schema_field_name;
               }
               // add schema to tupleset
               agg_tuple_set.set_schema(agg_schema);
@@ -635,6 +638,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               {
                   const RelAttr *attr = &selects.attributes[i];
                   const AttrType field_type = fields_type[i];
+                //   printf("field type: %d\n", field_type);
 
                   int Count = 0;
                   float Avg = 0.0;
@@ -648,10 +652,10 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                       Tuple *tuple = &it;
                       const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(i);
                       
-                      std::stringstream ss;
-                      tuple_value->to_string(ss);
-                      std::string s = ss.str();
-                      ss.clear();
+                      std::stringstream ss_;
+                      tuple_value->to_string(ss_);
+                      std::string s = ss_.str();
+                      ss_.clear();
 
                       switch (attr->aggregate_func)
                       {
@@ -682,42 +686,42 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          break;
                       }
                   }
+                  printf("%d %f\n", Count, Avg);
                   if (Count != 0)
+                  {
                       Avg /= (float)Count;
+                      int temp = (int)(Avg * 100 + 0.5);
+                      Avg = (float)temp / 100.0;
+                  }
+                      
 
                   TupleValue* tuple_value;
                   switch (attr->aggregate_func)
                   {
                       case AGG_COUNT:{
-                          Value value;
-                          value.type = INTS;
-                          value.data = &Count;
-                          tuple_value = build_value(&value);
+                          tuple.add(Count);
                       }
                       break;
                       case AGG_MAX:{
-                          tuple_value = &*Max;
+                          tuple.add(Max);
                       }
                       break;
                       case AGG_MIN:{
-                          tuple_value = &*Min;
+                          tuple.add(Min);
                       }
                       break;
                       case AGG_AVG:{
-                          Value value;
-                          value.type = FLOATS;
-                          value.data = &Avg;
-                          tuple_value = build_value(&value);
+                          tuple.add(Avg);
                       }
                       break;
                       default:
                         assert(0);
                       break;
                   }
-                  tuple.add(tuple_value);
                 }
               agg_tuple_set.add(std::move(tuple));
               agg_tuple_set.print(ss);
+              fflush(stdout);
           }
           else  // No aggregate functions
           {
@@ -727,6 +731,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                 tuple_sets.front().print(ss);
           }
       }
+    fflush(stdout);
     
     for (SelectExeNode *&tmp_node: select_nodes)
       {
@@ -735,7 +740,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     session_event->set_response(ss.str());
     end_trx_if_need(session, transaction, true);
     return RC::SUCCESS;
-
   }
   assert(0);
 }
@@ -1156,5 +1160,22 @@ void attr_to_number(const TupleSchema& tsc,
 float float_from_string(std::string s)
 {
     float re = 0.0;
+    int len = s.length();
+    int p = -1;
+    for (int i = 0; i < len; ++i)
+        if (s[i] == '.')
+        {
+            p = i;
+            break;
+        }
+    if (p < 0)
+        p = len;
+    float inte = 0.0;
+    float deci = 0.0;
+    for (int i = 0; i < p; ++i)
+        inte = inte * 10 + s[i] - '0';
+    for (int i = len - 1; i > p; --i)
+        deci = deci / 10.0 + 0.1 * (float)(s[i] - '0');
+    re = inte + deci;
     return re;
 }
