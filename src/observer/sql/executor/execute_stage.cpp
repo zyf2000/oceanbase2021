@@ -497,7 +497,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
           }
         
       }
-    
+    TupleSet* result;
     std::stringstream ss;
     if (tuple_sets.size() > 1)
       {
@@ -525,7 +525,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             {
               check_tuple(tsc, tup_vec, it.first);
             }
-        /// TODO: prettify.
         TupleSchema real_tsc;
         std::vector<Tuple> real_tup_vec;
         std::vector<int> order;
@@ -534,15 +533,14 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          selects.attributes[i].relation_name,
                          selects.attributes[i].attribute_name,
                          tables, order);
-
-        TupleSet tus;
+        result = new TupleSet;
         for(auto it : order)
           {
             real_tsc.add(tsc.field(it).type(),
                          tsc.field(it).table_name(),
                          tsc.field(it).field_name());
           }
-        tus.set_schema(real_tsc);
+        result->set_schema(real_tsc);
 
         for(auto it : tup_vec)
           {
@@ -551,15 +549,17 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               {
                 tp.add(it.get_pointer(itt));
               }
-            tus.add(std::move(tp));
+            result->add(std::move(tp));
           }
-        tus.print(ss, true);
+
       }
     else
       {
         // 当前只查询一张表，直接返回结果即可
-        tuple_sets.front().print(ss);
+        result = new TupleSet(std::move(tuple_sets.front()));
       }
+    
+    
 
     for (SelectExeNode *&tmp_node: select_nodes)
       {

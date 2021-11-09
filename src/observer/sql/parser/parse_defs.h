@@ -26,12 +26,12 @@ See the Mulan PSL v2 for more details. */
 /// Group by function enum
 typedef enum
 {
-    GB_UNDEFINED = 0,
-    GB_COUNT,
-    GB_MAX,
-    GB_MIN,
-    GB_AVG
-}GroupByFunction;
+    AGG_UNDEFINED = 0,
+    AGG_COUNT,
+    AGG_MAX,
+    AGG_MIN,
+    AGG_AVG
+}AggregateFunction;
 
 typedef struct {
     /// Parsing Stage
@@ -43,12 +43,12 @@ typedef struct {
     void* related_table;  /// Related table
 
     /// Group-by function
-    GroupByFunction groupby_func;
+    AggregateFunction aggregate_func;
 } RelAttr;
 
 
 /// Group by function name
-static const char *GB_FUNC_NAME[] = {
+static const char *AGG_FUNC_NAME[] = {
   "undefined"
   "count",
   "max",
@@ -215,7 +215,7 @@ extern "C" {
 
 /* void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name); */
   void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name,
-                          const char *groupby_func_name);
+                          const char *aggregate_func_name);
 
 void relation_attr_destroy(RelAttr *relation_attr);
 
