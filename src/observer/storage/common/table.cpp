@@ -353,6 +353,66 @@ RC Table::insert_record(Trx *trx, int value_num, const Value *values)
     return rc;
 }
 
+RC Table::insert_record_tuples(Trx *trx, int insert_tuple_num, const InsertTuple *insert_tuples)
+{
+    // if (value_num <= 0 || nullptr == values)
+    // {
+    //     LOG_ERROR("Invalid argument. value num=%d, values=%p", value_num, values);
+    //     return RC::INVALID_ARGUMENT;
+    // }
+    if (insert_tuple_num <= 0 || nullptr == insert_tuples)
+    {
+        printf(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "Invalid argument. insert tuple num="COLOR_GREEN"%d"COLOR_YELLOW", insert tuples="COLOR_GREEN"%p"COLOR_YELLOW".\n",
+                insert_tuple_num, insert_tuples);
+        return RC::INVALID_ARGUMENT;
+    }
+
+    RC rc = RC::SUCCESS;
+    std::vector<const RID*> rid_array;
+    for (int i = 0; i < insert_tuple_num; ++i)
+    {
+        int value_num = insert_tuples[i].value_num;
+        const Value *values = insert_tuples[i].values;
+
+        if (value_num <= 0 || nullptr == values)
+        {
+            printf(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "Invalid argument. value num="COLOR_GREEN"%d"COLOR_YELLOW", values="COLOR_GREEN"%p"COLOR_YELLOW".\n",
+                value_num, values);
+            break;
+        }
+        
+        char *record_data;
+        rc = make_record(value_num, values, record_data);
+        if (rc != RC::SUCCESS)
+        {
+            printf(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "Failed to create a record. rc="COLOR_GREEN"%d"COLOR_YELLOW":"COLOR_GREEN"%s"COLOR_YELLOW".\n",
+                rc, strrc(rc));
+            break;
+        }
+        
+        Record record;
+        record.data = record_data;
+        rc = insert_record(trx, &record);
+        if (rc == RC::SUCCESS)
+            rid_array.push_back(&record.rid);
+        // delete[] record_data;
+        if (rc != RC::SUCCESS)
+            break;
+    }
+    if (rc != RC::SUCCESS)
+    {
+        for(auto it : rid_array)
+        {
+            RC ret = record_handler_->delete_record(it);
+            assert(ret == RC::SUCCESS);
+        }
+    }
+    return rc;
+}
+
 const char* Table::name() const
 {
     return table_meta_.name();
