@@ -542,14 +542,16 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          selects.attributes[i].relation_name,
                          selects.attributes[i].attribute_name,
                          tables, order);
-        result = new TupleSet;
+        TupleSet tus;
+        // result = new TupleSet;
         for(auto it : order)
           {
             real_tsc.add(tsc.field(it).type(),
                          tsc.field(it).table_name(),
                          tsc.field(it).field_name());
           }
-        result->set_schema(real_tsc);
+        tus.set_schema(real_tsc);
+        // result->set_schema(real_tsc);
 
         for(auto it : tup_vec)
           {
@@ -558,9 +560,10 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               {
                 tp.add(it.get_pointer(itt));
               }
-            result->add(std::move(tp));
+            tus.add(std::move(tp));
+            // result->add(std::move(tp));
           }
-
+          tus.print(ss, true);
       }
     else
       {
@@ -572,6 +575,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
 
               /// Pass 3.1. Make up schema for agg_tuple_set
               TupleSchema agg_schema;
+              printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Make up schema for aggregate tuple set.\n");
               Table* table = DefaultHandler::get_default().find_table(db, selects.relations[0]);
               std::vector<AttrType> fields_type;
               for (int i = 0; i < selects.attr_num; ++i)
@@ -600,7 +604,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                             break;
                         }
                     }
-                  assert(schema_field_type != UNDEFINED);
+                //   assert(schema_field_type != UNDEFINED);
                   // if aggregate function is count, then schema field type = INTS
                   // if aggregate function is avg, then schema field type = FLOATS
                   // if aggregate function is max or min, then schema field type is attributes' original type
@@ -624,6 +628,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
 
 
               /// Pass 3.2. Add data to agg_tuple_set
+              printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Add data to aggregate tuple set.\n");
               const std::vector<Tuple> ori_tuple_set = ori_tuple_sets->tuples();
               Tuple tuple;
               for (int i = 0; i < selects.attr_num; ++i)
@@ -677,7 +682,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          break;
                       }
                   }
-                  Avg /= (float)Count;
+                  if (Count != 0)
+                      Avg /= (float)Count;
 
                   TupleValue* tuple_value;
                   switch (attr->aggregate_func)
@@ -708,20 +714,20 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                         assert(0);
                       break;
                   }
-                tuple.add(tuple_value);
+                  tuple.add(tuple_value);
                 }
               agg_tuple_set.add(std::move(tuple));
+              agg_tuple_set.print(ss);
           }
           else  // No aggregate functions
           {
-              printf("no aggregate\n");
-              // 当前只查询一张表，直接返回结果即可
-              result = new TupleSet(std::move(tuple_sets.front()));
+                printf("no aggregate\n");
+                // 当前只查询一张表，直接返回结果即可
+                // result = new TupleSet(std::move(tuple_sets.front()));
+                tuple_sets.front().print(ss);
           }
       }
     
-    
-
     for (SelectExeNode *&tmp_node: select_nodes)
       {
         delete tmp_node;
