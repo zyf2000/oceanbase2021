@@ -578,12 +578,31 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Make up schema for aggregate tuple set.\n");
               Table* table = DefaultHandler::get_default().find_table(db, selects.relations[0]);
               std::vector<AttrType> fields_type;
+              int loc[selects.attr_num];
               for (int i = 0; i < selects.attr_num; ++i)
               {
+
                   const RelAttr *attr = &selects.attributes[i];
                   char *schema_field_name = new char[30];
                   const char *schema_field_table = selects.relations[0];
                   AttrType schema_field_type = UNDEFINED;
+
+                //   if (i == 0)
+                //     loc[i] = 0;
+                //   else
+                //   {
+                //       if (strcmp(attr->attribute_name, selects.attributes[i - 1].attribute_name) == 0)
+                //         loc[i] = loc[i - 1];
+                //       else
+                //         loc[i] = loc[i - 1] + 1;
+                //   }
+                  loc[i] = i;
+                  for (int j = 0; j < i; ++j)
+                    if (strcmp(attr->attribute_name, selects.attributes[j].attribute_name) == 0)
+                    {
+                        loc[i] = j;
+                        break;
+                    }
 
                   // make up schema_field_name
                   strcpy(schema_field_name, attr->aggreage_func_name);
@@ -640,6 +659,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
               Tuple tuple;
               for (int i = 0; i < selects.attr_num; ++i)
               {
+                  printf("%d\n", loc[i]);
                   const RelAttr *attr = &selects.attributes[i];
                   const AttrType field_type = fields_type[i];
                 //   printf("field type: %d\n", field_type);
@@ -654,7 +674,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                       ++Count;
 
                       Tuple *tuple = &it;
-                      const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(i);
+                      const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(loc[i]);
                       
                       std::stringstream ss_;
                       tuple_value->to_string(ss_);
