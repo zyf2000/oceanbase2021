@@ -16,12 +16,39 @@ See the Mulan PSL v2 for more details. */
 #include "sql/parser/parse.h"
 #include "rc.h"
 #include "common/log/log.h"
+#include <string.h>
 
 RC parse(char *st, Query *sqln);
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
+
+/// Group by function name
+const char *AGG_FUNC_NAME[] = {
+  "undefined",
+  "count",
+  "max",
+  "min",
+  "avg"
+};
+
+AggregateFunction aggregate_func_from_string(const char *aggregate_func_name)
+{
+    if (aggregate_func_name != nullptr)
+    {
+        for (int i = sizeof(AGG_FUNC_NAME)/sizeof(AGG_FUNC_NAME[0]) - 1;
+                i > 0; --i)
+        {
+            if (strcasecmp(aggregate_func_name, AGG_FUNC_NAME[i]) == 0)
+            {
+                return (AggregateFunction)i;
+                break;
+            }
+        }
+    }
+    return AGG_UNDEFINED;
+}
 void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name,
                         const char *aggregate_func_name)
 {
@@ -34,17 +61,11 @@ void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const
   relation_attr->used_count = 0;
   relation_attr->related_table = nullptr;
 
-  relation_attr->aggregate_func = (AggregateFunction)0;
+  relation_attr->aggregate_func = aggregate_func_from_string(aggregate_func_name);
   if (aggregate_func_name != nullptr)
-  {
-      for (int i = sizeof(AGG_FUNC_NAME)/sizeof(AGG_FUNC_NAME[0]);
-             i > 0; --i)
-        if (strcmp(aggregate_func_name, AGG_FUNC_NAME[i]) == 0)
-        {
-          relation_attr->aggregate_func = (AggregateFunction)i;
-            break;
-        }
-  }
+    relation_attr->aggreage_func_name = strdup(aggregate_func_name);
+  else
+    relation_attr->aggreage_func_name = nullptr;
 }
 
 void relation_attr_destroy(RelAttr *relation_attr) {

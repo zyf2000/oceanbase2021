@@ -44,17 +44,8 @@ typedef struct {
 
     /// Group-by function
     AggregateFunction aggregate_func;
+    char *aggreage_func_name;
 } RelAttr;
-
-
-/// Group by function name
-static const char *AGG_FUNC_NAME[] = {
-  "undefined"
-  "count",
-  "max",
-  "min",
-  "avg"
-};
 
 typedef enum {
   EQUAL_TO,     //"="     0
