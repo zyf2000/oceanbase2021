@@ -75,7 +75,7 @@ public:
    * 参数pData指向要插入的属性值，参数rid标识该索引项对应的元组，
    * 即向索引中插入一个值为（*pData，rid）的键值对
    */
-  RC insert_entry(const char *pkey, const RID *rid);
+  RC insert_entry(const char *pkey, const RID *rid, int is_unique);
 
   /**
    * 从IndexHandle句柄对应的索引中删除一个值为（*pData，rid）的索引项
@@ -94,6 +94,7 @@ public:
   RC print();
   RC print_tree();
 protected:
+    RC check_unique(const char *pkey);
   RC find_leaf(const char *pkey, PageNum *leaf_page);
   RC insert_into_leaf(PageNum leaf_page, const char *pkey, const RID *rid);
   RC insert_into_leaf_after_split(PageNum leaf_page, const char *pkey, const RID *rid);

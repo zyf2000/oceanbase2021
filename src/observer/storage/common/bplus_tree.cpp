@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "sql/parser/parse_defs.h"
 
+#include "common/manual.h"
+
 int float_compare(float f1, float f2) {
   float result = f1 - f2;
   if (result < 1e-6 && result > -1e-6) {
@@ -206,12 +208,54 @@ int CompareKey(const char *pdata, const char *pkey,AttrType attr_type,int attr_l
 int CmpKey(AttrType attr_type, int attr_length, const char *pdata, const char *pkey)
 {
   int result = CompareKey(pdata, pkey, attr_type, attr_length);
-  if (0 != result) {
-    return result;
+  return result;
+//   if (0 != result) {
+//     return result;
+//   }
+//   RID *rid1 = (RID *) (pdata + attr_length);
+//   RID *rid2 = (RID *) (pkey + attr_length);
+//   return CmpRid(rid1, rid2);
+}
+
+RC BplusTreeHandler::check_unique(const char *pkey) {
+  RC rc;
+  BPPageHandle page_handle;
+  IndexNode *node;
+  char *pdata;
+  int i,tmp;
+
+  rc = disk_buffer_pool_->get_this_page(file_id_, file_header_.root_page, &page_handle);
+  if(rc!=SUCCESS){
+    return rc;
   }
-  RID *rid1 = (RID *) (pdata + attr_length);
-  RID *rid2 = (RID *) (pkey + attr_length);
-  return CmpRid(rid1, rid2);
+
+  rc = disk_buffer_pool_->get_data(&page_handle, &pdata);
+  if(rc!=SUCCESS){
+    return rc;
+  }
+  node = get_index_node(pdata);
+  while(1){
+    for(i = 0; i < node->key_num; i++){
+      tmp = CompareKey(pkey, node->keys + i * file_header_.key_length, file_header_.attr_type, file_header_.attr_length);
+      if(tmp == -2 || tmp == 0) return RC::INVALID_ARGUMENT;
+    }
+    if (node->is_leaf == 0)
+        break;
+    rc = disk_buffer_pool_->unpin_page(&page_handle);
+    if(rc!=SUCCESS){
+      return rc;
+    }
+    rc = disk_buffer_pool_->get_this_page(file_id_, node->rids[i].page_num, &page_handle);
+    if(rc!=SUCCESS){
+      return rc;
+    }
+    rc = disk_buffer_pool_->get_data(&page_handle, &pdata);
+    if(rc!=SUCCESS){
+      return rc;
+    }
+    node = get_index_node(pdata);
+  }
+  return RC::SUCCESS;
 }
 
 RC BplusTreeHandler::find_leaf(const char *pkey,PageNum *leaf_page) {
@@ -230,7 +274,9 @@ RC BplusTreeHandler::find_leaf(const char *pkey,PageNum *leaf_page) {
     return rc;
   }
   node = get_index_node(pdata);
+   printf("!!!%d\n", node->key_num);
   while(0 == node->is_leaf){
+      printf("!!%d\n", node->key_num);
     for(i = 0; i < node->key_num; i++){
       tmp = CmpKey(file_header_.attr_type, file_header_.attr_length,pkey,node->keys + i * file_header_.key_length);
       if(tmp < 0)
@@ -799,7 +845,7 @@ RC BplusTreeHandler::insert_into_new_root(PageNum left_page, const char *pkey, P
   return SUCCESS;
 }
 
-RC BplusTreeHandler::insert_entry(const char *pkey, const RID *rid) {
+RC BplusTreeHandler::insert_entry(const char *pkey, const RID *rid, int is_unique) {
   RC rc;
   PageNum leaf_page;
   BPPageHandle page_handle;
@@ -815,20 +861,35 @@ RC BplusTreeHandler::insert_entry(const char *pkey, const RID *rid) {
   }
   memcpy(key,pkey,file_header_.attr_length);
   memcpy(key + file_header_.attr_length, rid, sizeof(*rid));
+//   printf("key: %d\n", *key);
+    // if (is_unique)
+    // {
+    //     rc = check_unique(key);
+    //     if (rc != RC::SUCCESS)
+    //     {
+    //         free(key);
+    //         printf(COLOR_RED "[ERROR] Unique.\n");
+    //         return RC::INVALID_ARGUMENT;
+    //     }
+            
+    // }
   rc= find_leaf(key, &leaf_page);
-  if(rc!=SUCCESS){
+  if(rc != RC::SUCCESS){
+    printf(COLOR_RED "[ERROR] Unique: find_leaf error.\n");
     free(key);
     return rc;
   }
 
   rc = disk_buffer_pool_->get_this_page(file_id_, leaf_page, &page_handle);
-  if(rc!=SUCCESS){
+  if(rc != RC::SUCCESS){
+    printf(COLOR_RED "[ERROR] Unique: get_this_page error.\n");
     free(key);
     return rc;
   }
 
   rc = disk_buffer_pool_->get_data(&page_handle, &pdata);
-  if(rc!=SUCCESS){
+  if(rc != RC::SUCCESS){
+    printf(COLOR_RED "[ERROR] Unique: get_data error.\n");
     free(key);
     return rc;
   }

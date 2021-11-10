@@ -655,7 +655,7 @@ static RC insert_index_record_reader_adapter(Record *record, void *context)
     return inserter.insert_index(record);
 }
 
-RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_name)
+RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_name, int is_unique)
 {
     if (index_name == nullptr || common::is_blank(index_name) ||
         attribute_name == nullptr || common::is_blank(attribute_name))
@@ -684,7 +684,7 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
     }
 
     IndexMeta new_index_meta;
-    RC rc = new_index_meta.init(index_name, *field_meta);
+    RC rc = new_index_meta.init(index_name, *field_meta, is_unique);
     if (rc != RC::SUCCESS)
     {
         printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create index ["
