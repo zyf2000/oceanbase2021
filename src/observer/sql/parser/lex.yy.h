@@ -503,7 +503,7 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 88 "./src/observer/sql/parser/lex_sql.l"
+#line 89 "./src/observer/sql/parser/lex_sql.l"
 
 
 #line 510 "./src/observer/sql/parser/lex.yy.h"
