@@ -208,13 +208,12 @@ int CompareKey(const char *pdata, const char *pkey,AttrType attr_type,int attr_l
 int CmpKey(AttrType attr_type, int attr_length, const char *pdata, const char *pkey)
 {
   int result = CompareKey(pdata, pkey, attr_type, attr_length);
-  return result;
-//   if (0 != result) {
-//     return result;
-//   }
-//   RID *rid1 = (RID *) (pdata + attr_length);
-//   RID *rid2 = (RID *) (pkey + attr_length);
-//   return CmpRid(rid1, rid2);
+  if (0 != result) {
+    return result;
+  }
+  RID *rid1 = (RID *) (pdata + attr_length);
+  RID *rid2 = (RID *) (pkey + attr_length);
+  return CmpRid(rid1, rid2);
 }
 
 RC BplusTreeHandler::find_leaf_unique(const char *pkey, PageNum *leaf_page) {
