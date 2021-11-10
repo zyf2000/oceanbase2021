@@ -363,7 +363,9 @@ RC Table::insert_record_tuples(Trx *trx, int insert_tuple_num, const InsertTuple
     if (insert_tuple_num <= 0 || nullptr == insert_tuples)
     {
         printf(COLOR_RED "[ERROR] "
-                COLOR_YELLOW "Invalid argument. insert tuple num="COLOR_GREEN"%d"COLOR_YELLOW", insert tuples="COLOR_GREEN"%p"COLOR_YELLOW".\n",
+                COLOR_YELLOW "Invalid argument. insert tuple num="
+               COLOR_GREEN "%d" COLOR_YELLOW ", insert tuples="
+               COLOR_GREEN "%p" COLOR_YELLOW ".\n",
                 insert_tuple_num, insert_tuples);
         return RC::INVALID_ARGUMENT;
     }
@@ -378,7 +380,9 @@ RC Table::insert_record_tuples(Trx *trx, int insert_tuple_num, const InsertTuple
         if (value_num <= 0 || nullptr == values)
         {
             printf(COLOR_RED "[ERROR] "
-                COLOR_YELLOW "Invalid argument. value num="COLOR_GREEN"%d"COLOR_YELLOW", values="COLOR_GREEN"%p"COLOR_YELLOW".\n",
+                COLOR_YELLOW "Invalid argument. value num=" COLOR_GREEN "%d" 
+                   COLOR_YELLOW ", values="
+                   COLOR_GREEN "%p" COLOR_YELLOW ".\n",
                 value_num, values);
             break;
         }
@@ -388,7 +392,7 @@ RC Table::insert_record_tuples(Trx *trx, int insert_tuple_num, const InsertTuple
         if (rc != RC::SUCCESS)
         {
             printf(COLOR_RED "[ERROR] "
-                COLOR_YELLOW "Failed to create a record. rc="COLOR_GREEN"%d"COLOR_YELLOW":"COLOR_GREEN"%s"COLOR_YELLOW".\n",
+                COLOR_YELLOW "Failed to create a record. rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n",
                 rc, strrc(rc));
             break;
         }
