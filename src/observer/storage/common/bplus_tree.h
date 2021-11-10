@@ -94,7 +94,7 @@ public:
   RC print();
   RC print_tree();
 protected:
-    RC check_unique(const char *pkey);
+  RC find_leaf_unique(const char *pkey, PageNum *leaf_page);
   RC find_leaf(const char *pkey, PageNum *leaf_page);
   RC insert_into_leaf(PageNum leaf_page, const char *pkey, const RID *rid);
   RC insert_into_leaf_after_split(PageNum leaf_page, const char *pkey, const RID *rid);
