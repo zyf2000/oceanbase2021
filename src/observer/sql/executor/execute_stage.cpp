@@ -782,7 +782,8 @@ std::pair<RC, std::string> Resolve_Attr_Scope(
              
       RelAttr& attr = **p;
       printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Trying to find attachment for attribute "
-             COLOR_GREEN "%s" COLOR_YELLOW ".\n",
+             COLOR_GREEN "%s.%s" COLOR_YELLOW ".\n",
+             attr.relation_name,
              attr.attribute_name);
       if (attr.relation_name != nullptr)
         {
@@ -833,6 +834,7 @@ std::pair<RC, std::string> Resolve_Attr_Scope(
 
                 }
               attr.related_table = table;
+              attr.relation_name = (char*) table->name();
             }
         }
     }

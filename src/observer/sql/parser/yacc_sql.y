@@ -70,6 +70,8 @@ ParserContext *get_context(yyscan_t scanner)
         TABLES
         INDEX
         SELECT
+        INNER
+        JOIN
         DESC
         SHOW
         SYNC
@@ -357,10 +359,9 @@ update:			/*  update 语句的语法解析树*/
 		}
     ;
 select:				/*  select 语句的语法解析树*/
-    SELECT select_attr FROM ID rel_list where SEMICOLON
+    SELECT select_attr FROM relation_container where SEMICOLON
 		{
 			// CONTEXT->ssql->sstr.selection.relations[CONTEXT->from_length++]=$4;
-			selects_append_relation(&CONTEXT->ssql->sstr.selection, $4);
 
 			selects_append_conditions(&CONTEXT->ssql->sstr.selection, CONTEXT->conditions, CONTEXT->condition_length);
 
@@ -372,8 +373,28 @@ select:				/*  select 语句的语法解析树*/
 			CONTEXT->from_length=0;
 			CONTEXT->select_length=0;
 			CONTEXT->value_length = 0;
-	}
+                }
 	;
+
+relation_container:
+                ID join_container
+                {
+                    selects_append_relation(&CONTEXT->ssql->sstr.selection, $1);
+                }
+        |       ID join_container COMMA relation_container
+                {
+                    selects_append_relation(&CONTEXT->ssql->sstr.selection, $1);
+                }
+        ;
+
+join_container:
+                /* Empty */
+                {}
+        |       INNER JOIN ID ON condition condition_list join_container
+                {
+                    selects_append_relation(&CONTEXT->ssql->sstr.selection, $3);
+                }
+                
 // SELECT *
 // SELECT id
 // SELECT max(count)
@@ -437,23 +458,6 @@ attr_list: /* Empty */
         |       COMMA select_attr_expr attr_list
                 {}
         ;
-/* attr_list: */
-/*     /\* empty *\/ */
-/*     | COMMA ID attr_list { */
-/* 			RelAttr attr; */
-/* 			relation_attr_init(&attr, NULL, $2); */
-/* 			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr); */
-/*      	  // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].relation_name = NULL; */
-/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].attribute_name=$2; */
-/*       } */
-/*     | COMMA ID DOT ID attr_list { */
-/* 			RelAttr attr; */
-/* 			relation_attr_init(&attr, $2, $4); */
-/* 			selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr); */
-/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length].attribute_name=$4; */
-/*         // CONTEXT->ssql->sstr.selection.attributes[CONTEXT->select_length++].relation_name=$2; */
-/*   	  } */
-/*   	; */
 
 rel_list:
     /* empty */
