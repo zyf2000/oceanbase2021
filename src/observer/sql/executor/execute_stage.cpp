@@ -38,6 +38,67 @@
 
 using namespace common;
 
+TupleValue* build_value(Value* immediate);
+class Arbiter
+{
+public:
+  bool judge(const Tuple& tup) const;
+  Arbiter(Condition* rule, const TupleSchema& tsc);
+private:
+  int lhs;
+  int rhs;
+  TupleValue* ltv;
+  TupleValue* rtv;
+  CompOp cmpop;
+
+};
+
+void print_cond(Condition* cond)
+{
+  if(cond->left_is_attr)
+    printf("%s.%s ",
+           cond->left_attr.relation_name,
+           cond->left_attr.attribute_name);
+  else
+    {
+      build_value(&cond->left_value)->to_string(std::cout);
+    }
+  switch(cond->comp)
+    {
+    case EQUAL_TO:
+      printf("==");
+      break;
+    case LESS_EQUAL:
+      printf("==");
+      break;
+    case NOT_EQUAL:
+      printf("==");
+      break;
+    case LESS_THAN:
+      printf("==");
+      break;
+    case GREAT_EQUAL:
+      printf("==");
+      break;
+    case GREAT_THAN:
+      printf("==");
+      break;
+    default:
+      printf("[UNK]");
+      break;
+    }
+
+  if(cond->right_is_attr)
+    printf("%s.%s ",
+           cond->right_attr.relation_name,
+           cond->right_attr.attribute_name);
+  else
+    {
+      build_value(&cond->right_value)->to_string(std::cout);
+    }
+  
+  
+}
 void attr_to_number(const TupleSchema& tsc,
                     const char* relation_name,
                     const char* attribute_name,
@@ -69,6 +130,7 @@ Create_Select_Table_Executor(Trx* transaction,                // Transaction
 void dfs_cartesian(const std::vector<TupleSet>& ts,
                    int ts_depth,
                    Tuple& current_tuple,
+                   const std::vector<Arbiter>& arbiters,
                    std::vector<Tuple>& output);
 
 RC check_tuple(TupleSchema& tsc,
@@ -525,15 +587,19 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             tsc.append(it.get_schema());
           }
         Tuple current_tuple;
-
-        dfs_cartesian(tuple_sets, 0, current_tuple, tup_vec);
+        std::vector<Arbiter> arbiters;
+        for(int i = 0; i < selects.condition_num; i++)
+          {
+            arbiters.emplace_back(Arbiter(&selects.conditions[i], tsc));
+          }
+        dfs_cartesian(tuple_sets, 0, current_tuple, arbiters, tup_vec);
         /// Pass 3.2. Selection under WHERE condition
-        for(const auto& it : cond_list)
-          if(it.second == false)
-            // Cross-table condition
-            {
-              check_tuple(tsc, tup_vec, it.first);
-            }
+        // for(const auto& it : cond_list)
+        //   if(it.second == false)
+        //     // Cross-table condition
+        //     {
+        //       check_tuple(tsc, tup_vec, it.first);
+        //     }
         TupleSchema real_tsc;
         std::vector<Tuple> real_tup_vec;
         std::vector<int> order;
@@ -962,11 +1028,17 @@ Create_Select_Table_Executor(Trx* transaction,
 void dfs_cartesian(const std::vector<TupleSet>& ts,
                    int ts_depth,
                    Tuple& current_tuple,
+                   const std::vector<Arbiter>& arbiters,
                    std::vector<Tuple>& output)
 {
   if(ts_depth == ts.size())
     {
       auto ct = current_tuple;
+      for(const auto& it : arbiters)
+        {
+          if(!it.judge(ct))
+            return;
+        }
       output.emplace_back(std::move(ct));
       return;
     }
@@ -975,7 +1047,7 @@ void dfs_cartesian(const std::vector<TupleSet>& ts,
     {
       for(const auto& p : it.values())
         current_tuple.add(p);
-      dfs_cartesian(ts, ts_depth+1, current_tuple, output);
+      dfs_cartesian(ts, ts_depth+1, current_tuple, arbiters, output);
       for(int i = 0; i < it.size(); i++)
         current_tuple.pop_back();
     }
@@ -1121,6 +1193,79 @@ RC check_tuple(TupleSchema& tsc,
   return RC::SUCCESS;
 }
 #undef GET
+
+
+Arbiter::Arbiter(Condition* rule, const TupleSchema& tsc)
+{
+  lhs = -1, rhs = -1;
+    if(!rule->left_is_attr)
+    lhs = -2; // Value type
+  if(!rule->right_is_attr)
+    rhs = -2;
+
+  // if(lhs == -2 && rhs == -2) // SPJ: Const
+  //   {assert(0);}
+  // else
+  
+  for(int i = 0; i < tsc.fields().size(); i++)
+    {
+      auto& it = tsc.fields()[i];
+      if(lhs == -1 &&
+         strcmp(it.field_name(),rule->left_attr.attribute_name) == 0 &&
+         strcmp(it.table_name(),rule->left_attr.relation_name) == 0)
+        {
+          lhs = i;
+        }
+      if(rhs == -1 &&
+         strcmp(it.field_name(),rule->right_attr.attribute_name) == 0 &&
+         strcmp(it.table_name(),rule->right_attr.relation_name) == 0)
+        {
+          rhs = i;
+        }
+    }
+  if(lhs == -1 || rhs == -1)
+    {
+      LOG_ERROR(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "A field specified in WHERE clause seems not exist in any table.");
+      assert(0);
+    }
+  
+  if(lhs == -2) ltv = build_value(&rule->left_value);
+  if(rhs == -2) rtv = build_value(&rule->right_value);
+  
+  // 2. Type Check
+  AttrType ltype = (lhs == -2)?rule->left_value.type :tsc.fields()[lhs].type();
+  AttrType rtype = (rhs == -2)?rule->right_value.type:tsc.fields()[rhs].type();
+  if(ltype != rtype)
+    {
+      LOG_ERROR(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "The type of a WHERE clause mismatches. "
+                COLOR_GREEN "%d" COLOR_YELLOW " <-> "
+                COLOR_GREEN "%d" COLOR_YELLOW "\n",
+                ltype, rtype);
+      print_cond(rule);
+      fflush(stdout);
+      assert(0);
+    }
+
+  this->cmpop = rule->comp;
+};
+
+bool Arbiter::judge(const Tuple &tup) const
+{
+#define GET(lr,cnt) cnt >= 0? &tup.get(cnt) : (lr ## tv)
+  const TupleValue* lval = GET(l,lhs);
+  const TupleValue* rval = GET(r,rhs);
+  if(match_result(this->cmpop, lval->compare(*rval)))
+    {
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+#undef GET
+}
 
 void attr_to_number(const TupleSchema& tsc,
                     const char* relation_name,
