@@ -592,6 +592,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         tsc.append(tuple_sets[0].get_schema());
         for(int i = 1; i < tuple_sets.size(); i++)
           {
+              printf("%d\n", i);
             tsc.append(tuple_sets[1].get_schema());
             std::vector<Tuple> tup_vec;
 
@@ -1204,6 +1205,29 @@ bool Arbiter::judge(const Tuple &tup) const
 #define GET(lr,cnt) cnt >= 0? &tup.get(cnt) : (lr ## tv)
   const TupleValue* lval = GET(l,lhs);
   const TupleValue* rval = GET(r,rhs);
+
+  std::stringstream ssl,ssr;
+  lval->to_string(ssl);
+  rval->to_string(ssr);
+  int lnull = ! strcasecmp(ssl.str().c_str(), "null");
+  int rnull = ! strcasecmp(ssr.str().c_str(), "null");
+  
+  #define CMP(infix, cond, res) \
+  {\
+    if(this->cmpop == infix && cond)\
+    {\
+    return res;\
+    }\
+  }
+  CMP(IS_NULL,lnull && rnull, true);
+  CMP(IS_NULL, lnull && !rnull, false);
+    CMP(IS_NULL, !lnull && rnull, false);
+  CMP(IS_NOT_NULL,lnull && rnull, false);
+  CMP(IS_NOT_NULL, lnull && !rnull, true);
+    CMP(IS_NOT_NULL, !lnull && rnull, true);
+    if(lnull || rnull) return false;
+  #undef CMP
+  
   if(match_result(this->cmpop, lval->compare(*rval)))
     {
       return true;
