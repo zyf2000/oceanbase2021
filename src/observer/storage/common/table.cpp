@@ -442,7 +442,7 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
     {
         const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
         const Value &value = values[i];
-        if (field->type() != value.type)
+        if (field->type() != value.type && !(field->nullable() == 1 && value.type == NULLS))
         {
             LOG_ERROR("Invalid value type. field name=%s, type=%d, but given=%d",
                       field->name(), field->type(), value.type);

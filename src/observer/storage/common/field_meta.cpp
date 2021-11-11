@@ -70,6 +70,7 @@ RC FieldMeta::init(const char *name, AttrType attr_type, int attr_offset, int at
   attr_len_ = attr_len;
   attr_offset_ = attr_offset;
   visible_ = visible;
+  nullable_ = nullable;
 
   LOG_INFO("Init a field with name=%s", name);
   return RC::SUCCESS;
@@ -93,6 +94,11 @@ int FieldMeta::len() const {
 
 bool FieldMeta::visible() const {
   return visible_;
+}
+
+int FieldMeta::nullable() const
+{
+    return nullable_;
 }
 
 void FieldMeta::desc(std::ostream &os) const {
