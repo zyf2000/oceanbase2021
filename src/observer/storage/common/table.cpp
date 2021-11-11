@@ -551,11 +551,11 @@ RC Table::scan_record(Trx *trx, ConditionFilter *filter, int limit, void *contex
         limit = INT_MAX;
     }
 
-    IndexScanner *index_scanner = find_index_for_scan(filter);
-    if (index_scanner != nullptr)
-    {
-        return scan_record_by_index(trx, index_scanner, filter, limit, context, record_reader);
-    }
+    // IndexScanner *index_scanner = find_index_for_scan(filter);
+    // if (index_scanner != nullptr)
+    // {
+    //     return scan_record_by_index(trx, index_scanner, filter, limit, context, record_reader);
+    // }
 
     RC rc = RC::SUCCESS;
     RecordFileScanner scanner;
@@ -610,17 +610,17 @@ RC Table::scan_record_by_index(Trx *trx, IndexScanner *scanner, ConditionFilter 
                 rc = RC::SUCCESS;
                 break;
             }
-            LOG_ERROR("Failed to scan table by index. rc=%d:%s", rc, strrc(rc));
+            printf("Failed to scan table by index. rc=%d:%s", rc, strrc(rc));
             break;
         }
 
         rc = record_handler_->get_record(&rid, &record);
         if (rc != RC::SUCCESS)
         {
-            LOG_ERROR("Failed to fetch record of rid=%d:%d, rc=%d:%s", rid.page_num, rid.slot_num, rc, strrc(rc));
+            printf("Failed to fetch record of rid=%d:%d, rc=%d:%s", rid.page_num, rid.slot_num, rc, strrc(rc));
             break;
         }
-
+        
         if ((trx == nullptr || trx->is_visible(this, &record)) && (filter == nullptr || filter->filter(record)))
         {
             rc = record_reader(&record, context);

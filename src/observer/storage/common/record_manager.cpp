@@ -517,13 +517,13 @@ RC RecordFileHandler::get_record(const RID *rid, Record *rec)
     RC ret = RC::SUCCESS;
     if (nullptr == rid || nullptr == rec)
     {
-        LOG_ERROR("Invalid rid %p or rec %p, one of them is null. ", rid, rec);
+        printf("Invalid rid %p or rec %p, one of them is null. ", rid, rec);
         return RC::INVALID_ARGUMENT;
     }
     RecordPageHandler page_handler;
     if ((ret != page_handler.init(*disk_buffer_pool_, file_id_, rid->page_num)) != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to init record page handler.page number=%d, file_id:%d",
+        printf("Failed to init record page handler.page number=%d, file_id:%d",
                   rid->page_num, file_id_);
         return ret;
     }
