@@ -1131,7 +1131,6 @@ TupleValue* build_value(Value* immediate)
     case UNDEFINED:
       assert(0);
     }
-
   
 }
 
