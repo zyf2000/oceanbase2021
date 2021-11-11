@@ -89,9 +89,10 @@ void value_init_string(Value *value, const char *v) {
   value->type = CHARS;
   value->data = strdup(v);
 }
-void value_init_null(Value *value)
+void value_init_null(Value *value, const char *v)
 {
     value->type = NULLS;
+    value->data = strdup(v);
 }
 void value_init_dates(Value *value, const char *v)
 {

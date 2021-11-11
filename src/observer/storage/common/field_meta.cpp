@@ -146,7 +146,7 @@ RC FieldMeta::from_json(const Json::Value &json_value, FieldMeta &field) {
     LOG_ERROR("Visible field is not a bool value. json value=%s", visible_value.toStyledString().c_str());
     return RC::GENERIC_ERROR;
   }
-  if (!visible_value.isInt()) {
+  if (!nullable_value.isInt()) {
     LOG_ERROR("Nullable field is not an integer. json value=%s", nullable_value.toStyledString().c_str());
     return RC::GENERIC_ERROR;
   }

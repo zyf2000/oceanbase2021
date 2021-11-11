@@ -70,7 +70,7 @@ QUOTE            [\'\"]
 [Rr][Oo][Ll][Ll][Bb][Aa][Cc][Kk]                                   RETURN_TOKEN(TRX_ROLLBACK);
 [Nn][Uu][Ll][Ll][Aa][Bb][Ll][Ee]                                RETURN_TOKEN(NULLABLE);
 [Nn][Oo][Tt]                                                    RETURN_TOKEN(NOT);
-[Nn][Uu][Ll][Ll]                                                RETURN_TOKEN(NULL_T);
+[Nn][Uu][Ll][Ll]                                                yylval->string=strdup(yytext);RETURN_TOKEN(NULL_T);
 [Ii][Nn][Tt]					                                RETURN_TOKEN(INT_T);
 [Cc][Hh][Aa][Rr]				                                RETURN_TOKEN(STRING_T);
 [Ff][Ll][Oo][Aa][Tt]			                                RETURN_TOKEN(FLOAT_T);

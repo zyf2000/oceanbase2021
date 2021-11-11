@@ -215,7 +215,7 @@ void relation_attr_destroy(RelAttr *relation_attr);
 void value_init_integer(Value *value, int v);
 void value_init_float(Value *value, float v);
 void value_init_string(Value *value, const char *v);
-void value_init_null(Value *value);
+void value_init_null(Value *value, const char *v);
 int char_to_int(const char *v, int l, int r);
 void value_init_dates(Value *value, const char *v);
 void value_destroy(Value *value);

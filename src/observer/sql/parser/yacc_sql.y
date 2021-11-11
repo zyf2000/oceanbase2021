@@ -128,6 +128,7 @@ ParserContext *get_context(yyscan_t scanner)
 %token <string> PATH
 %token <string> DATESSS
 %token <string> SSS
+%token <string> NULL_T
 %token <string> STAR
 %token <string> STRING_V
 //非终结符
@@ -352,7 +353,7 @@ value:
         value_init_dates(&CONTEXT->values[CONTEXT->value_length++], $1);
     }
     |NULL_T {
-        value_init_null(&CONTEXT->values[CONTEXT->value_length++]);
+        value_init_null(&CONTEXT->values[CONTEXT->value_length++], $1);
     }
     ;
     
