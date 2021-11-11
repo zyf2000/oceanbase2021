@@ -754,7 +754,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                 //   printf("field type: %d\n", field_type);
 
                   int Count = 0;
-                  float Avg = 0.0;
+                  float Avg = -0.0;
+                  bool null_avg = true;
                   std::shared_ptr<TupleValue> Max = nullptr;
                   std::shared_ptr<TupleValue> Min = nullptr;
 
@@ -794,6 +795,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                          }
                          break;
                          case AGG_AVG:{
+                            null_avg = false;
                             float value_float = float_from_string(s);
                             Avg += value_float;
                          }
@@ -809,6 +811,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                       
 
                   TupleValue* tuple_value;
+                  const char *nullstmp = new char[5];
+                  nullstmp = "NULL";
                   switch (attr->aggregate_func)
                   {
                       case AGG_COUNT:{
@@ -816,15 +820,24 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                       }
                       break;
                       case AGG_MAX:{
-                          tuple.add(Max);
+                          if (Max == nullptr)
+                            tuple.add(nullstmp, strlen(nullstmp));
+                          else
+                            tuple.add(Max);
                       }
                       break;
                       case AGG_MIN:{
-                          tuple.add(Min);
+                          if (Min == nullptr)
+                            tuple.add(nullstmp, strlen(nullstmp));
+                          else
+                            tuple.add(Min);
                       }
                       break;
                       case AGG_AVG:{
-                          tuple.add(Avg);
+                          if (null_avg == true)
+                            tuple.add(nullstmp, strlen(nullstmp));
+                          else
+                            tuple.add(Avg);
                       }
                       break;
                       default:
