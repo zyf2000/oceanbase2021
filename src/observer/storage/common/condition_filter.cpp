@@ -202,17 +202,11 @@ bool DefaultConditionFilter::filter(const Record &rec) const
         break;
     case NULLS:
         {
-            if (strcasecmp(left_value, "null") == 0 && strcasecmp(right_value, "null") == 0)
-            {
-                if (comp_op_ == IS_NULL) return 1;
-                return 0;
-            }
-            else    // left_value == null or right_value == null
-            {
-                if (comp_op_ == IS_NULL) return 0;
-                if (comp_op_ == IS_NOT_NULL) return 1;
-                return 0;
-            }
+            if (comp_op_ == IS_NULL)
+                return strcasecmp(left_value, right_value) == 0;
+            else if (comp_op_ == IS_NOT_NULL)
+                return strcasecmp(left_value, right_value) != 0;
+            return 0;
         }
         break;
     default:
