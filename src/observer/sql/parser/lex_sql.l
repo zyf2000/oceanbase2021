@@ -69,6 +69,7 @@ QUOTE            [\'\"]
 [Cc][Oo][Mm][Mm][Ii][Tt]                                           RETURN_TOKEN(TRX_COMMIT);
 [Rr][Oo][Ll][Ll][Bb][Aa][Cc][Kk]                                   RETURN_TOKEN(TRX_ROLLBACK);
 [Nn][Uu][Ll][Ll][Aa][Bb][Ll][Ee]                                RETURN_TOKEN(NULLABLE);
+[Ii][Ss]                                                        RETURN_TOKEN(IS);
 [Nn][Oo][Tt]                                                    RETURN_TOKEN(NOT);
 [Nn][Uu][Ll][Ll]                                                yylval->string=strdup(yytext);RETURN_TOKEN(NULL_T);
 [Ii][Nn][Tt]					                                RETURN_TOKEN(INT_T);

@@ -72,39 +72,40 @@ extern int yydebug;
     TRX_COMMIT = 278,
     TRX_ROLLBACK = 279,
     NULLABLE = 280,
-    NOT = 281,
-    NULL_T = 282,
-    INT_T = 283,
-    STRING_T = 284,
-    FLOAT_T = 285,
-    DATE_T = 286,
-    HELP = 287,
-    EXIT = 288,
-    DOT = 289,
-    INTO = 290,
-    VALUES = 291,
-    FROM = 292,
-    WHERE = 293,
-    AND = 294,
-    SET = 295,
-    ON = 296,
-    LOAD = 297,
-    DATA = 298,
-    INFILE = 299,
-    EQ = 300,
-    LT = 301,
-    GT = 302,
-    LE = 303,
-    GE = 304,
-    NE = 305,
-    NUMBER = 306,
-    FLOAT = 307,
-    ID = 308,
-    PATH = 309,
-    DATESSS = 310,
-    SSS = 311,
-    STAR = 312,
-    STRING_V = 313
+    IS = 281,
+    NOT = 282,
+    NULL_T = 283,
+    INT_T = 284,
+    STRING_T = 285,
+    FLOAT_T = 286,
+    DATE_T = 287,
+    HELP = 288,
+    EXIT = 289,
+    DOT = 290,
+    INTO = 291,
+    VALUES = 292,
+    FROM = 293,
+    WHERE = 294,
+    AND = 295,
+    SET = 296,
+    ON = 297,
+    LOAD = 298,
+    DATA = 299,
+    INFILE = 300,
+    EQ = 301,
+    LT = 302,
+    GT = 303,
+    LE = 304,
+    GE = 305,
+    NE = 306,
+    NUMBER = 307,
+    FLOAT = 308,
+    ID = 309,
+    PATH = 310,
+    DATESSS = 311,
+    SSS = 312,
+    STAR = 313,
+    STRING_V = 314
   };
 #endif
 
@@ -112,7 +113,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 115 "./src/observer/sql/parser/yacc_sql.y"
+#line 116 "./src/observer/sql/parser/yacc_sql.y"
 
   struct _Attr *attr;
   struct _Condition *condition1;
@@ -122,7 +123,7 @@ union YYSTYPE
   float floats;
   char *position; 
 
-#line 126 "./src/observer/sql/parser/yacc_sql.tab.h"
+#line 127 "./src/observer/sql/parser/yacc_sql.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
