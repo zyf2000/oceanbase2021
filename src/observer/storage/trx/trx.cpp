@@ -44,6 +44,10 @@ int Trx::trx_field_len() {
   return sizeof(int32_t);
 }
 
+int Trx::trx_field_nullable() {
+  return 0;
+}
+
 Trx::Trx() {
 }
 

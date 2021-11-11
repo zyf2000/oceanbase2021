@@ -80,6 +80,7 @@ public:
   static const char *trx_field_name();
   static AttrType trx_field_type();
   static int      trx_field_len();
+  static int      trx_field_nullable();
 
 public:
   Trx();
