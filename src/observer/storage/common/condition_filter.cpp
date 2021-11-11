@@ -128,9 +128,18 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
     //  }
     // NOTE：这里没有实现不同类型的数据比较，比如整数跟浮点数之间的对比
     // 但是选手们还是要实现。这个功能在预选赛中会出现
-    if (type_left != type_right && type_left != NULLS && type_right != NULLS)
+    if (type_left != type_right)
     {
-        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        if (type_left == NULLS)
+        {
+            return init(left, right, type_left, condition.comp);
+        }
+        else if (type_right == NULLS)
+        {
+            return init(left, right, type_right, condition.comp);
+        }
+        else
+            return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
 
     return init(left, right, type_left, condition.comp);
@@ -189,6 +198,21 @@ bool DefaultConditionFilter::filter(const Record &rec) const
             int left = *(int *)left_value;
             int right = *(int *)right_value;
             cmp_result = left - right;
+        }
+        break;
+    case NULLS:
+        {
+            if (strcasecmp(left_value, "null") == 0 && strcasecmp(right_value, "null") == 0)
+            {
+                if (comp_op_ == IS_NULL) return 1;
+                return 0;
+            }
+            else    // left_value == null or right_value == null
+            {
+                if (comp_op_ == IS_NULL) return 0;
+                if (comp_op_ == IS_NOT_NULL) return 1;
+                return 0;
+            }
         }
         break;
     default:

@@ -2255,13 +2255,13 @@ yyreduce:
 
   case 93:
 #line 654 "./src/observer/sql/parser/yacc_sql.y"
-         { CONTEXT->comp = EQUAL_TO; }
+         { CONTEXT->comp = IS_NULL; }
 #line 2260 "./src/observer/sql/parser/yacc_sql.tab.c"
     break;
 
   case 94:
 #line 655 "./src/observer/sql/parser/yacc_sql.y"
-             { CONTEXT->comp = NOT_EQUAL; }
+             { CONTEXT->comp = IS_NOT_NULL; }
 #line 2266 "./src/observer/sql/parser/yacc_sql.tab.c"
     break;
 
