@@ -760,8 +760,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
 
                   for (auto it : ori_tuple_set)
                   {
-                      ++Count;
-
                       Tuple *tuple = &it;
                       const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(loc[i]);
                       
@@ -769,7 +767,10 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                       tuple_value->to_string(ss_);
                       std::string s = ss_.str();
                       ss_.clear();
+                      if (strcasecmp(s.c_str(), "null") == 0)
+                        continue;
 
+                      ++Count;
                       switch (attr->aggregate_func)
                       {
                          case AGG_MAX:{
