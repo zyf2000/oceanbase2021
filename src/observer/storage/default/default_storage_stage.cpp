@@ -369,6 +369,15 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
 
     switch (field->type()) {
       case INTS: {
+        if (field->nullable() == 1)
+        {
+            if (strcasecmp(file_value.c_str(), "null") == 0)
+            {
+                value_init_string(&record_values[i], file_value.c_str());
+                break;
+            }   
+        }
+
         deserialize_stream.clear(); // 清理stream的状态，防止多次解析出现异常
         deserialize_stream.str(file_value);
 
@@ -386,6 +395,15 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
 
       break;
       case FLOATS: {
+        if (field->nullable() == 1)
+        {
+            if (strcasecmp(file_value.c_str(), "null") == 0)
+            {
+                value_init_string(&record_values[i], file_value.c_str());
+                break;
+            }   
+        }
+
         deserialize_stream.clear();
         deserialize_stream.str(file_value);
 
@@ -405,7 +423,15 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
       }
       break;
       case DATES: {
-        //   value_init_dates(&record_values[i], file_value.c_str());
+        if (field->nullable() == 1)
+        {
+            if (strcasecmp(file_value.c_str(), "null") == 0)
+            {
+                value_init_string(&record_values[i], file_value.c_str());
+                break;
+            }   
+        }
+        
         deserialize_stream.clear();
         deserialize_stream.str(file_value);
 

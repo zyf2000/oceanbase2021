@@ -229,11 +229,29 @@ void TupleRecordConverter::add_record(const char *record) {
     assert(field_meta != nullptr);
     switch (field_meta->type()) {
       case INTS: {
+        if (field_meta->nullable() == 1)
+        {
+            const char *tmp = record + field_meta->offset();
+            if (strcasecmp(tmp, "null") == 0)
+            {
+                tuple.add(tmp, strlen(tmp));
+                break;
+            }
+        }
         int value = *(int*)(record + field_meta->offset());
         tuple.add(value);
       }
       break;
       case FLOATS: {
+        if (field_meta->nullable() == 1)
+        {
+            const char *tmp = record + field_meta->offset();
+            if (strcasecmp(tmp, "null") == 0)
+            {
+                tuple.add(tmp, strlen(tmp));
+                break;
+            }
+        }
         float value = *(float *)(record + field_meta->offset());
         tuple.add(value);
       }
@@ -244,9 +262,18 @@ void TupleRecordConverter::add_record(const char *record) {
       }
       break;
       case DATES: {
-          int value = *(int*)(record + field_meta->offset());
-          const char *s = int_to_char(value);
-          tuple.add(s, strlen(s));
+        if (field_meta->nullable() == 1)
+        {
+            const char *tmp = record + field_meta->offset();
+            if (strcasecmp(tmp, "null") == 0)
+            {
+                tuple.add(tmp, strlen(tmp));
+                break;
+            }
+        }
+        int value = *(int*)(record + field_meta->offset());
+        const char *s = int_to_char(value);
+        tuple.add(s, strlen(s));
       }
       break;
       default: {

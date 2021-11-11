@@ -866,7 +866,7 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
         Record update_record_ = record;
         RC ret = RC::SUCCESS;
         const FieldMeta *field = table_meta_.field(update_attr_id + normal_field_start_index);
-        if (field->type() != value->type)
+        if (field->type() != value->type && !(field->nullable() == 1 && value->type == NULLS))
         {
             printf(COLOR_RED "[ERROR]"
             COLOR_YELLOW "Invalid value type. field name=" COLOR_GREEN "%s"
