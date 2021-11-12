@@ -444,6 +444,10 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         }
       }
     delete table_temp;
+    /// SELECT ... ORDER BY [***]
+    for (int i = 0; i < selects.order_attr_num; ++i)
+        attr_array.push_back(&selects.order_attrs[i]);
+    
         
     for(size_t i = 0;
         i < selects.relation_num;

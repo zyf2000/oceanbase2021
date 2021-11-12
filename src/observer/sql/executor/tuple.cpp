@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/tuple.h"
 #include "storage/common/table.h"
 #include "common/log/log.h"
+#include "common/manual.h"
 
 Tuple::Tuple(const Tuple &other) :
   values_(other.values())
@@ -65,8 +66,19 @@ void Tuple::pop_back()
     values_.pop_back();
 }
 
-int Tuple::tuple_cmp(Selects *select, Tuple *tuple)
+int Tuple::tuple_cmp(int order_num, int *order_index, int *order_cmp, Tuple *tuple)
 {
+    for (int i = 0; i < order_num; ++i)
+    {
+        int index = order_index[i];
+        std::shared_ptr<TupleValue> tuple_value_ = values_[index];
+        std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(index);
+        int value_cmp = tuple_value_->compare(*tuple_value);
+        if (value_cmp == 0) continue;
+        int result = value_cmp > 0;
+        if (result == order_cmp[i]) return 0;
+        else return 1;
+    }
     return 0;
 }
 
@@ -200,7 +212,27 @@ RC TupleSet::order_by(Selects *selects)
 {
     int attr_num = selects->order_attr_num;
     RelAttr *attrs = selects->order_attrs;
-    int *cmp = selects->order_cmp;
+
+    int *order_index = new int[attr_num];
+    const std::vector<TupleField> fields = schema_.fields();
+    for (int i = 0; i < attr_num; ++i)
+    {
+        order_index[i] = -1;
+        for (int j = 0; j < fields.size(); ++j)
+        {
+            if ( strcmp((const char*)attrs[i].relation_name, fields[j].table_name()) == 0
+            && strcmp(attrs[i].attribute_name, fields[j].field_name()) == 0 )
+            {
+                order_index[i] = j;
+                break;
+            }
+        }
+        if (order_index[i] == -1)
+        {
+            printf(COLOR_RED "[ERROR] Order by: invalied attribute.\n");
+            return RC::INVALID_ARGUMENT;
+        }
+    }
 
     int n = tuples_.size();
     Tuple tuples[n + 2];
@@ -208,19 +240,22 @@ RC TupleSet::order_by(Selects *selects)
         tuples[i] = (Tuple)tuples_[i];
 
     for (int i = 0; i < n; ++i)
-        for (int j = 0; j < i; ++j)
+        for (int j = 1; j < n - i; ++j)
         {
-            Tuple tuple_l = tuples[j];
-            Tuple tuple_r = tuples[j + 1];
-            if (tuple_l.tuple_cmp(selects, &tuple_r))
+            // printf("%d %d :",j-1,j);
+            Tuple tuple_l = tuples[j - 1];
+            Tuple tuple_r = tuples[j];
+            if (tuple_l.tuple_cmp(attr_num, order_index, selects->order_cmp, &tuple_r))
             {
-                tuples[j] = (Tuple)tuple_r;
-                tuples[j + 1] = (Tuple)tuple_l;
+                // printf("swap\n");
+                tuples[j - 1] = (Tuple)tuple_r;
+                tuples[j] = (Tuple)tuple_l;
             }
         }
     tuples_.clear();
     for (int i = 0; i < n; ++i)
         tuples_.push_back(tuples[i]);
+    delete[] order_index;
     return RC::SUCCESS;
 }
 

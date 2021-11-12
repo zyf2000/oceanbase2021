@@ -40,7 +40,7 @@ public:
   void add(float value);
   void add(const char *s, int len);
   void pop_back();
-  int tuple_cmp(Selects *selects, Tuple *tuple);
+  int tuple_cmp(int order_num, int *order_index, int *order_cmp, Tuple *tuple);
   
   const std::vector<std::shared_ptr<TupleValue>> &values() const {
     return values_;
