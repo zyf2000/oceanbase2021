@@ -74,6 +74,7 @@ ParserContext *get_context(yyscan_t scanner)
         INNER
         JOIN
         DESC
+        ASC
         SHOW
         SYNC
         INSERT
@@ -100,6 +101,8 @@ ParserContext *get_context(yyscan_t scanner)
         VALUES
         FROM
         WHERE
+        ORDER
+        BY
         AND
         SET
         ON
@@ -139,6 +142,7 @@ ParserContext *get_context(yyscan_t scanner)
 %type <value1> value;
 %type <number> number;
 %type <number> whether_null;
+%type <number> cmp;
 
 %%
 
@@ -379,7 +383,7 @@ update:			/*  update 语句的语法解析树*/
 		}
     ;
 select:				/*  select 语句的语法解析树*/
-    SELECT select_attr FROM relation_container where SEMICOLON
+    SELECT select_attr FROM relation_container where order SEMICOLON
 		{
 			// CONTEXT->ssql->sstr.selection.relations[CONTEXT->from_length++]=$4;
 
@@ -484,6 +488,33 @@ rel_list:
     | COMMA ID rel_list {	
 				selects_append_relation(&CONTEXT->ssql->sstr.selection, $2);
 		  }
+    ;
+order:
+    /* empty */
+    | ORDER BY order_attr_expr order_attr_list {}
+    ;
+order_attr_expr:
+    ID cmp
+    {
+        RelAttr attr;
+        relation_attr_init(&attr, NULL, $1, NULL);
+        selects_append_order_attrs(&CONTEXT->ssql->sstr.selection, &attr, $2);
+    }
+    | ID DOT ID cmp
+    {
+        RelAttr attr;
+        relation_attr_init(&attr, $1, $3, NULL);
+        selects_append_order_attrs(&CONTEXT->ssql->sstr.selection, &attr, $4);
+    }
+    ;
+cmp:
+    /* empty */ { $$ = 0; }
+    | ASC { $$ = 0; }
+    | DESC { $$ = 1; }
+    ;
+order_attr_list:
+    /* empty */
+    | COMMA order_attr_expr order_attr_list {}
     ;
 where:
     /* empty */ 

@@ -65,6 +65,11 @@ void Tuple::pop_back()
     values_.pop_back();
 }
 
+int Tuple::tuple_cmp(Selects *select, Tuple *tuple)
+{
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string TupleField::to_string() const {
@@ -189,6 +194,34 @@ void TupleSet::print(std::ostream &os, bool print_header) const {
     values.back()->to_string(os);
     os << std::endl;
   }
+}
+
+RC TupleSet::order_by(Selects *selects)
+{
+    int attr_num = selects->order_attr_num;
+    RelAttr *attrs = selects->order_attrs;
+    int *cmp = selects->order_cmp;
+
+    int n = tuples_.size();
+    Tuple tuples[n + 2];
+    for (int i = 0; i < n ; ++i)
+        tuples[i] = (Tuple)tuples_[i];
+
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < i; ++j)
+        {
+            Tuple tuple_l = tuples[j];
+            Tuple tuple_r = tuples[j + 1];
+            if (tuple_l.tuple_cmp(selects, &tuple_r))
+            {
+                tuples[j] = (Tuple)tuple_r;
+                tuples[j + 1] = (Tuple)tuple_l;
+            }
+        }
+    tuples_.clear();
+    for (int i = 0; i < n; ++i)
+        tuples_.push_back(tuples[i]);
+    return RC::SUCCESS;
 }
 
 void TupleSet::set_schema(const TupleSchema &schema) {

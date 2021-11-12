@@ -40,6 +40,7 @@ public:
   void add(float value);
   void add(const char *s, int len);
   void pop_back();
+  int tuple_cmp(Selects *selects, Tuple *tuple);
   
   const std::vector<std::shared_ptr<TupleValue>> &values() const {
     return values_;
@@ -139,6 +140,7 @@ public:
   const std::vector<Tuple> &tuples() const;
 
   void print(std::ostream &os, bool print_header = false) const;
+  RC order_by(Selects *selects);
 public:
   const TupleSchema &schema() const {
     return schema_;

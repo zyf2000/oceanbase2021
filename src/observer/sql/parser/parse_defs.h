@@ -42,9 +42,9 @@ typedef struct {
     int used_count;    /// Used Count [deprecated]
     void* related_table;  /// Related table
 
-    /// Group-by function
+    /// aggregation function
     AggregateFunction aggregate_func;
-    char *aggreage_func_name;
+    char *aggregate_func_name;
 } RelAttr;
 
 typedef enum {
@@ -88,6 +88,9 @@ typedef struct {
   char *    relations[MAX_NUM];     // relations in From clause
   size_t    condition_num;          // Length of conditions in Where clause
   Condition conditions[MAX_NUM];    // conditions in Where clause
+  size_t    order_attr_num;         // Length of attrs in Order by clause
+  RelAttr   order_attrs[MAX_NUM];   // attrs in Order by clause
+  int       order_cmp[MAX_NUM];     // cmp rules in Order by clause
 } Selects;
 
 // struct of insert tuple
@@ -233,6 +236,7 @@ void selects_init(Selects *selects, ...);
 void selects_append_attribute(Selects *selects, RelAttr *rel_attr);
 void selects_append_relation(Selects *selects, const char *relation_name);
 void selects_append_conditions(Selects *selects, Condition conditions[], size_t condition_num);
+void selects_append_order_attrs(Selects *selects, RelAttr *rel_attr, int order_cmp);
 void selects_destroy(Selects *selects);
 
 // void inserts_init(Inserts *inserts, const char *relation_name, Value values[], size_t value_num);

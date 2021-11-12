@@ -63,9 +63,9 @@ void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const
 
   relation_attr->aggregate_func = aggregate_func_from_string(aggregate_func_name);
   if (aggregate_func_name != nullptr)
-    relation_attr->aggreage_func_name = strdup(aggregate_func_name);
+    relation_attr->aggregate_func_name = strdup(aggregate_func_name);
   else
-    relation_attr->aggreage_func_name = nullptr;
+    relation_attr->aggregate_func_name = nullptr;
 }
 
 void relation_attr_destroy(RelAttr *relation_attr) {
@@ -190,6 +190,12 @@ void selects_append_conditions(Selects *selects, Condition conditions[], size_t 
   selects->condition_num = condition_num;
 }
 
+void selects_append_order_attrs(Selects *selects, RelAttr *rel_attr, int order_cmp)
+{
+    selects->order_attrs[selects->order_attr_num] = *rel_attr;
+    selects->order_cmp[selects->order_attr_num++] = order_cmp;
+}
+
 void selects_destroy(Selects *selects) {
   for (size_t i = 0; i < selects->attr_num; i++) {
     relation_attr_destroy(&selects->attributes[i]);
@@ -206,6 +212,13 @@ void selects_destroy(Selects *selects) {
     condition_destroy(&selects->conditions[i]);
   }
   selects->condition_num = 0;
+
+  for (size_t i = 0; i < selects->order_attr_num; ++i)
+  {
+      relation_attr_destroy(&selects->order_attrs[i]);
+      selects->order_cmp[i] = 0;
+  }
+  selects->order_attr_num = 0;
 }
 
 // void inserts_init(Inserts *inserts, const char *relation_name, Value values[], size_t value_num) {

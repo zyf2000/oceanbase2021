@@ -652,6 +652,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
             tus.add(std::move(tp));
             // result->add(std::move(tp));
           }
+          if (selects.order_attr_num > 0)
+            tus.order_by(&selects);
           tus.print(ss, true);
       }
     else
@@ -694,7 +696,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                     }
 
                   // make up schema_field_name
-                  strcpy(schema_field_name, attr->aggreage_func_name);
+                  strcpy(schema_field_name, attr->aggregate_func_name);
                   strcat(schema_field_name, "(");
                   strcat(schema_field_name, attr->attribute_name);
                   strcat(schema_field_name, ")");
@@ -854,6 +856,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
                 printf("no aggregate\n");
                 // 当前只查询一张表，直接返回结果即可
                 // result = new TupleSet(std::move(tuple_sets.front()));
+                if (selects.order_attr_num > 0) 
+                    tuple_sets.front().order_by(&selects);
                 tuple_sets.front().print(ss);
           }
       }
