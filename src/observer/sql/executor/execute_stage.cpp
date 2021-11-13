@@ -391,7 +391,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   fflush(stdout);
   /// Test log END
 
-  bool aggregate = false;
+//   bool aggregate = false;
     
   /**
    * Pass 1, Resolve each attribute's valid scopes.
@@ -405,8 +405,8 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
       {
         attr_array.push_back(&selects.attributes[i]);
         // Check if attributes have aggregate functions
-        if (selects.attributes[i].aggregate_func != AGG_UNDEFINED)
-            aggregate = true;
+        // if (selects.attributes[i].aggregate_func != AGG_UNDEFINED)
+        //     aggregate = true;
       }
     /// SELECT ... from ... WHERE [***]
     Table *table_temp = new Table;

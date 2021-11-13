@@ -148,16 +148,27 @@ void TupleSchema::print(std::ostream &os, bool print_header) const {
 
   for (std::vector<TupleField>::const_iterator iter = fields_.begin(), end = --fields_.end();
        iter != end; ++iter) {
+    if (iter->agg_name() != nullptr)
+        os << iter->agg_name() << "(";
     if (table_names.size() > 1 || print_header) {
       os << iter->table_name() << ".";
     }
     os << iter->field_name() << " | ";
+    if (iter->agg_name() != nullptr)
+        os << ")";
+
   }
 
+    if (fields_.back().agg_name() != nullptr)
+        os << fields_.back().agg_name() << "(";
   if (table_names.size() > 1 || print_header) {
     os << fields_.back().table_name() << ".";
   }
-  os << fields_.back().field_name() << std::endl;
+//   os << fields_.back().field_name() << std::endl;
+    os << fields_.back().field_name();
+    if (fields_.back().agg_name() != nullptr)
+        os << ")";
+    os << std::endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -213,6 +224,7 @@ RC TupleSet::order_by(Selects *selects)
     int attr_num = selects->order_attr_num;
     RelAttr *attrs = selects->order_attrs;
 
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Order By: Prepare sorting order.\n");
     int *order_index = new int[attr_num];
     const std::vector<TupleField> fields = schema_.fields();
     for (int i = 0; i < attr_num; ++i)
@@ -229,11 +241,12 @@ RC TupleSet::order_by(Selects *selects)
         }
         if (order_index[i] == -1)
         {
-            printf(COLOR_RED "[ERROR] Order by: invalied attribute.\n");
+            printf(COLOR_RED "[ERROR] Order By: invalied attribute.\n");
             return RC::INVALID_ARGUMENT;
         }
     }
 
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Order By: Bubble sorting tuple set.\n");
     int n = tuples_.size();
     Tuple tuples[n + 2];
     for (int i = 0; i < n ; ++i)
@@ -252,6 +265,7 @@ RC TupleSet::order_by(Selects *selects)
                 tuples[j] = (Tuple)tuple_l;
             }
         }
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Order By: Put sorting result into tuple set.\n");
     tuples_.clear();
     for (int i = 0; i < n; ++i)
         tuples_.push_back(tuples[i]);
@@ -261,6 +275,50 @@ RC TupleSet::order_by(Selects *selects)
 
 RC TupleSet::group_by(Selects *selects)
 {
+    // TupleSet::       TupleSchema schema_;
+    // TupleSchema::    std::vector<TupleField> fields_;
+    // TupleField::     AttrType  type_;
+    //                  std::string table_name_;
+    //                  std::string field_name_;
+    const std::vector<TupleField> fields_ = schema_.fields();
+    TupleSchema schema;
+    // Attrs in selects <-> which colon in fields_
+    int loc[selects->attr_num];
+
+    /// Pass 1. Remake tuple schema according to aggregation func
+    ///         and find locations of attrs in fields_
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Group By: Remake schema for tuple set.\n");
+    for (int i = 0; i < selects->attr_num; ++i)
+    {
+        const RelAttr *attr = &selects->attributes[i];
+        const char *schema_field_name = new char[30];
+        const char *schema_field_table = new char[30];
+        AttrType schema_field_type = UNDEFINED;
+
+        for (int j = 0; j < fields_.size(); ++j)
+        {
+            printf("%d\n", j);
+            printf("%s.%s\n", fields_[j].table_name(), fields_[j].field_name());
+            printf("%s.%s\n", attr->relation_name, attr->attribute_name);
+            // if ( (strcmp(attr->attribute_name, "*") == 0 || strcmp(attr->relation_name, fields_[j].table_name()) == 0)
+            //     && strcmp(attr->attribute_name, fields_[j].field_name()) == 0)
+            // {
+            //     loc[i] = j;
+            //     break;
+            // }
+        }
+
+        // not an attribute with aggregation func
+        // if (attr->aggregate_func == AGG_UNDEFINED)
+        // {
+        //     AttrType schema_field_type = fields_[loc[i]].type();
+        //     const char *schema_field_name = fields_[loc[i]].field_name();
+        // }
+        // else
+        // {
+            
+        // }
+    }
     return RC::SUCCESS;
 }
 

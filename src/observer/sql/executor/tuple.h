@@ -79,11 +79,16 @@ public:
     return field_name_.c_str();
   }
 
+  const char *agg_name() const{
+      return agg_name_.c_str();
+  }
+
   std::string to_string() const;
 private:
   AttrType  type_;
   std::string table_name_;
   std::string field_name_;
+  std::string agg_name_;
 };
 
 class TupleSchema {
