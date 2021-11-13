@@ -64,8 +64,8 @@ private:
 
 class TupleField {
 public:
-  TupleField(AttrType type, const char *table_name, const char *field_name) :
-          type_(type), table_name_(table_name), field_name_(field_name){
+  TupleField(AttrType type, const char *table_name, const char *field_name, const char *agg_name) :
+          type_(type), table_name_(table_name), field_name_(field_name), agg_name_(agg_name){
   }
 
   AttrType  type() const{
@@ -78,9 +78,8 @@ public:
   const char *field_name() const {
     return field_name_.c_str();
   }
-
   const char *agg_name() const{
-      return agg_name_.c_str();
+    return agg_name_;
   }
 
   std::string to_string() const;
@@ -88,7 +87,7 @@ private:
   AttrType  type_;
   std::string table_name_;
   std::string field_name_;
-  std::string agg_name_;
+  const char *agg_name_;
 };
 
 class TupleSchema {
@@ -96,8 +95,8 @@ public:
   TupleSchema() = default;
   ~TupleSchema() = default;
 
-  void add(AttrType type, const char *table_name, const char *field_name);
-  void add_if_not_exists(AttrType type, const char *table_name, const char *field_name);
+  void add(AttrType type, const char *table_name, const char *field_name, const char *agg_name);
+  void add_if_not_exists(AttrType type, const char *table_name, const char *field_name, const char *agg_name);
   // void merge(const TupleSchema &other);
   void append(const TupleSchema &other);
 

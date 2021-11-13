@@ -644,7 +644,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
           {
             real_tsc.add(tsc.field(it).type(),
                          tsc.field(it).table_name(),
-                         tsc.field(it).field_name());
+                         tsc.field(it).field_name(), nullptr);
           }
         tus.set_schema(real_tsc);
         // result->set_schema(real_tsc);
@@ -661,14 +661,16 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         }
         if (selects.order_attr_num > 0)
             tus.order_by(&selects);
-        tus.group_by(&selects);
+        if (selects.group_attr_num > 0)
+            tus.group_by(&selects);
         tus.print(ss, true);
     }
     else
     {
         if (selects.order_attr_num > 0) 
             tuple_sets.front().order_by(&selects);
-        tuple_sets.front().group_by(&selects);
+        if (selects.group_attr_num > 0)
+            tuple_sets.front().group_by(&selects);
         tuple_sets.front().print(ss);
         //   if (aggregate)
         //   {
@@ -969,7 +971,7 @@ static RC schema_add_field(Table *table, const char *field_name, TupleSchema &sc
       return RC::SCHEMA_FIELD_MISSING;
     }
 
-  schema.add_if_not_exists(field_meta->type(), table->name(), field_meta->name());
+  schema.add_if_not_exists(field_meta->type(), table->name(), field_meta->name(), nullptr);
   return RC::SUCCESS;
 }
 

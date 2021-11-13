@@ -96,16 +96,16 @@ void TupleSchema::from_table(const Table *table, TupleSchema &schema) {
   for (int i = 0; i < field_num; i++) {
     const FieldMeta *field_meta = table_meta.field(i);
     if (field_meta->visible()) {
-      schema.add(field_meta->type(), table_name, field_meta->name());
+      schema.add(field_meta->type(), table_name, field_meta->name(), nullptr);
     }
   }
 }
 
-void TupleSchema::add(AttrType type, const char *table_name, const char *field_name) {
-  fields_.emplace_back(type, table_name, field_name);
+void TupleSchema::add(AttrType type, const char *table_name, const char *field_name, const char *agg_name) {
+  fields_.emplace_back(type, table_name, field_name, agg_name);
 }
 
-void TupleSchema::add_if_not_exists(AttrType type, const char *table_name, const char *field_name) {
+void TupleSchema::add_if_not_exists(AttrType type, const char *table_name, const char *field_name, const char *agg_name) {
   for (const auto &field: fields_) {
     if (0 == strcmp(field.table_name(), table_name) &&
         0 == strcmp(field.field_name(), field_name)) {
@@ -113,7 +113,7 @@ void TupleSchema::add_if_not_exists(AttrType type, const char *table_name, const
     }
   }
 
-  add(type, table_name, field_name);
+  add(type, table_name, field_name, agg_name);
 }
 
 void TupleSchema::append(const TupleSchema &other) {
@@ -291,32 +291,52 @@ RC TupleSet::group_by(Selects *selects)
     for (int i = 0; i < selects->attr_num; ++i)
     {
         const RelAttr *attr = &selects->attributes[i];
-        const char *schema_field_name = new char[30];
-        const char *schema_field_table = new char[30];
-        AttrType schema_field_type = UNDEFINED;
+        const char *field_name;
+        const char *field_table;
+        AttrType field_type = UNDEFINED;
+        const char *field_aggname;
 
         for (int j = 0; j < fields_.size(); ++j)
         {
-            printf("%d\n", j);
-            printf("%s.%s\n", fields_[j].table_name(), fields_[j].field_name());
-            printf("%s.%s\n", attr->relation_name, attr->attribute_name);
-            // if ( (strcmp(attr->attribute_name, "*") == 0 || strcmp(attr->relation_name, fields_[j].table_name()) == 0)
-            //     && strcmp(attr->attribute_name, fields_[j].field_name()) == 0)
-            // {
-            //     loc[i] = j;
-            //     break;
-            // }
+            // printf("%d\n", j);
+            // printf("%s.%s\n", fields_[j].table_name(), fields_[j].field_name());
+            // printf("%s.%s\n", attr->relation_name, attr->attribute_name);
+            if ( strcmp(attr->attribute_name, "*") == 0
+                || strcmp(attr->relation_name, fields_[j].table_name()) == 0 && strcmp(attr->attribute_name, fields_[j].field_name()) == 0 )
+            {
+                loc[i] = j;
+                break;
+            }
         }
 
-        // not an attribute with aggregation func
+        // field_name = fields_[loc[i]].field_name();
+        // field_table = fields_[loc[i]].table_name();
+        // // not an attribute with aggregation func
         // if (attr->aggregate_func == AGG_UNDEFINED)
-        // {
-        //     AttrType schema_field_type = fields_[loc[i]].type();
-        //     const char *schema_field_name = fields_[loc[i]].field_name();
+        // {    
+        //     field_type = fields_[loc[i]].type();
+        //     field_aggname = nullptr;
         // }
         // else
         // {
-            
+        //     switch (attr->aggregate_func)
+        //     {
+        //         case AGG_COUNT:
+        //             field_type = INTS;
+        //         break;
+        //         case AGG_MAX:
+        //             field_type = fields_[loc[i]].type();
+        //         break;
+        //         case AGG_MIN:
+        //             field_type = fields_[loc[i]].type();
+        //         break;
+        //         case AGG_AVG:
+        //             field_type = FLOATS;
+        //         break;
+        //         default:
+        //             assert(0);
+        //     }
+        //     field_aggname = attr->aggregate_func_name;
         // }
     }
     return RC::SUCCESS;
