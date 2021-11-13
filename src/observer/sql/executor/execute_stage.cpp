@@ -1281,10 +1281,11 @@ void attr_to_number(const TupleSchema& tsc,
       else
         {
           bool found = false;
-          for(int i = 1; i < tables.size(); i++)
+          for(int i = 0; i < tables.size(); i++)
+          {
             if(strcmp(tables[i]->name(), relation_name) == 0)
               {
-                for(int j = 0; j < tables[i]->table_meta().field_num(); j++)
+                for(int j = 1; j < tables[i]->table_meta().field_num(); j++)
                   {
                     attr_to_number(tsc,
                                    tables[i]->name(),
@@ -1296,7 +1297,8 @@ void attr_to_number(const TupleSchema& tsc,
                 break;
               }
           
-          assert(found);
+        }
+        assert(found);
         }
     }
   else
