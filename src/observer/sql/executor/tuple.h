@@ -141,6 +141,7 @@ public:
 
   void print(std::ostream &os, bool print_header = false) const;
   RC order_by(Selects *selects);
+  RC group_by(Selects *selects);
 public:
   const TupleSchema &schema() const {
     return schema_;

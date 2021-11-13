@@ -447,6 +447,9 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     /// SELECT ... ORDER BY [***]
     for (int i = 0; i < selects.order_attr_num; ++i)
         attr_array.push_back(&selects.order_attrs[i]);
+    /// SELECT ... GROUP BY [***]
+    for (int i = 0; i < selects.group_attr_num; ++i)
+        attr_array.push_back(&selects.group_attrs[i]);
     
         
     for(size_t i = 0;
@@ -582,7 +585,7 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     TupleSet* result;
     std::stringstream ss;
     if (tuple_sets.size() > 1)
-      {
+    {
         /// Hint: this query is (worst) O(n^k) for [k] tables.
         
         /// Note: This algorithm is of LOW PERFORMANCE, 
@@ -647,224 +650,216 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         // result->set_schema(real_tsc);
 
         for(auto it : tuple_sets[0].tuples())
-          {
+        {
             Tuple tp;
             for(auto itt : order)
-              {
+            {
                 tp.add(it.get_pointer(itt));
-              }
+            }
             tus.add(std::move(tp));
             // result->add(std::move(tp));
-          }
-          if (selects.order_attr_num > 0)
+        }
+        if (selects.order_attr_num > 0)
             tus.order_by(&selects);
-          tus.print(ss, true);
-      }
+        tus.group_by(&selects);
+        tus.print(ss, true);
+    }
     else
-      {
-          if (aggregate)
-          {
-              printf("aggregate\n");
-              const TupleSet *ori_tuple_sets = &tuple_sets.front();
-              TupleSet agg_tuple_set;
+    {
+        if (selects.order_attr_num > 0) 
+            tuple_sets.front().order_by(&selects);
+        tuple_sets.front().group_by(&selects);
+        tuple_sets.front().print(ss);
+        //   if (aggregate)
+        //   {
+        //       printf("aggregate\n");
+        //       const TupleSet *ori_tuple_sets = &tuple_sets.front();
+        //       TupleSet agg_tuple_set;
 
-              /// Pass 3.1. Make up schema for agg_tuple_set
-              TupleSchema agg_schema;
-              printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Make up schema for aggregate tuple set.\n");
-              Table* table = DefaultHandler::get_default().find_table(db, selects.relations[0]);
-              std::vector<AttrType> fields_type;
-              int loc[selects.attr_num];
-              for (int i = 0; i < selects.attr_num; ++i)
-              {
+        //       /// Pass 3.1. Make up schema for agg_tuple_set
+        //       TupleSchema agg_schema;
+        //       printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Make up schema for aggregate tuple set.\n");
+        //       Table* table = DefaultHandler::get_default().find_table(db, selects.relations[0]);
+        //       std::vector<AttrType> fields_type;
+        //       int loc[selects.attr_num];
+        //       for (int i = 0; i < selects.attr_num; ++i)
+        //       {
 
-                  const RelAttr *attr = &selects.attributes[i];
-                  char *schema_field_name = new char[30];
-                  const char *schema_field_table = selects.relations[0];
-                  AttrType schema_field_type = UNDEFINED;
+        //           const RelAttr *attr = &selects.attributes[i];
+        //           char *schema_field_name = new char[30];
+        //           const char *schema_field_table = selects.relations[0];
+        //           AttrType schema_field_type = UNDEFINED;
 
-                //   if (i == 0)
-                //     loc[i] = 0;
-                //   else
-                //   {
-                //       if (strcmp(attr->attribute_name, selects.attributes[i - 1].attribute_name) == 0)
-                //         loc[i] = loc[i - 1];
-                //       else
-                //         loc[i] = loc[i - 1] + 1;
-                //   }
-                  loc[i] = i;
-                  for (int j = 0; j < i; ++j)
-                    if (strcmp(attr->attribute_name, selects.attributes[j].attribute_name) == 0)
-                    {
-                        loc[i] = j;
-                        break;
-                    }
+        //           loc[i] = i;
+        //           for (int j = 0; j < i; ++j)
+        //             if (strcmp(attr->attribute_name, selects.attributes[j].attribute_name) == 0)
+        //             {
+        //                 loc[i] = j;
+        //                 break;
+        //             }
 
-                  // make up schema_field_name
-                  strcpy(schema_field_name, attr->aggregate_func_name);
-                  strcat(schema_field_name, "(");
-                  strcat(schema_field_name, attr->attribute_name);
-                  strcat(schema_field_name, ")");
-                //   printf("schema field name: %s\n", schema_field_name);
+        //           // make up schema_field_name
+        //           strcpy(schema_field_name, attr->aggregate_func_name);
+        //           strcat(schema_field_name, "(");
+        //           strcat(schema_field_name, attr->attribute_name);
+        //           strcat(schema_field_name, ")");
 
-                  // make up schema_field_type
-                  TableMeta table_meta_ = table->table_meta();
-                  const int normal_field_start_index = table_meta_.sys_field_num();
-                  const int attr_num = table_meta_.field_num() - normal_field_start_index;
-                  for (int j = 0; j < attr_num; ++j)
-                    {
-                        const FieldMeta *field = table_meta_.field(j + normal_field_start_index);
-                        if (strcmp(field->name(), attr->attribute_name) == 0)
-                        {
-                            schema_field_type = field->type();
-                            break;
-                        }
-                    }
-                    if (schema_field_type == UNDEFINED)
-                    {
-                        if (attr->aggregate_func != AGG_COUNT)
-                            return RC::INVALID_ARGUMENT;
-                    }
-                  // if aggregate function is count, then schema field type = INTS
-                  // if aggregate function is avg, then schema field type = FLOATS
-                  // if aggregate function is max or min, then schema field type is attributes' original type
-                  switch (attr->aggregate_func)
-                  {
-                    case AGG_COUNT:{
-                        schema_field_type = INTS;
-                    }
-                    break;
-                    case AGG_AVG:{
-                        schema_field_type = FLOATS;
-                    }
-                    break;
-                  }
-                //   printf("schema field type: %d\n", schema_field_type);
-                  // add this attribute's schema
-                  agg_schema.add_if_not_exists(schema_field_type, schema_field_table, schema_field_name);
-                  fields_type.push_back(schema_field_type);
-                  delete[] schema_field_name;
-              }
-              // add schema to tupleset
-              agg_tuple_set.set_schema(agg_schema);
+        //           // make up schema_field_type
+        //           TableMeta table_meta_ = table->table_meta();
+        //           const int normal_field_start_index = table_meta_.sys_field_num();
+        //           const int attr_num = table_meta_.field_num() - normal_field_start_index;
+        //           for (int j = 0; j < attr_num; ++j)
+        //             {
+        //                 const FieldMeta *field = table_meta_.field(j + normal_field_start_index);
+        //                 if (strcmp(field->name(), attr->attribute_name) == 0)
+        //                 {
+        //                     schema_field_type = field->type();
+        //                     break;
+        //                 }
+        //             }
+        //             if (schema_field_type == UNDEFINED)
+        //             {
+        //                 if (attr->aggregate_func != AGG_COUNT)
+        //                     return RC::INVALID_ARGUMENT;
+        //             }
+        //           // if aggregate function is count, then schema field type = INTS
+        //           // if aggregate function is avg, then schema field type = FLOATS
+        //           // if aggregate function is max or min, then schema field type is attributes' original type
+        //           switch (attr->aggregate_func)
+        //           {
+        //             case AGG_COUNT:{
+        //                 schema_field_type = INTS;
+        //             }
+        //             break;
+        //             case AGG_AVG:{
+        //                 schema_field_type = FLOATS;
+        //             }
+        //             break;
+        //           }
+        //           // add this attribute's schema
+        //           agg_schema.add_if_not_exists(schema_field_type, schema_field_table, schema_field_name);
+        //           fields_type.push_back(schema_field_type);
+        //           delete[] schema_field_name;
+        //       }
+        //       // add schema to tupleset
+        //       agg_tuple_set.set_schema(agg_schema);
 
 
-              /// Pass 3.2. Add data to agg_tuple_set
-              printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Add data to aggregate tuple set.\n");
-              const std::vector<Tuple> ori_tuple_set = ori_tuple_sets->tuples();
-              Tuple tuple;
-              for (int i = 0; i < selects.attr_num; ++i)
-              {
-                  printf("%d\n", loc[i]);
-                  const RelAttr *attr = &selects.attributes[i];
-                  const AttrType field_type = fields_type[i];
-                //   printf("field type: %d\n", field_type);
+        //       /// Pass 3.2. Add data to agg_tuple_set
+        //       printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Add data to aggregate tuple set.\n");
+        //       const std::vector<Tuple> ori_tuple_set = ori_tuple_sets->tuples();
+        //       Tuple tuple;
+        //       for (int i = 0; i < selects.attr_num; ++i)
+        //       {
+        //           printf("%d\n", loc[i]);
+        //           const RelAttr *attr = &selects.attributes[i];
+        //           const AttrType field_type = fields_type[i];
 
-                  int Count = 0;
-                  float Avg = -0.0;
-                  bool null_avg = true;
-                  std::shared_ptr<TupleValue> Max = nullptr;
-                  std::shared_ptr<TupleValue> Min = nullptr;
+        //           int Count = 0;
+        //           float Avg = -0.0;
+        //           bool null_avg = true;
+        //           std::shared_ptr<TupleValue> Max = nullptr;
+        //           std::shared_ptr<TupleValue> Min = nullptr;
 
-                  for (auto it : ori_tuple_set)
-                  {
-                      Tuple *tuple = &it;
-                      const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(loc[i]);
+        //           for (auto it : ori_tuple_set)
+        //           {
+        //               Tuple *tuple = &it;
+        //               const std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(loc[i]);
                       
-                      std::stringstream ss_;
-                      tuple_value->to_string(ss_);
-                      std::string s = ss_.str();
-                      ss_.clear();
-                      if (strcasecmp(s.c_str(), "null") == 0)
-                        continue;
+        //               std::stringstream ss_;
+        //               tuple_value->to_string(ss_);
+        //               std::string s = ss_.str();
+        //               ss_.clear();
+        //               if (strcasecmp(s.c_str(), "null") == 0)
+        //                 continue;
 
-                      ++Count;
-                      switch (attr->aggregate_func)
-                      {
-                         case AGG_MAX:{
-                            if (Max == nullptr)
-                                Max = tuple_value;
-                            else
-                            {
-                                if (Max->compare(*tuple_value) < 0)
-                                    Max = tuple_value;
-                            }
-                         } 
-                         break;
-                         case AGG_MIN:{
-                            if (Min == nullptr)
-                                Min = tuple_value;
-                            else
-                            {
-                                if (Min->compare(*tuple_value) > 0)
-                                    Min = tuple_value;
-                            }
-                         }
-                         break;
-                         case AGG_AVG:{
-                            null_avg = false;
-                            float value_float = float_from_string(s);
-                            Avg += value_float;
-                         }
-                         break;
-                      }
-                  }
-                  if (Count != 0)
-                  {
-                      Avg /= (float)Count;
-                      int temp = (int)(Avg * 100 + 0.5);
-                      Avg = (float)temp / 100.0;
-                  }
+        //               ++Count;
+        //               switch (attr->aggregate_func)
+        //               {
+        //                  case AGG_MAX:{
+        //                     if (Max == nullptr)
+        //                         Max = tuple_value;
+        //                     else
+        //                     {
+        //                         if (Max->compare(*tuple_value) < 0)
+        //                             Max = tuple_value;
+        //                     }
+        //                  } 
+        //                  break;
+        //                  case AGG_MIN:{
+        //                     if (Min == nullptr)
+        //                         Min = tuple_value;
+        //                     else
+        //                     {
+        //                         if (Min->compare(*tuple_value) > 0)
+        //                             Min = tuple_value;
+        //                     }
+        //                  }
+        //                  break;
+        //                  case AGG_AVG:{
+        //                     null_avg = false;
+        //                     float value_float = float_from_string(s);
+        //                     Avg += value_float;
+        //                  }
+        //                  break;
+        //               }
+        //           }
+        //           if (Count != 0)
+        //           {
+        //               Avg /= (float)Count;
+        //               int temp = (int)(Avg * 100 + 0.5);
+        //               Avg = (float)temp / 100.0;
+        //           }
                       
 
-                  TupleValue* tuple_value;
-                  const char *nullstmp = new char[5];
-                  nullstmp = "NULL";
-                  switch (attr->aggregate_func)
-                  {
-                      case AGG_COUNT:{
-                          tuple.add(Count);
-                      }
-                      break;
-                      case AGG_MAX:{
-                          if (Max == nullptr)
-                            tuple.add(nullstmp, strlen(nullstmp));
-                          else
-                            tuple.add(Max);
-                      }
-                      break;
-                      case AGG_MIN:{
-                          if (Min == nullptr)
-                            tuple.add(nullstmp, strlen(nullstmp));
-                          else
-                            tuple.add(Min);
-                      }
-                      break;
-                      case AGG_AVG:{
-                          if (null_avg == true)
-                            tuple.add(nullstmp, strlen(nullstmp));
-                          else
-                            tuple.add(Avg);
-                      }
-                      break;
-                      default:
-                        assert(0);
-                      break;
-                  }
-                }
-              agg_tuple_set.add(std::move(tuple));
-              agg_tuple_set.print(ss);
-              fflush(stdout);
-          }
-          else  // No aggregate functions
-          {
-                printf("no aggregate\n");
-                // 当前只查询一张表，直接返回结果即可
-                // result = new TupleSet(std::move(tuple_sets.front()));
-                if (selects.order_attr_num > 0) 
-                    tuple_sets.front().order_by(&selects);
-                tuple_sets.front().print(ss);
-          }
-      }
+        //           TupleValue* tuple_value;
+        //           const char *nullstmp = new char[5];
+        //           nullstmp = "NULL";
+        //           switch (attr->aggregate_func)
+        //           {
+        //               case AGG_COUNT:{
+        //                   tuple.add(Count);
+        //               }
+        //               break;
+        //               case AGG_MAX:{
+        //                   if (Max == nullptr)
+        //                     tuple.add(nullstmp, strlen(nullstmp));
+        //                   else
+        //                     tuple.add(Max);
+        //               }
+        //               break;
+        //               case AGG_MIN:{
+        //                   if (Min == nullptr)
+        //                     tuple.add(nullstmp, strlen(nullstmp));
+        //                   else
+        //                     tuple.add(Min);
+        //               }
+        //               break;
+        //               case AGG_AVG:{
+        //                   if (null_avg == true)
+        //                     tuple.add(nullstmp, strlen(nullstmp));
+        //                   else
+        //                     tuple.add(Avg);
+        //               }
+        //               break;
+        //               default:
+        //                 assert(0);
+        //               break;
+        //           }
+        //         }
+        //       agg_tuple_set.add(std::move(tuple));
+        //       agg_tuple_set.print(ss);
+        //       fflush(stdout);
+        //   }
+        //   else  // No aggregate functions
+        //   {
+        //         printf("no aggregate\n");
+        //         // 当前只查询一张表，直接返回结果即可
+        //         if (selects.order_attr_num > 0) 
+        //             tuple_sets.front().order_by(&selects);
+        //         tuple_sets.front().print(ss);
+        //   }
+    }
     fflush(stdout);
     
     for (SelectExeNode *&tmp_node: select_nodes)

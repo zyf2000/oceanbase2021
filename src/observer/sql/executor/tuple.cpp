@@ -259,6 +259,11 @@ RC TupleSet::order_by(Selects *selects)
     return RC::SUCCESS;
 }
 
+RC TupleSet::group_by(Selects *selects)
+{
+    return RC::SUCCESS;
+}
+
 void TupleSet::set_schema(const TupleSchema &schema) {
   schema_ = schema;
 }
