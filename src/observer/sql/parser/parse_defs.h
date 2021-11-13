@@ -91,6 +91,8 @@ typedef struct {
   size_t    order_attr_num;         // Length of attrs in Order by clause
   RelAttr   order_attrs[MAX_NUM];   // attrs in Order by clause
   int       order_cmp[MAX_NUM];     // cmp rules in Order by clause
+  size_t    group_attr_num;         // Length of attrs in Group by clause
+  RelAttr   group_attrs[MAX_NUM];   // attrs in Group by clause
 } Selects;
 
 // struct of insert tuple
@@ -237,6 +239,7 @@ void selects_append_attribute(Selects *selects, RelAttr *rel_attr);
 void selects_append_relation(Selects *selects, const char *relation_name);
 void selects_append_conditions(Selects *selects, Condition conditions[], size_t condition_num);
 void selects_append_order_attrs(Selects *selects, RelAttr *rel_attr, int order_cmp);
+void selects_append_group_attrs(Selects *selects, RelAttr *rel_attr);
 void selects_destroy(Selects *selects);
 
 // void inserts_init(Inserts *inserts, const char *relation_name, Value values[], size_t value_num);

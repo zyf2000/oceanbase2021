@@ -60,6 +60,7 @@ QUOTE            [\'\"]
 [Ff][Rr][Oo][Mm]                      	                           RETURN_TOKEN(FROM);
 [Ww][Hh][Ee][Rr][Ee]                  	                           RETURN_TOKEN(WHERE);
 [Oo][Rr][Dd][Ee][Rr]                                               RETURN_TOKEN(ORDER);
+[Gg][Rr][Oo][Uu][Pp]                                               RETURN_TOKEN(GROUP);
 [Bb][Yy]                                                           RETURN_TOKEN(BY);
 [Aa][Nn][Dd]                                                       RETURN_TOKEN(AND);
 [Ii][Nn][Ss][Ee][rR][tT]                                           RETURN_TOKEN(INSERT);

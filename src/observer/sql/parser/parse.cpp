@@ -196,6 +196,11 @@ void selects_append_order_attrs(Selects *selects, RelAttr *rel_attr, int order_c
     selects->order_cmp[selects->order_attr_num++] = order_cmp;
 }
 
+void selects_append_group_attrs(Selects *selects, RelAttr *rel_attr)
+{
+    selects->group_attrs[selects->group_attr_num++] = *rel_attr;
+}
+
 void selects_destroy(Selects *selects) {
   for (size_t i = 0; i < selects->attr_num; i++) {
     relation_attr_destroy(&selects->attributes[i]);
@@ -215,10 +220,16 @@ void selects_destroy(Selects *selects) {
 
   for (size_t i = 0; i < selects->order_attr_num; ++i)
   {
-      relation_attr_destroy(&selects->order_attrs[i]);
-      selects->order_cmp[i] = 0;
+    relation_attr_destroy(&selects->order_attrs[i]);
+    selects->order_cmp[i] = 0;
   }
   selects->order_attr_num = 0;
+
+  for (size_t i = 0; i < selects->group_attr_num; ++i)
+  {
+    relation_attr_destroy(&selects->group_attrs[i]);
+  }
+  selects->group_attr_num = 0;
 }
 
 // void inserts_init(Inserts *inserts, const char *relation_name, Value values[], size_t value_num) {

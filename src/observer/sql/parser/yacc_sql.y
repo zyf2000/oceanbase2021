@@ -102,6 +102,7 @@ ParserContext *get_context(yyscan_t scanner)
         FROM
         WHERE
         ORDER
+        GROUP
         BY
         AND
         SET
@@ -383,7 +384,7 @@ update:			/*  update 语句的语法解析树*/
 		}
     ;
 select:				/*  select 语句的语法解析树*/
-    SELECT select_attr FROM relation_container where order SEMICOLON
+    SELECT select_attr FROM relation_container where group order SEMICOLON
 		{
 			// CONTEXT->ssql->sstr.selection.relations[CONTEXT->from_length++]=$4;
 
@@ -397,7 +398,7 @@ select:				/*  select 语句的语法解析树*/
 			CONTEXT->from_length=0;
 			CONTEXT->select_length=0;
 			CONTEXT->value_length = 0;
-                }
+        }
 	;
 
 relation_container:
@@ -515,6 +516,28 @@ cmp:
 order_attr_list:
     /* empty */
     | COMMA order_attr_expr order_attr_list {}
+    ;
+group:
+    /* empty */
+    | GROUP BY group_attr_expr group_attr_list {}
+    ;
+group_attr_expr:
+    ID
+    {
+        RelAttr attr;
+        relation_attr_init(&attr, NULL, $1, NULL);
+        selects_append_group_attrs(&CONTEXT->ssql->sstr.selection, &attr);
+    }
+    | ID DOT ID
+    {
+        RelAttr attr;
+        relation_attr_init(&attr, $1, $3, NULL);
+        selects_append_group_attrs(&CONTEXT->ssql->sstr.selection, &attr);
+    }
+    ;
+group_attr_list:
+    /* empty */
+    | COMMA group_attr_expr group_attr_list {}
     ;
 where:
     /* empty */ 
