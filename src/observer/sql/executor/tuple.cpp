@@ -81,6 +81,18 @@ int Tuple::tuple_cmp(int order_num, int *order_index, int *order_cmp, Tuple *tup
     }
     return 0;
 }
+int Tuple::tuple_compare(int group_num, int *compare, Tuple *tuple)
+{
+    for (int i = 0; i < group_num; ++i)
+    {
+        int index = compare[i];
+        std::shared_ptr<TupleValue> tuple_value_ = values_[index];
+        std::shared_ptr<TupleValue> tuple_value = tuple->get_pointer(index);
+        int value_cmp = tuple_value_->compare(*tuple_value);
+        if (value_cmp != 0) return 0;
+    }
+    return 1;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -360,6 +372,44 @@ RC TupleSet::group_by(Selects *selects)
         schema.add(field_type, field_table, field_name, field_aggname);
     }
     schema_ = schema;
+
+    /// Pass 2. Make groups
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Group By: Make groups.\n");
+    int compare[selects->group_attr_num];
+    for (int i = 0; i < selects->group_attr_num; ++i)
+    {
+        const RelAttr *attr = &selects->group_attrs[i];
+        for (int j = 0; j < fields_.size(); ++j)
+        {
+            if (strcmp(attr->relation_name, fields_[j].table_name()) == 0
+                && strcmp(attr->attribute_name, fields_[j].field_name()) == 0)
+            {
+                compare[i] = j;
+                break;
+            }
+        }
+    }
+    int group_cnt = 0;
+    int group_id[tuples_.size()];
+    for (int i = 0; i < tuples_.size(); ++i)
+    {
+        bool new_group = true;
+        for (int j = 0; j < i; ++j)
+        {
+            if (tuples_[i].tuple_compare(selects->group_attr_num, compare, &tuples_[j]))
+            {
+                new_group = false;
+                group_id[i] = group_id[j];
+                break;
+            }
+        }
+        if (new_group)
+            group_id[i] = group_cnt++;
+    }
+    // printf("%d\n", group_cnt);
+    // for (int i = 0; i < tuples_.size(); ++i)
+    //     printf("%d: %d\n", i, group_id[i]);
+
     return RC::SUCCESS;
 }
 

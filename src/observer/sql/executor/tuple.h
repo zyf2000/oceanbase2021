@@ -41,6 +41,7 @@ public:
   void add(const char *s, int len);
   void pop_back();
   int tuple_cmp(int order_num, int *order_index, int *order_cmp, Tuple *tuple);
+  int tuple_compare(int group_num, int *compare, Tuple *tuple);
   
   const std::vector<std::shared_ptr<TupleValue>> &values() const {
     return values_;
