@@ -323,6 +323,15 @@ RC TupleSet::group_by(Selects *selects)
         AttrType field_type = UNDEFINED;
         const char *field_aggname;
 
+        if (strcmp(attr->attribute_name, "*") == 0)
+        {
+            if (attr->aggregate_func != UNDEFINED && attr->aggregate_func != AGG_COUNT)
+            {
+                printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Group By: Invalid argument of aggregation function.\n");
+                return RC::INVALID_ARGUMENT;
+            }
+        }
+
         for (int j = 0; j < fields_.size(); ++j)
         {
             // printf("%d\n", j);

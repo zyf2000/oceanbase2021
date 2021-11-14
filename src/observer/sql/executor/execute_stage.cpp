@@ -657,14 +657,18 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         }
         if (selects.order_attr_num > 0)
             tus.order_by(&selects);
-        tus.group_by(&selects);
+        RC rc = tus.group_by(&selects);
+        if (rc != RC::SUCCESS)
+            return rc;
         tus.print(ss, true);
     }
     else
     {
         if (selects.order_attr_num > 0) 
             tuple_sets.front().order_by(&selects);
-        tuple_sets.front().group_by(&selects);
+        RC rc = tuple_sets.front().group_by(&selects);
+        if (rc != RC::SUCCESS)
+            return rc;
         tuple_sets.front().print(ss);
         //   if (aggregate)
         //   {
