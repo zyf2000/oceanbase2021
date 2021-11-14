@@ -84,9 +84,9 @@ int Tuple::tuple_cmp(int order_num, int *order_index, int *order_cmp, Tuple *tup
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string TupleField::to_string() const {
-  return std::string(table_name_) + "." + field_name_ + std::to_string(type_);
-}
+// std::string TupleField::to_string() const {
+//   return std::string(table_name_) + "." + field_name_ + std::to_string(type_);
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 void TupleSchema::from_table(const Table *table, TupleSchema &schema) {
@@ -153,10 +153,10 @@ void TupleSchema::print(std::ostream &os, bool print_header) const {
     if (table_names.size() > 1 || print_header) {
       os << iter->table_name() << ".";
     }
-    os << iter->field_name() << " | ";
+    os << iter->field_name();
     if (iter->agg_name() != nullptr)
         os << ")";
-
+    os << " | ";
   }
 
     if (fields_.back().agg_name() != nullptr)
@@ -275,6 +275,20 @@ RC TupleSet::order_by(Selects *selects)
 
 RC TupleSet::group_by(Selects *selects)
 {
+
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Group By: Check if there's no aggregation func in select attrs.\n");
+    bool agg_flag = false;
+    for (int i = 0; i < selects->attr_num; ++i)
+    {
+        if (selects->attributes[i].aggregate_func != AGG_UNDEFINED)
+        {
+            agg_flag = true;
+            break;
+        }
+    }
+    if (!agg_flag)
+        return RC::SUCCESS;
+
     // TupleSet::       TupleSchema schema_;
     // TupleSchema::    std::vector<TupleField> fields_;
     // TupleField::     AttrType  type_;
@@ -301,44 +315,51 @@ RC TupleSet::group_by(Selects *selects)
             // printf("%d\n", j);
             // printf("%s.%s\n", fields_[j].table_name(), fields_[j].field_name());
             // printf("%s.%s\n", attr->relation_name, attr->attribute_name);
-            if ( strcmp(attr->attribute_name, "*") == 0
-                || strcmp(attr->relation_name, fields_[j].table_name()) == 0 && strcmp(attr->attribute_name, fields_[j].field_name()) == 0 )
+            if ( ( strcmp(attr->attribute_name, "*") == 0 || strcmp(attr->attribute_name, fields_[j].field_name()) == 0 )
+                && ( attr->relation_name == nullptr || strcmp(attr->relation_name, fields_[j].table_name()) == 0 ) )
             {
                 loc[i] = j;
                 break;
             }
         }
+        // printf("%d: %d\n", i, loc[i]);
 
-        // field_name = fields_[loc[i]].field_name();
-        // field_table = fields_[loc[i]].table_name();
-        // // not an attribute with aggregation func
-        // if (attr->aggregate_func == AGG_UNDEFINED)
-        // {    
-        //     field_type = fields_[loc[i]].type();
-        //     field_aggname = nullptr;
-        // }
-        // else
-        // {
-        //     switch (attr->aggregate_func)
-        //     {
-        //         case AGG_COUNT:
-        //             field_type = INTS;
-        //         break;
-        //         case AGG_MAX:
-        //             field_type = fields_[loc[i]].type();
-        //         break;
-        //         case AGG_MIN:
-        //             field_type = fields_[loc[i]].type();
-        //         break;
-        //         case AGG_AVG:
-        //             field_type = FLOATS;
-        //         break;
-        //         default:
-        //             assert(0);
-        //     }
-        //     field_aggname = attr->aggregate_func_name;
-        // }
+        // not an attribute with aggregation func
+        if (attr->aggregate_func == AGG_UNDEFINED)
+        {
+            field_name = fields_[loc[i]].field_name();
+            field_table = fields_[loc[i]].table_name();
+            field_type = fields_[loc[i]].type();
+            field_aggname = nullptr;
+        }
+        else
+        {
+            switch (attr->aggregate_func)
+            {
+                case AGG_COUNT:
+                    field_type = INTS;
+                break;
+                case AGG_MAX:
+                    field_type = fields_[loc[i]].type();
+                break;
+                case AGG_MIN:
+                    field_type = fields_[loc[i]].type();
+                break;
+                case AGG_AVG:
+                    field_type = FLOATS;
+                break;
+                default:
+                    assert(0);
+            }
+            field_table = attr->relation_name;
+            if (field_table == nullptr)
+                field_table = selects->relations[0];
+            field_name = attr->attribute_name;
+            field_aggname = attr->aggregate_func_name;
+        }
+        schema.add(field_type, field_table, field_name, field_aggname);
     }
+    schema_ = schema;
     return RC::SUCCESS;
 }
 

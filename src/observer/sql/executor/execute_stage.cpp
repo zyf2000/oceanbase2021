@@ -391,7 +391,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
   fflush(stdout);
   /// Test log END
 
-//   bool aggregate = false;
     
   /**
    * Pass 1, Resolve each attribute's valid scopes.
@@ -404,9 +403,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
     for (int i = 0; i < selects.attr_num; i++)
       {
         attr_array.push_back(&selects.attributes[i]);
-        // Check if attributes have aggregate functions
-        // if (selects.attributes[i].aggregate_func != AGG_UNDEFINED)
-        //     aggregate = true;
       }
     /// SELECT ... from ... WHERE [***]
     Table *table_temp = new Table;
@@ -661,16 +657,14 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         }
         if (selects.order_attr_num > 0)
             tus.order_by(&selects);
-        if (selects.group_attr_num > 0)
-            tus.group_by(&selects);
+        tus.group_by(&selects);
         tus.print(ss, true);
     }
     else
     {
         if (selects.order_attr_num > 0) 
             tuple_sets.front().order_by(&selects);
-        if (selects.group_attr_num > 0)
-            tuple_sets.front().group_by(&selects);
+        tuple_sets.front().group_by(&selects);
         tuple_sets.front().print(ss);
         //   if (aggregate)
         //   {
