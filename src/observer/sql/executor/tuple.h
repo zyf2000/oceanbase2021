@@ -147,6 +147,7 @@ public:
   void print(std::ostream &os, bool print_header = false) const;
   RC order_by(Selects *selects);
   RC group_by(Selects *selects);
+  float float_from_string(std::string s);
 public:
   const TupleSchema &schema() const {
     return schema_;

@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/table.h"
 #include "common/log/log.h"
 #include "common/manual.h"
+#include <sstream>
 
 Tuple::Tuple(const Tuple &other) :
   values_(other.values())
@@ -410,7 +411,155 @@ RC TupleSet::group_by(Selects *selects)
     // for (int i = 0; i < tuples_.size(); ++i)
     //     printf("%d: %d\n", i, group_id[i]);
 
+    /// Pass 3. Calculate aggregation funcs and remake tuples
+    printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Group By: Calculate aggregation funcs and remake tuples.\n");
+    // int Count[group_cnt];
+    // std::shared_ptr<TupleValue> Max[group_cnt] = {nullptr};
+    // std::shared_ptr<TupleValue> Min[group_cnt] = {nullptr};
+    // float Avg[group_cnt];
+    // bool null_avg[group_cnt];
+
+    // New tuple set
+    std::vector<Tuple> tuples;
+    for (int i = 0; i < group_cnt; ++i)
+    {
+        // Tuples in this group
+        std::vector<Tuple> tuples_group;
+        tuples_group.clear();
+        for (int j = 0; j < tuples_.size(); ++j)
+            if (group_id[j] == i)
+                tuples_group.push_back(tuples_[j]);
+        
+        Tuple tuple;
+        std::vector<std::shared_ptr<TupleValue>> values = tuples_group[0].values();
+        for (int j = 0; j < selects->attr_num; ++j)
+        {
+            const RelAttr *attr = &selects->attributes[j];
+            if (attr->aggregate_func == AGG_UNDEFINED)
+            {
+                tuple.add(values[ loc[j] ]);
+            }
+            else
+            {
+                int Count = 0;
+                std::shared_ptr<TupleValue> Max = nullptr;
+                std::shared_ptr<TupleValue> Min = nullptr;
+                float Avg = 0.0;
+                bool null_avg = true;
+                for (int k = 0; k < tuples_group.size(); ++k)
+                {
+                    const std::shared_ptr<TupleValue> tuple_value = tuples_group[k].get_pointer(loc[j]);
+                    std::stringstream ss;
+                    tuple_value->to_string(ss);
+                    std::string s = ss.str();
+                    if (strcasecmp(s.c_str(), "null") == 0)
+                    continue;
+
+                    ++Count;
+                    switch (attr->aggregate_func)
+                    {
+                        case AGG_MAX:
+                        {
+                            if (Max == nullptr)
+                                Max = tuple_value;
+                            else
+                            {
+                                if (Max->compare(*tuple_value) < 0)
+                                    Max = tuple_value;
+                            }
+                        }
+                        break;
+                        case AGG_MIN:
+                        {
+                            if (Min == nullptr)
+                                Min = tuple_value;
+                            else
+                            {
+                                if (Min->compare(*tuple_value) > 0)
+                                    Min = tuple_value;
+                            }
+                        }
+                        break;
+                        case AGG_AVG:
+                        {
+                            null_avg = false;
+                            float value_float = float_from_string(s);
+                            Avg += value_float;
+                        }
+                        break;
+                    }
+                }
+                if (Count != 0)
+                {
+                    Avg /= (float)Count;
+                    int temp = (int)(Avg * 100 + 0.5);
+                    Avg = (float)temp / 100.0;
+                }
+
+                const char *nullstmp = new char[5];
+                nullstmp = "NULL";
+                switch (attr->aggregate_func)
+                {
+                    case AGG_COUNT:{
+                        tuple.add(Count);
+                    }
+                    break;
+                    case AGG_MAX:{
+                        if (Max == nullptr)
+                        tuple.add(nullstmp, strlen(nullstmp));
+                        else
+                        tuple.add(Max);
+                    }
+                    break;
+                    case AGG_MIN:{
+                        if (Min == nullptr)
+                        tuple.add(nullstmp, strlen(nullstmp));
+                        else
+                        tuple.add(Min);
+                    }
+                    break;
+                    case AGG_AVG:{
+                        if (null_avg == true)
+                        tuple.add(nullstmp, strlen(nullstmp));
+                        else
+                        tuple.add(Avg);
+                    }
+                    break;
+                    default:
+                        assert(0);
+                    break;
+                }
+            }
+        }
+        tuples.push_back(tuple);
+    }
+    tuples_.clear();
+    for (int i = 0; i < tuples.size(); ++i)
+        tuples_.push_back(tuples[i]);
+
     return RC::SUCCESS;
+}
+float TupleSet::float_from_string(std::string s)
+{
+    float re = 0.0;
+    int len = s.length();
+    int p = -1;
+    for (int i = 0; i < len; ++i)
+        if (s[i] == '.')
+        {
+            p = i;
+            break;
+        }
+    if (p < 0)
+        p = len;
+    float inte = 0.0;
+    float deci = 0.0;
+    for (int i = 0; i < p; ++i)
+        inte = inte * 10 + s[i] - '0';
+    for (int i = len - 1; i > p; --i)
+        deci = deci / 10.0 + 0.1 * (float)(s[i] - '0');
+    re = inte + deci;
+    return re;
 }
 
 void TupleSet::set_schema(const TupleSchema &schema) {
