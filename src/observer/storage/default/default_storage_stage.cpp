@@ -259,6 +259,10 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
                                   create_index.index_name, create_index.attribute_name, create_index.is_unique);
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
     }
+  break;
+  case SCF_CREATE_MULTI_INDEX: {
+      snprintf(response, sizeof(response), "%s\n", "SUCCESS");
+  }
     break;
 
   case SCF_SHOW_TABLES: {

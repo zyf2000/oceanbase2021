@@ -60,7 +60,7 @@ typedef enum {
 } CompOp;
 
 //属性值类型
-typedef enum { UNDEFINED, CHARS, INTS, FLOATS, DATES, NULLS } AttrType;
+typedef enum { UNDEFINED, CHARS, INTS, FLOATS, DATES, NULLS, SUBQUERYS } AttrType;
 
 //属性值
 typedef struct _Value {
@@ -192,6 +192,7 @@ enum SqlCommandFlag {
   SCF_CREATE_TABLE,
   SCF_DROP_TABLE,
   SCF_CREATE_INDEX,
+    SCF_CREATE_MULTI_INDEX,
   SCF_DROP_INDEX,
   SCF_SYNC,
   SCF_SHOW_TABLES,

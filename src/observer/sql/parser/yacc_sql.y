@@ -89,7 +89,7 @@ ParserContext *get_context(yyscan_t scanner)
         NULLABLE
         IS
         NOT
-        NULL_T
+//        NULL_T
         INT_T
         STRING_T
         FLOAT_T
@@ -231,12 +231,18 @@ create_index:		/*create index 语句的语法解析树*/
 			CONTEXT->ssql->flag = SCF_CREATE_INDEX;//"create_index";
 			create_index_init(&CONTEXT->ssql->sstr.create_index, $3, $5, $7, 0);
 		}
+    |CREATE INDEX ID ON ID LBRACE ID id_list RBRACE SEMICOLON    
+    {
+        CONTEXT->ssql->flag = SCF_CREATE_MULTI_INDEX;
+    }
     |CREATE UNIQUE INDEX ID ON ID LBRACE ID RBRACE SEMICOLON
         {
             CONTEXT->ssql->flag = SCF_CREATE_INDEX;
             create_index_init(&CONTEXT->ssql->sstr.create_index, $4, $6, $8, 1);
         }
     ;
+id_list: COMMA ID {}
+    |   COMMA ID id_list {}
 
 drop_index:			/*drop index 语句的语法解析树*/
     DROP INDEX ID  SEMICOLON 
@@ -484,12 +490,13 @@ attr_list: /* Empty */
                 {}
         ;
 
-rel_list:
-    /* empty */
-    | COMMA ID rel_list {	
-				selects_append_relation(&CONTEXT->ssql->sstr.selection, $2);
-		  }
-    ;
+//rel_list:
+//    /* empty */
+//    | COMMA ID rel_list {	
+//				selects_append_relation(&CONTEXT->ssql->sstr.selection, $2);
+//		  }
+//    ;
+
 order:
     /* empty */
     | ORDER BY order_attr_expr order_attr_list {}
@@ -552,7 +559,7 @@ condition_list:
 			}
     ;
 condition:
-    ID comOp value 
+                ID comOp value           // 1
 		{
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, $1, NULL);
@@ -573,7 +580,7 @@ condition:
 			// $$->right_value = *$3;
 
 		}
-		|value comOp value 
+        |       value comOp value        // 2
 		{
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 2];
 			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
@@ -593,7 +600,7 @@ condition:
 			// $$->right_value = *$3;
 
 		}
-		|ID comOp ID 
+        |       ID comOp ID              // 3
 		{
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, $1, NULL);
@@ -613,7 +620,7 @@ condition:
 			// $$->right_attr.attribute_name=$3;
 
 		}
-    |value comOp ID
+        |       value comOp ID           // 4
 		{
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 			RelAttr right_attr;
@@ -635,7 +642,7 @@ condition:
 			// $$->right_attr.attribute_name=$3;
 		
 		}
-    |ID DOT ID comOp value
+        |       ID DOT ID comOp value    // 5
 		{
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, $1, $3, NULL);
@@ -656,7 +663,7 @@ condition:
 			// $$->right_value =*$5;			
 							
     }
-    |value comOp ID DOT ID
+        |       value comOp ID DOT ID    // 6
 		{
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
@@ -677,7 +684,7 @@ condition:
 			// $$->right_attr.attribute_name = $5;
 									
     }
-    |ID DOT ID comOp ID DOT ID
+        |       ID DOT ID comOp ID DOT ID// 7
 		{
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, $1, $3, NULL);
@@ -695,9 +702,20 @@ condition:
 			// $$->right_is_attr = 1;		//属性
 			// $$->right_attr.relation_name=$5;
 			// $$->right_attr.attribute_name=$7;
-    }
+                }
+        /* |       ID        IN    sub_select  // [8] */
+        /*         { */
+        /*             RelAttr left_attr; */
+        /*             relation_attr_init(&left_attr, NULL, $1, NULL); */
+        /*             Value* right_value = &CONTEXT->values[CONTEXT->value_length - 1]; */
+                    
+        /*         } */
+        /* |       ID DOT ID IN    sub_select  // [9] */
+        /* |       value     IN    sub_select  // [10] */
+        /* |       ID        comOp sub_select  // [11] */
+        /* |       ID DOT ID comOp sub_select  // [12] */
+        /* |       value     comOp sub_select  // [13] */
     ;
-
 comOp:
   	  EQ { CONTEXT->comp = EQUAL_TO; }
     | LT { CONTEXT->comp = LESS_THAN; }

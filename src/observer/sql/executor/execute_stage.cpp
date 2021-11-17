@@ -265,6 +265,7 @@ void ExecuteStage::handle_request(common::StageEvent *event)
     case SCF_DESC_TABLE:
     case SCF_DROP_TABLE:
     case SCF_CREATE_INDEX:
+    case SCF_CREATE_MULTI_INDEX:
     case SCF_DROP_INDEX:
     case SCF_LOAD_DATA:
       {
