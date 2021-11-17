@@ -94,6 +94,7 @@ ParserContext *get_context(yyscan_t scanner)
         STRING_T
         FLOAT_T
         DATE_T
+        TEXT_T
         HELP
         EXIT
         DOT //QUOTE
@@ -330,6 +331,13 @@ attr_def:
 			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].length=4; // default attribute length
 			CONTEXT->value_length++;
 		}
+    |ID_get TEXT_T whether_null
+        {
+            AttrInfo attribute;
+			attr_info_init(&attribute, CONTEXT->id, CHARS, 4096, $3);
+			create_table_append_attribute(&CONTEXT->ssql->sstr.create_table, &attribute);
+			CONTEXT->value_length++;
+        }
     ;
 whether_null:
     /* empty */ { $$ = 0; }

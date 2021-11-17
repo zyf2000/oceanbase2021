@@ -68,7 +68,7 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   }
 
   opened_tables_[table_name] = table;
-  LOG_INFO("Create table success. table name=%s", table_name);
+  printf( COLOR_WHITE "[INFO] " COLOR_YELLOW "Create table success. table name=" COLOR_GREEN "%s" COLOR_YELLOW ".\n", table_name);
   return RC::SUCCESS;
 }
 
