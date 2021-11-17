@@ -159,9 +159,32 @@ RC DefaultHandler::create_multi_index(Trx *trx,
                       int attr_num,
                       int is_unique)
 {
+  // if(strcmp(relation_name, "MULTI_INDEX4") == 0 &&
+  //    (
+  //     strcmp(index_name, "I_4_I7") == 0 ||
+  //     strcmp(index_name, "I_4_78") == 0 ||
+  //     strcmp(index_name, "I_4_I78") == 0
+  //     )
+  //    )
+  //   {
+  //     return RC::GENERIC_ERROR;
+  //   }
     /// Patch
   printf("Relation Name:%s\n", relation_name);
-
+  Table* tab = DefaultHandler::get_default().find_table(dbname, relation_name);
+  if(tab == nullptr)
+    {
+      printf(COLOR_RED "[ERROR] "
+             COLOR_YELLOW "Table not found.\n");
+      return RC::NOTFOUND;
+    }
+  else
+    {
+      printf(COLOR_WHITE "[INFO] "
+             COLOR_YELLOW "Found Table Name ["
+             COLOR_GREEN "%s" COLOR_YELLOW "]\n",
+             tab->name());
+    }
     set<string> attr_pool;
     for (int i = 0; i < attr_num; i++)
     {
@@ -169,6 +192,24 @@ RC DefaultHandler::create_multi_index(Trx *trx,
         attr_pool.insert(s);
         printf("Attr Poll: %s\n", s.c_str());
     }
+
+    set<string> attr_test = attr_pool;
+    const auto& tmeta = tab->table_meta();
+    for(int i = 1; i < tmeta.field_num(); i++)
+      {
+        string name = tmeta.field(i)->name();
+        printf("META NAME: %s\n", name.c_str());
+        if(attr_test.count(name))
+          {
+            attr_test.erase(name);
+          }
+      }
+    if(!attr_test.empty())
+      {
+        printf("There is some columns not exists in table.\n");
+        return RC::NOTFOUND;
+      }
+    
     string name = relation_name;
     printf("Count: %d\n", (int) patched_names.count({name, attr_pool}));
     if(patched_names.count({name, attr_pool}))
