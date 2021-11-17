@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/lang/bitmap.h"
 #include "condition_filter.h"
+#include "common/manual.h"
 
 using namespace common;
 
@@ -162,7 +163,8 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
 
     if (page_header_->record_num == page_header_->record_capacity)
     {
-        LOG_WARN("Page is full, file_id:page_num %d:%d.", file_id_,
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Page is full, file_id:page_num "
+                COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%d" COLOR_YELLOW ".\n", file_id_,
                  page_handle_.frame->page.page_num);
         return RC::RECORD_NOMEM;
     }
@@ -181,7 +183,8 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
     RC rc = disk_buffer_pool_->mark_dirty(&page_handle_);
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to mark page dirty. rc =%d:%s", rc, strrc(rc));
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to mark page dirty. rc =" COLOR_GREEN "%d"
+                COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", rc, strrc(rc));
         // hard to rollback
     }
 
@@ -191,7 +194,8 @@ RC RecordPageHandler::insert_record(const char *data, RID *rid)
         rid->slot_num = index;
     }
 
-    LOG_TRACE("Insert record. rid page_num=%d, slot num=%d", get_page_num(), index);
+    printf(COLOR_WHITE "[INFO ]" COLOR_YELLOW "Insert record. rid page_num=" COLOR_GREEN "%d"
+            COLOR_YELLOW ", slot num=" COLOR_GREEN "%d" COLOR_YELLOW ".\n", get_page_num(), index);
     return RC::SUCCESS;
 }
 
@@ -396,11 +400,13 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
 {
     RC ret = RC::SUCCESS;
     // 找到没有填满的页面
+
+    // The total pages of this file in disk buffer pool
     int page_count = 0;
 
     if ((ret = disk_buffer_pool_->get_page_count(file_id_, &page_count)) != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to get page count while inserting record");
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to get page count while inserting record.\n");
         return ret;
     }
 
@@ -412,7 +418,7 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
             // 参考diskBufferPool，pageNum从1开始
             if ((ret = record_page_handler_.init(*disk_buffer_pool_, file_id_, 1)) != RC::SUCCESS)
             {
-                LOG_ERROR("Failed to init record page handler.ret=%d", ret);
+                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init record page handler.ret=" COLOR_GREEN "%d" COLOR_YELLOW ".\n", ret);
                 return ret;
             }
             current_page_num = record_page_handler_.get_page_num();
@@ -436,7 +442,9 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
             ret = record_page_handler_.init(*disk_buffer_pool_, file_id_, current_page_num);
             if (ret != RC::SUCCESS && ret != RC::BUFFERPOOL_INVALID_PAGE_NUM)
             {
-                LOG_ERROR("Failed to init record page handler. page number is %d. ret=%d:%s", current_page_num, ret, strrc(ret));
+                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init record page handler. page number is "
+                        COLOR_GREEN "%d" COLOR_YELLOW ". ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s"
+                        COLOR_YELLOW ".\n" , current_page_num, ret, strrc(ret));
                 return ret;
             }
         }
@@ -454,7 +462,8 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
         BPPageHandle page_handle;
         if ((ret = disk_buffer_pool_->allocate_page(file_id_, &page_handle)) != RC::SUCCESS)
         {
-            LOG_ERROR("Failed to allocate page while inserting record. file_it:%d, ret:%d",
+            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to allocate page while inserting record. file_it:"
+                    COLOR_GREEN "%d" COLOR_YELLOW ", ret:" COLOR_GREEN "%d" COLOR_YELLOW ".\n",
                       file_id_, ret);
             return ret;
         }
@@ -464,16 +473,17 @@ RC RecordFileHandler::insert_record(const char *data, int record_size, RID *rid)
         ret = record_page_handler_.init_empty_page(*disk_buffer_pool_, file_id_, current_page_num, record_size);
         if (ret != RC::SUCCESS)
         {
-            LOG_ERROR("Failed to init empty page. file_id:%d, ret:%d", file_id_, ret);
+            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init empty page. file_id:" COLOR_GREEN "%d"
+                    COLOR_YELLOW ", ret:" COLOR_GREEN "%d" COLOR_YELLOW ".\n", file_id_, ret);
             if (RC::SUCCESS != disk_buffer_pool_->unpin_page(&page_handle))
             {
-                LOG_ERROR("Failed to unpin page. file_id:%d", file_id_);
+                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to unpin page. file_id:" COLOR_GREEN "%d" COLOR_YELLOW ".\n", file_id_);
             }
             return ret;
         }
         if (RC::SUCCESS != disk_buffer_pool_->unpin_page(&page_handle))
         {
-            LOG_ERROR("Failed to unpin page. file_id:%d", file_id_);
+            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to unpin page. file_id:" COLOR_GREEN "%d" COLOR_YELLOW ".\n", file_id_);
         }
     }
 

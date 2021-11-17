@@ -278,7 +278,8 @@ RC Table::insert_record(Trx *trx, Record *record)
     rc = record_handler_->insert_record(record->data, table_meta_.record_size(), &record->rid);
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Insert record failed. table name=%s, rc=%d:%s", table_meta_.name(), rc, strrc(rc));
+        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Insert record failed. table name=" COLOR_GREEN "%s" COLOR_YELLOW ", rc="
+                    COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", table_meta_.name(), rc, strrc(rc));
         return rc;
     }
 
