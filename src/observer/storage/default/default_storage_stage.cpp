@@ -248,6 +248,7 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
     break;
   case SCF_CREATE_TABLE: { // create table
       const CreateTable &create_table = sql->sstr.create_table;
+
       rc = handler_->create_table(current_db, create_table.relation_name, 
               create_table.attribute_count, create_table.attributes);
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
@@ -259,6 +260,17 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
                                   create_index.index_name, create_index.attribute_name, create_index.is_unique);
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
     }
+  break;
+  case SCF_CREATE_MULTI_INDEX: {
+    const CreateMultiIndex &multi_index = sql->sstr.create_multi_index;
+    rc = handler_->create_multi_index(current_trx, current_db,
+                                      multi_index.relation_name,
+                                      multi_index.index_name,
+                                      multi_index.attrs,
+                                      multi_index.attr_num,
+                                      multi_index.is_unique);
+    snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
+  }
     break;
 
   case SCF_SHOW_TABLES: {

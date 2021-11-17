@@ -1,9 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
-   Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,9 +29,6 @@
 
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
-
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
 
 #ifndef YY_YY_SRC_OBSERVER_SQL_PARSER_YACC_SQL_TAB_H_INCLUDED
 # define YY_YY_SRC_OBSERVER_SQL_PARSER_YACC_SQL_TAB_H_INCLUDED
@@ -75,39 +71,39 @@ extern int yydebug;
     NULLABLE = 281,
     IS = 282,
     NOT = 283,
-    NULL_T = 284,
-    INT_T = 285,
-    STRING_T = 286,
-    FLOAT_T = 287,
-    DATE_T = 288,
-    HELP = 289,
-    EXIT = 290,
-    DOT = 291,
-    INTO = 292,
-    VALUES = 293,
-    FROM = 294,
-    WHERE = 295,
-    ORDER = 296,
-    GROUP = 297,
-    BY = 298,
-    AND = 299,
-    SET = 300,
-    ON = 301,
-    LOAD = 302,
-    DATA = 303,
-    INFILE = 304,
-    EQ = 305,
-    LT = 306,
-    GT = 307,
-    LE = 308,
-    GE = 309,
-    NE = 310,
-    NUMBER = 311,
-    FLOAT = 312,
-    ID = 313,
-    PATH = 314,
-    DATESSS = 315,
-    SSS = 316,
+    INT_T = 284,
+    STRING_T = 285,
+    FLOAT_T = 286,
+    DATE_T = 287,
+    HELP = 288,
+    EXIT = 289,
+    DOT = 290,
+    INTO = 291,
+    VALUES = 292,
+    FROM = 293,
+    WHERE = 294,
+    ORDER = 295,
+    GROUP = 296,
+    BY = 297,
+    AND = 298,
+    SET = 299,
+    ON = 300,
+    LOAD = 301,
+    DATA = 302,
+    INFILE = 303,
+    EQ = 304,
+    LT = 305,
+    GT = 306,
+    LE = 307,
+    GE = 308,
+    NE = 309,
+    NUMBER = 310,
+    FLOAT = 311,
+    ID = 312,
+    PATH = 313,
+    DATESSS = 314,
+    SSS = 315,
+    NULL_T = 316,
     STAR = 317,
     STRING_V = 318
   };
@@ -115,9 +111,10 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+
 union YYSTYPE
 {
-#line 120 "./src/observer/sql/parser/yacc_sql.y"
+#line 120 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1909  */
 
   struct _Attr *attr;
   struct _Condition *condition1;
@@ -125,11 +122,12 @@ union YYSTYPE
   char *string;
   int number;
   float floats;
-  char *position; 
+  char *position;
+  struct _Vector* ve;
 
-#line 131 "./src/observer/sql/parser/yacc_sql.tab.h"
-
+#line 129 "./src/observer/sql/parser/yacc_sql.tab.h" /* yacc.c:1909  */
 };
+
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
