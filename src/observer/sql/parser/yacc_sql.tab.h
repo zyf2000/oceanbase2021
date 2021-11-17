@@ -122,9 +122,10 @@ union YYSTYPE
   char *string;
   int number;
   float floats;
-  char *position; 
+  char *position;
+  struct _Vector* ve;
 
-#line 128 "./src/observer/sql/parser/yacc_sql.tab.h" /* yacc.c:1909  */
+#line 129 "./src/observer/sql/parser/yacc_sql.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

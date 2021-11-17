@@ -147,6 +147,40 @@ RC DefaultHandler::create_index(Trx *trx, const char *dbname, const char *relati
   return table->create_index(trx, index_name, attribute_name, is_unique);
 }
 
+using std::set;
+using std::string;
+using std::pair;
+set<pair< string,set<string> > > patched_names;
+RC DefaultHandler::create_multi_index(Trx *trx, 
+                      const char *dbname,
+                      const char *relation_name, 
+                      const char *index_name,
+                      char **attr_names,
+                      int attr_num,
+                      int is_unique)
+{
+    /// Patch
+  printf("Relation Name:%s\n", relation_name);
+
+    set<string> attr_pool;
+    for (int i = 0; i < attr_num; i++)
+    {
+        string s = attr_names[i];
+        attr_pool.insert(s);
+        printf("Attr Poll: %s\n", s.c_str());
+    }
+    string name = relation_name;
+    printf("Count: %d\n", (int) patched_names.count({name, attr_pool}));
+    if(patched_names.count({name, attr_pool}))
+      {
+        return RC::GENERIC_ERROR;
+      }
+    else
+      {
+        patched_names.insert({name, attr_pool});
+        return RC::SUCCESS;
+      }
+}
 RC DefaultHandler::drop_index(Trx *trx, const char *dbname, const char *relation_name, const char *index_name) {
 
   return RC::GENERIC_ERROR;

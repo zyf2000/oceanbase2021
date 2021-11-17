@@ -124,7 +124,8 @@ ParserContext *get_context(yyscan_t scanner)
   char *string;
   int number;
   float floats;
-  char *position; 
+  char *position;
+  struct _Vector* ve;
 }
 
 %token <number> NUMBER
@@ -144,7 +145,7 @@ ParserContext *get_context(yyscan_t scanner)
 %type <number> number;
 %type <number> whether_null;
 %type <number> cmp;
-
+%type <ve> id_list;
 %%
 
 commands:		//commands or sqls. parser starts here.
@@ -231,8 +232,21 @@ create_index:		/*create index 语句的语法解析树*/
 			CONTEXT->ssql->flag = SCF_CREATE_INDEX;//"create_index";
 			create_index_init(&CONTEXT->ssql->sstr.create_index, $3, $5, $7, 0);
 		}
-    |CREATE INDEX ID ON ID LBRACE ID id_list RBRACE SEMICOLON    
+    |CREATE INDEX ID ON ID LBRACE ID id_list RBRACE SEMICOLON
+  // [1]    [2]   [3][4][5][6]    [7][8]             
     {
+        if($8->len < 32)
+            {
+                $8->data[$8->len] = $7;
+                $8->len++;
+            }
+        else
+                {
+                    exit(-1);
+                }
+        create_multi_index_init(
+            &CONTEXT->ssql->sstr.create_multi_index,
+            $3, $5, $8->data, $8->len, 0);
         CONTEXT->ssql->flag = SCF_CREATE_MULTI_INDEX;
     }
     |CREATE UNIQUE INDEX ID ON ID LBRACE ID RBRACE SEMICOLON
@@ -241,9 +255,36 @@ create_index:		/*create index 语句的语法解析树*/
             create_index_init(&CONTEXT->ssql->sstr.create_index, $4, $6, $8, 1);
         }
     ;
-id_list: COMMA ID {}
-    |   COMMA ID id_list {}
-
+id_list: COMMA ID {
+             $$ = (Vector*) malloc(sizeof(Vector*));
+             memset($$,0,sizeof(Vector*));
+             $$->len = 0;
+             $$->data = (char**) malloc(32*sizeof(char*));
+             memset($$->data,0,32*sizeof(char*));
+             if($$->len < 32)
+                 {
+                     $$->data[$$->len] = $2;
+                     $$->len++;
+                }
+                else
+                {
+                    exit(-1);
+                }
+    }
+    |   COMMA ID id_list
+                {
+                    $$ = $3;
+                    if($$->len < 32)
+                        {
+                            $$->data[$$->len] = $2;
+                            $$->len++;
+                }
+                else
+                {
+                    exit(-1);
+                }
+                }
+                ;
 drop_index:			/*drop index 语句的语法解析树*/
     DROP INDEX ID  SEMICOLON 
 		{

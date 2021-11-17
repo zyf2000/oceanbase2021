@@ -261,7 +261,14 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
     }
   break;
   case SCF_CREATE_MULTI_INDEX: {
-      snprintf(response, sizeof(response), "%s\n", "SUCCESS");
+    const CreateMultiIndex &multi_index = sql->sstr.create_multi_index;
+    rc = handler_->create_multi_index(current_trx, current_db,
+                                      multi_index.relation_name,
+                                      multi_index.index_name,
+                                      multi_index.attrs,
+                                      multi_index.attr_num,
+                                      multi_index.is_unique);
+    snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
   }
     break;
 

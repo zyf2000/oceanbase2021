@@ -353,6 +353,21 @@ void create_index_init(CreateIndex *create_index, const char *index_name,
   create_index->attribute_name = strdup(attr_name);
   create_index->is_unique = is_unique;
 }
+
+void create_multi_index_init(
+    CreateMultiIndex *create_index,
+    const char *index_name, 
+    const char *relation_name, 
+    char** attrs, int attr_num,
+    int is_unique)
+{
+    create_index->index_name = strdup(index_name);
+    create_index->relation_name = strdup(relation_name);
+    create_index->attrs = attrs;
+    create_index->attr_num = attr_num;
+    create_index->is_unique = is_unique;
+}
+
 void create_index_destroy(CreateIndex *create_index) {
   free(create_index->index_name);
   free(create_index->relation_name);

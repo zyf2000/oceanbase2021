@@ -233,9 +233,10 @@ union YYSTYPE
   char *string;
   int number;
   float floats;
-  char *position; 
+  char *position;
+  struct _Vector* ve;
 
-#line 239 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:355  */
+#line 240 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -251,7 +252,7 @@ int yyparse (void *scanner);
 
 /* Copy the second part of user declarations.  */
 
-#line 255 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:358  */
+#line 256 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -554,18 +555,18 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   150,   150,   152,   156,   157,   158,   159,   160,   161,
-     162,   163,   164,   165,   166,   167,   168,   169,   170,   171,
-     172,   176,   181,   186,   192,   198,   204,   210,   216,   222,
-     229,   234,   238,   244,   245,   248,   255,   264,   266,   270,
-     281,   294,   295,   296,   299,   302,   303,   304,   305,   308,
-     318,   334,   336,   340,   346,   348,   353,   356,   359,   363,
-     367,   373,   383,   393,   411,   415,   423,   424,   434,   438,
-     444,   450,   456,   462,   468,   474,   480,   488,   489,   500,
-     502,   505,   511,   519,   520,   521,   523,   525,   527,   529,
-     532,   538,   545,   547,   549,   551,   555,   557,   562,   583,
-     603,   623,   645,   666,   687,   720,   721,   722,   723,   724,
-     725,   726,   727,   731
+       0,   151,   151,   153,   157,   158,   159,   160,   161,   162,
+     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
+     173,   177,   182,   187,   193,   199,   205,   211,   217,   223,
+     230,   235,   252,   258,   274,   289,   296,   305,   307,   311,
+     322,   335,   336,   337,   340,   343,   344,   345,   346,   349,
+     359,   375,   377,   381,   387,   389,   394,   397,   400,   404,
+     408,   414,   424,   434,   452,   456,   464,   465,   475,   479,
+     485,   491,   497,   503,   509,   515,   521,   529,   530,   541,
+     543,   546,   552,   560,   561,   562,   564,   566,   568,   570,
+     573,   579,   586,   588,   590,   592,   596,   598,   603,   624,
+     644,   664,   686,   707,   728,   761,   762,   763,   764,   765,
+     766,   767,   768,   772
 };
 #endif
 
@@ -1506,128 +1507,166 @@ yyreduce:
   switch (yyn)
     {
         case 21:
-#line 176 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 177 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         CONTEXT->ssql->flag=SCF_EXIT;//"exit";
     }
-#line 1514 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1515 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 181 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 182 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         CONTEXT->ssql->flag=SCF_HELP;//"help";
     }
-#line 1522 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1523 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 186 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 187 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_SYNC;
     }
-#line 1530 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1531 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 192 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 193 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_BEGIN;
     }
-#line 1538 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1539 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 198 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 199 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_COMMIT;
     }
-#line 1546 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1547 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 204 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 205 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_ROLLBACK;
     }
-#line 1554 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1555 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 210 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 211 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         CONTEXT->ssql->flag = SCF_DROP_TABLE;//"drop_table";
         drop_table_init(&CONTEXT->ssql->sstr.drop_table, (yyvsp[-1].string));
     }
-#line 1563 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1564 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 216 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 217 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_SHOW_TABLES;
     }
-#line 1571 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1572 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 222 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 223 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
       CONTEXT->ssql->flag = SCF_DESC_TABLE;
       desc_table_init(&CONTEXT->ssql->sstr.desc_table, (yyvsp[-1].string));
     }
-#line 1580 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1581 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 230 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 231 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			CONTEXT->ssql->flag = SCF_CREATE_INDEX;//"create_index";
 			create_index_init(&CONTEXT->ssql->sstr.create_index, (yyvsp[-6].string), (yyvsp[-4].string), (yyvsp[-2].string), 0);
 		}
-#line 1589 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1590 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 235 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 237 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
+        if((yyvsp[-2].ve)->len < 32)
+            {
+                (yyvsp[-2].ve)->data[(yyvsp[-2].ve)->len] = (yyvsp[-3].string);
+                (yyvsp[-2].ve)->len++;
+            }
+        else
+                {
+                    exit(-1);
+                }
+        create_multi_index_init(
+            &CONTEXT->ssql->sstr.create_multi_index,
+            (yyvsp[-7].string), (yyvsp[-5].string), (yyvsp[-2].ve)->data, (yyvsp[-2].ve)->len, 0);
         CONTEXT->ssql->flag = SCF_CREATE_MULTI_INDEX;
     }
-#line 1597 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1610 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 239 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 253 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
             CONTEXT->ssql->flag = SCF_CREATE_INDEX;
             create_index_init(&CONTEXT->ssql->sstr.create_index, (yyvsp[-6].string), (yyvsp[-4].string), (yyvsp[-2].string), 1);
         }
-#line 1606 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1619 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 244 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    {}
-#line 1612 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 258 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+    {
+             (yyval.ve) = (Vector*) malloc(sizeof(Vector*));
+             memset((yyval.ve),0,sizeof(Vector*));
+             (yyval.ve)->len = 0;
+             (yyval.ve)->data = (char**) malloc(32*sizeof(char*));
+             memset((yyval.ve)->data,0,32*sizeof(char*));
+             if((yyval.ve)->len < 32)
+                 {
+                     (yyval.ve)->data[(yyval.ve)->len] = (yyvsp[0].string);
+                     (yyval.ve)->len++;
+                }
+                else
+                {
+                    exit(-1);
+                }
+    }
+#line 1640 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 245 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
-    {}
-#line 1618 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 275 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+    {
+                    (yyval.ve) = (yyvsp[0].ve);
+                    if((yyval.ve)->len < 32)
+                        {
+                            (yyval.ve)->data[(yyval.ve)->len] = (yyvsp[-1].string);
+                            (yyval.ve)->len++;
+                }
+                else
+                {
+                    exit(-1);
+                }
+                }
+#line 1657 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 249 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 290 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			CONTEXT->ssql->flag=SCF_DROP_INDEX;//"drop_index";
 			drop_index_init(&CONTEXT->ssql->sstr.drop_index, (yyvsp[-1].string));
 		}
-#line 1627 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1666 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 256 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 297 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			CONTEXT->ssql->flag=SCF_CREATE_TABLE;//"create_table";
 			// CONTEXT->ssql->sstr.create_table.attribute_count = CONTEXT->value_length;
@@ -1635,17 +1674,17 @@ yyreduce:
 			//临时变量清零	
 			CONTEXT->value_length = 0;
 		}
-#line 1639 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1678 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 266 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 307 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {    }
-#line 1645 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1684 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 271 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 312 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			AttrInfo attribute;
 			attr_info_init(&attribute, CONTEXT->id, (yyvsp[-4].number), (yyvsp[-2].number), (yyvsp[0].number));
@@ -1656,11 +1695,11 @@ yyreduce:
 			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].length = $4;
 			CONTEXT->value_length++;
 		}
-#line 1660 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1699 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 282 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 323 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			AttrInfo attribute;
 			attr_info_init(&attribute, CONTEXT->id, (yyvsp[-1].number), 5, (yyvsp[0].number));
@@ -1671,68 +1710,68 @@ yyreduce:
 			// CONTEXT->ssql->sstr.create_table.attributes[CONTEXT->value_length].length=4; // default attribute length
 			CONTEXT->value_length++;
 		}
-#line 1675 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1714 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 294 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 335 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 0; }
-#line 1681 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1720 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 295 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 336 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 0; }
-#line 1687 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1726 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 296 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 337 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 1; }
-#line 1693 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1732 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 299 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 340 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {(yyval.number) = (yyvsp[0].number);}
-#line 1699 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1738 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 302 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 343 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number)=INTS; }
-#line 1705 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1744 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 303 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 344 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number)=CHARS; }
-#line 1711 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1750 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 304 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 345 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number)=FLOATS; }
-#line 1717 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1756 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 305 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 346 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number)=DATES; }
-#line 1723 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1762 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 309 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 350 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 		char *temp=(yyvsp[0].string); 
 		snprintf(CONTEXT->id, sizeof(CONTEXT->id), "%s", temp);
 	}
-#line 1732 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1771 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 319 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 360 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			// CONTEXT->values[CONTEXT->value_length++] = *$6;
 
@@ -1748,76 +1787,76 @@ yyreduce:
       //临时变量清零
       CONTEXT->insert_tuple_length = 0;
     }
-#line 1752 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1791 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 337 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 378 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1758 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1797 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 341 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 382 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         inserts_tuple_append_value(&CONTEXT->insert_tuples[CONTEXT->insert_tuple_length++], CONTEXT->values, CONTEXT->value_length);
         CONTEXT->value_length = 0;
     }
-#line 1767 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1806 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 348 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 389 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { 
   		// CONTEXT->values[CONTEXT->value_length++] = *$2;
 	  }
-#line 1775 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1814 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 353 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 394 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {	
   		value_init_integer(&CONTEXT->values[CONTEXT->value_length++], (yyvsp[0].number));
 		}
-#line 1783 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1822 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 356 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 397 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
   		value_init_float(&CONTEXT->values[CONTEXT->value_length++], (yyvsp[0].floats));
 		}
-#line 1791 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1830 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 359 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 400 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         (yyvsp[0].string) = substr((yyvsp[0].string),1,strlen((yyvsp[0].string))-2);
   		value_init_string(&CONTEXT->values[CONTEXT->value_length++], (yyvsp[0].string));
 		}
-#line 1800 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1839 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 363 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 404 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         (yyvsp[0].string) = substr((yyvsp[0].string),1,strlen((yyvsp[0].string))-2);
         value_init_dates(&CONTEXT->values[CONTEXT->value_length++], (yyvsp[0].string));
     }
-#line 1809 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1848 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 367 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 408 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         value_init_null(&CONTEXT->values[CONTEXT->value_length++], (yyvsp[0].string));
     }
-#line 1817 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1856 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 374 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 415 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			CONTEXT->ssql->flag = SCF_DELETE;//"delete";
 			deletes_init_relation(&CONTEXT->ssql->sstr.deletion, (yyvsp[-2].string));
@@ -1825,11 +1864,11 @@ yyreduce:
 					CONTEXT->conditions, CONTEXT->condition_length);
 			CONTEXT->condition_length = 0;	
     }
-#line 1829 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1868 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 384 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 425 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			CONTEXT->ssql->flag = SCF_UPDATE;//"update";
 			Value *value = &CONTEXT->values[0];
@@ -1837,11 +1876,11 @@ yyreduce:
 					CONTEXT->conditions, CONTEXT->condition_length);
 			CONTEXT->condition_length = 0;
 		}
-#line 1841 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1880 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 394 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 435 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			// CONTEXT->ssql->sstr.selection.relations[CONTEXT->from_length++]=$4;
 
@@ -1856,237 +1895,237 @@ yyreduce:
 			CONTEXT->select_length=0;
 			CONTEXT->value_length = 0;
         }
-#line 1860 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1899 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 412 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 453 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     selects_append_relation(&CONTEXT->ssql->sstr.selection, (yyvsp[-1].string));
                 }
-#line 1868 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1907 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 416 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 457 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     selects_append_relation(&CONTEXT->ssql->sstr.selection, (yyvsp[-3].string));
                 }
-#line 1876 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1915 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 423 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 464 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1882 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1921 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 425 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 466 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     selects_append_relation(&CONTEXT->ssql->sstr.selection, (yyvsp[-4].string));
                 }
-#line 1890 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1929 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 435 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 476 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1896 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1935 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 439 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 480 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, NULL, "*", NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1906 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1945 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 445 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 486 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, NULL, (yyvsp[0].string), NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1916 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1955 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 451 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 492 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, (yyvsp[-2].string), (yyvsp[0].string), NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1926 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1965 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 457 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 498 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, (yyvsp[-2].string), "*", NULL);
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1936 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1975 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 463 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 504 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, NULL, "*", (yyvsp[-3].string));
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1946 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1985 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 469 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 510 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, NULL, (yyvsp[-1].string), (yyvsp[-3].string));
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1956 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 1995 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 475 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 516 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, (yyvsp[-3].string), (yyvsp[-1].string), (yyvsp[-5].string));
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1966 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2005 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 481 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 522 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
                     RelAttr attr;
                     relation_attr_init(&attr, NULL, "*", (yyvsp[-3].string));
                     selects_append_attribute(&CONTEXT->ssql->sstr.selection, &attr);
                 }
-#line 1976 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2015 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 488 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 529 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1982 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2021 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 490 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 531 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1988 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2027 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 502 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 543 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 1994 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2033 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 506 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 547 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         RelAttr attr;
         relation_attr_init(&attr, NULL, (yyvsp[-1].string), NULL);
         selects_append_order_attrs(&CONTEXT->ssql->sstr.selection, &attr, (yyvsp[0].number));
     }
-#line 2004 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2043 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 512 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 553 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         RelAttr attr;
         relation_attr_init(&attr, (yyvsp[-3].string), (yyvsp[-1].string), NULL);
         selects_append_order_attrs(&CONTEXT->ssql->sstr.selection, &attr, (yyvsp[0].number));
     }
-#line 2014 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2053 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 519 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 560 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 0; }
-#line 2020 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2059 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 520 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 561 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 0; }
-#line 2026 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2065 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 521 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 562 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { (yyval.number) = 1; }
-#line 2032 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2071 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 525 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 566 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 2038 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2077 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 529 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 570 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 2044 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2083 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 533 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 574 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         RelAttr attr;
         relation_attr_init(&attr, NULL, (yyvsp[0].string), NULL);
         selects_append_group_attrs(&CONTEXT->ssql->sstr.selection, &attr);
     }
-#line 2054 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2093 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 539 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 580 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
         RelAttr attr;
         relation_attr_init(&attr, (yyvsp[-2].string), (yyvsp[0].string), NULL);
         selects_append_group_attrs(&CONTEXT->ssql->sstr.selection, &attr);
     }
-#line 2064 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2103 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 547 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 588 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {}
-#line 2070 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2109 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 551 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 592 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {	
 				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
 			}
-#line 2078 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2117 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 557 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 598 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 				// CONTEXT->conditions[CONTEXT->condition_length++]=*$2;
 			}
-#line 2086 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2125 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 563 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 604 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, (yyvsp[-2].string), NULL);
@@ -2107,11 +2146,11 @@ yyreduce:
 			// $$->right_value = *$3;
 
 		}
-#line 2111 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2150 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 584 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 625 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 2];
 			Value *right_value = &CONTEXT->values[CONTEXT->value_length - 1];
@@ -2131,11 +2170,11 @@ yyreduce:
 			// $$->right_value = *$3;
 
 		}
-#line 2135 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2174 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 604 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 645 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, NULL, (yyvsp[-2].string), NULL);
@@ -2155,11 +2194,11 @@ yyreduce:
 			// $$->right_attr.attribute_name=$3;
 
 		}
-#line 2159 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2198 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 624 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 665 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 			RelAttr right_attr;
@@ -2181,11 +2220,11 @@ yyreduce:
 			// $$->right_attr.attribute_name=$3;
 		
 		}
-#line 2185 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2224 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 646 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 687 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, (yyvsp[-4].string), (yyvsp[-2].string), NULL);
@@ -2206,11 +2245,11 @@ yyreduce:
 			// $$->right_value =*$5;			
 							
     }
-#line 2210 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2249 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 667 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 708 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			Value *left_value = &CONTEXT->values[CONTEXT->value_length - 1];
 
@@ -2231,11 +2270,11 @@ yyreduce:
 			// $$->right_attr.attribute_name = $5;
 									
     }
-#line 2235 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2274 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 688 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 729 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 			RelAttr left_attr;
 			relation_attr_init(&left_attr, (yyvsp[-6].string), (yyvsp[-4].string), NULL);
@@ -2254,68 +2293,68 @@ yyreduce:
 			// $$->right_attr.relation_name=$5;
 			// $$->right_attr.attribute_name=$7;
                 }
-#line 2258 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2297 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 720 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 761 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = EQUAL_TO; }
-#line 2264 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2303 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 721 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 762 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = LESS_THAN; }
-#line 2270 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2309 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 107:
-#line 722 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 763 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = GREAT_THAN; }
-#line 2276 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2315 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 108:
-#line 723 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 764 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = LESS_EQUAL; }
-#line 2282 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2321 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 109:
-#line 724 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 765 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = GREAT_EQUAL; }
-#line 2288 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2327 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 110:
-#line 725 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 766 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = NOT_EQUAL; }
-#line 2294 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2333 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 111:
-#line 726 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 767 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = IS_NULL; }
-#line 2300 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2339 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 112:
-#line 727 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 768 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     { CONTEXT->comp = IS_NOT_NULL; }
-#line 2306 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2345 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
   case 113:
-#line 732 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
+#line 773 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1646  */
     {
 		  CONTEXT->ssql->flag = SCF_LOAD_DATA;
 			load_data_init(&CONTEXT->ssql->sstr.load_data, (yyvsp[-1].string), (yyvsp[-4].string));
 		}
-#line 2315 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2354 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2319 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
+#line 2358 "./src/observer/sql/parser/yacc_sql.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2543,7 +2582,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 737 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1906  */
+#line 778 "./src/observer/sql/parser/yacc_sql.y" /* yacc.c:1906  */
 
 //_____________________________________________________________________
 extern void scan_string(const char *str, yyscan_t scanner);

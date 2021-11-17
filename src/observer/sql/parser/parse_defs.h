@@ -68,6 +68,11 @@ typedef struct _Value {
   void *data;     // value
 } Value;
 
+typedef struct _Vector {
+    int len;
+    char** data;
+} Vector;
+
 typedef struct _Condition {
   int left_is_attr;    // TRUE if left-hand side is an attribute
                        // 1时，操作符左边是属性名，0时，是属性值
@@ -154,6 +159,14 @@ typedef struct {
   int is_unique;         // if this index is unique index
 } CreateIndex;
 
+typedef struct {
+    char* index_name;
+    char* relation_name;
+    int is_unique;
+    char** attrs;
+    int attr_num;
+} CreateMultiIndex;
+
 // struct of  drop_index
 typedef struct {
   const char *index_name;  // Index name
@@ -176,6 +189,7 @@ union Queries {
   CreateTable create_table; // CREATE
   DropTable drop_table;     // DROP
   CreateIndex create_index; // CREATE INDEX
+  CreateMultiIndex create_multi_index; /// CREATE MULTI INDEX
   DropIndex drop_index;     // DROP INDEX
   DescTable desc_table;     // DESC (wtf?)
   LoadData load_data;       // LOAD (wtf?)
@@ -265,6 +279,13 @@ void drop_table_destroy(DropTable *drop_table);
 
 void create_index_init(
     CreateIndex *create_index, const char *index_name, const char *relation_name, const char *attr_name, int is_unique);
+void create_multi_index_init(
+    CreateMultiIndex *create_index,
+    const char *index_name, 
+    const char *relation_name, 
+    char** attrs, int attr_num,
+    int is_unique);
+
 void create_index_destroy(CreateIndex *create_index);
 
 void drop_index_init(DropIndex *drop_index, const char *index_name);
