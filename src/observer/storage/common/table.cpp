@@ -924,7 +924,8 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
         Record update_record_ = record;
         RC ret = RC::SUCCESS;
         const FieldMeta *field = table_meta_.field(update_attr_id + normal_field_start_index);
-        if (field->type() != value->type && !(field->nullable() == 1 && value->type == NULLS))
+        if (field->type() != value->type && !(field->nullable() == 1 && value->type == NULLS)
+            && !(field->type() == TEXTS && value->type == CHARS))
         {
             printf(COLOR_RED "[ERROR]"
             COLOR_YELLOW "Invalid value type. field name=" COLOR_GREEN "%s"
@@ -941,18 +942,38 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
                 return RC::INVALID_ARGUMENT;
             }
         }
-        memcpy(record.data + field->offset(), value->data, field->len());
-
-        ret = record_handler_->update_record(&update_record_);
-        if (ret != RC::SUCCESS)
+        if (field->type() == TEXTS)
         {
-            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
-           COLOR_GREEN "%s" COLOR_YELLOW
-           " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
-           "failed to get record. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
-           COLOR_YELLOW, "ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
-           attribute_name, this->name(), file_id_, ret, strrc(ret));
-           return ret;
+            Record *text_record = new Record;
+            text_record->rid = *(RID*)(record.data + field->offset());
+            text_record->data = new char[4096];
+            memcpy(text_record->data, value->data, 4096);
+            ret = text_handler_->update_record(text_record);
+            if (ret != RC::SUCCESS)
+            {
+                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
+                        COLOR_GREEN "%s" COLOR_YELLOW
+                        " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
+                        "failed to get record. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
+                        COLOR_YELLOW, "ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
+                        attribute_name, this->name(), file_id_, ret, strrc(ret));
+                return ret;
+            }
+        }
+        else
+        {
+            memcpy(record.data + field->offset(), value->data, field->len());
+            ret = record_handler_->update_record(&update_record_);
+            if (ret != RC::SUCCESS)
+            {
+                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
+                        COLOR_GREEN "%s" COLOR_YELLOW
+                        " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
+                        "failed to get record. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
+                        COLOR_YELLOW, "ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
+                        attribute_name, this->name(), file_id_, ret, strrc(ret));
+                return ret;
+            }
         }
         ++record_count;
     }
