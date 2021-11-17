@@ -79,6 +79,8 @@ public:
   const char *name() const;
 
   const TableMeta &table_meta() const;
+  RecordFileHandler *record_handler();
+  RecordFileHandler *text_handler();
 
   RC sync();
 
@@ -116,7 +118,9 @@ private:
   TableMeta               table_meta_;
   DiskBufferPool *        data_buffer_pool_; /// 数据文件关联的buffer pool
   int                     file_id_;
+  int                     text_file_id_;
   RecordFileHandler *     record_handler_;   /// 记录操作
+  RecordFileHandler *     text_handler_;
   std::vector<Index *>    indexes_;
 };
 

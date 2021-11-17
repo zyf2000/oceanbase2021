@@ -115,14 +115,25 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
     rc = data_buffer_pool_->create_file(data_file.c_str());
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to create disk buffer pool of data file. file name=%s", data_file.c_str());
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create disk buffer pool of data file. file name="
+                COLOR_GREEN "%s" COLOR_YELLOW ".\n", data_file.c_str());
+        return rc;
+    }
+
+    std::string data_text_file = std::string(base_dir) + "/" + name + TABLE_TEXT_SUFFIX;
+    rc = data_buffer_pool_->create_file(data_text_file.c_str());
+    if (rc != RC::SUCCESS)
+    {
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create disk buffer pool of data file. file name="
+                COLOR_GREEN "%s" COLOR_YELLOW ".\n", data_file.c_str());
         return rc;
     }
 
     rc = init_record_handler(base_dir);
 
     base_dir_ = base_dir;
-    LOG_INFO("Successfully create table %s:%s", base_dir, name);
+    printf(COLOR_WHITE "[INFO] " COLOR_YELLOW "Successfully create table "
+            COLOR_GREEN "%s" COLOR_YELLOW":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", base_dir, name);
     return rc;
 }
 
@@ -342,7 +353,9 @@ RC Table::insert_record(Trx *trx, int value_num, const Value *values)
     /// Make [record_data] to be a bit-array of this record to add.
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to create a record. rc=%d:%s", rc, strrc(rc));
+        printf(COLOR_RED "[ERROR] "
+                COLOR_YELLOW "Failed to create a record. rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n",
+                rc, strrc(rc));
         return rc;
     }
 
@@ -427,6 +440,14 @@ const TableMeta& Table::table_meta() const
 {
     return table_meta_;
 }
+RecordFileHandler* Table::record_handler()
+{
+    return record_handler_;
+}
+RecordFileHandler* Table::text_handler()
+{
+    return text_handler_;
+}
 
 RC Table::make_record(int value_num, const Value *values, char *&record_out)
 {
@@ -443,9 +464,13 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
     {
         const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
         const Value &value = values[i];
-        if (field->type() != value.type && !(field->nullable() == 1 && value.type == NULLS))
+        if (field->type() != value.type && !(field->nullable() == 1 && value.type == NULLS)
+            && !(field->type() == TEXTS && value.type == CHARS))
         {
-            LOG_ERROR("Invalid value type. field name=%s, type=%d, but given=%d",
+            printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Invalid value type. field name="
+                    COLOR_GREEN "%s" COLOR_YELLOW ", type="
+                    COLOR_GREEN "%d" COLOR_YELLOW ", but given="
+                    COLOR_GREEN "%d" COLOR_YELLOW ".\n",
                       field->name(), field->type(), value.type);
             return RC::SCHEMA_FIELD_TYPE_MISMATCH;
         }
@@ -468,7 +493,15 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
     {
         const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
         const Value &value = values[i];
-        memcpy(record + field->offset(), value.data, field->len());
+        if (field->type() == TEXTS)
+        {
+            Record *record_text = new Record;
+            record_text->data = (char*)value.data;
+            RC rc = text_handler_->insert_record(record_text->data, 4096, &record_text->rid);
+            memcpy(record + field->offset(), &record_text->rid, field->len());
+        }
+        else
+            memcpy(record + field->offset(), value.data, field->len());
     }
     record_out = record;
     return RC::SUCCESS;
@@ -477,17 +510,30 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
 RC Table::init_record_handler(const char *base_dir)
 {
     std::string data_file = std::string(base_dir) + "/" + table_meta_.name() + TABLE_DATA_SUFFIX;
+    std::string text_file = std::string(base_dir) + "/" + table_meta_.name() + TABLE_TEXT_SUFFIX;
     if (nullptr == data_buffer_pool_)
     {
         data_buffer_pool_ = theGlobalDiskBufferPool();
     }
+    RC rc = RC::SUCCESS;
 
     int data_buffer_pool_file_id;
-    RC rc = data_buffer_pool_->open_file(data_file.c_str(), &data_buffer_pool_file_id);
+    rc = data_buffer_pool_->open_file(data_file.c_str(), &data_buffer_pool_file_id);
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to open disk buffer pool for file:%s. rc=%d:%s",
-                  data_file.c_str(), rc, strrc(rc));
+        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to open disk buffer pool for file:"
+                COLOR_GREEN "%s" COLOR_YELLOW ". rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s"
+                COLOR_YELLOW ".\n", data_file.c_str(), rc, strrc(rc));
+        return rc;
+    }
+
+    int data_buffer_pool_text_file_id;
+    rc = data_buffer_pool_->open_file(text_file.c_str(), &data_buffer_pool_text_file_id);
+    if (rc != RC::SUCCESS)
+    {
+        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to open disk buffer pool for file:"
+                COLOR_GREEN "%s" COLOR_YELLOW ". rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s"
+                COLOR_YELLOW ".\n", text_file.c_str(), rc, strrc(rc));
         return rc;
     }
 
@@ -495,11 +541,22 @@ RC Table::init_record_handler(const char *base_dir)
     rc = record_handler_->init(*data_buffer_pool_, data_buffer_pool_file_id);
     if (rc != RC::SUCCESS)
     {
-        LOG_ERROR("Failed to init record handler. rc=%d:%s", rc, strrc(rc));
+        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init record handler. rc="
+                COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", rc, strrc(rc));
+        return rc;
+    }
+
+    text_handler_ = new RecordFileHandler();
+    rc = text_handler_->init(*data_buffer_pool_, data_buffer_pool_text_file_id);
+    if (rc != RC::SUCCESS)
+    {
+        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init text handler. rc="
+                COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", rc, strrc(rc));
         return rc;
     }
 
     file_id_ = data_buffer_pool_file_id;
+    text_file_id_ = data_buffer_pool_text_file_id;
     return rc;
 }
 

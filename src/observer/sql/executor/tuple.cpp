@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/manual.h"
 #include <sstream>
+#include "storage/common/record_manager.h"
 
 Tuple::Tuple(const Tuple &other) :
   values_(other.values())
@@ -604,6 +605,9 @@ void TupleRecordConverter::add_record(const char *record) {
   const TupleSchema &schema = tuple_set_.schema();
   Tuple tuple;
   const TableMeta &table_meta = table_->table_meta();
+  RecordFileHandler *record_handler = table_->record_handler();
+  RecordFileHandler *text_handler = table_->text_handler();
+
   for (const TupleField &field : schema.fields()) {
     const FieldMeta *field_meta = table_meta.field(field.field_name());
     assert(field_meta != nullptr);
@@ -653,6 +657,14 @@ void TupleRecordConverter::add_record(const char *record) {
         }
         int value = *(int*)(record + field_meta->offset());
         const char *s = int_to_char(value);
+        tuple.add(s, strlen(s));
+      }
+      break;
+      case TEXTS: {
+        const RID rid = *(RID*)(record + field_meta->offset());
+        Record record;
+        RC rc = text_handler->get_record(&rid, &record);
+        const char *s = (const char*)record.data;
         tuple.add(s, strlen(s));
       }
       break;
