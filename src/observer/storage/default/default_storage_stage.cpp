@@ -249,13 +249,6 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
   case SCF_CREATE_TABLE: { // create table
       const CreateTable &create_table = sql->sstr.create_table;
 
-      
-      if(strcmp(create_table.relation_name, "MULTI_INDEX4") == 0)
-        {
-          snprintf(response, sizeof(response), "%s\n", "FAILURE");
-          break;
-        }
-      
       rc = handler_->create_table(current_db, create_table.relation_name, 
               create_table.attribute_count, create_table.attributes);
       snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
