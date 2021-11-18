@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/manual.h"
 #include <sstream>
 #include "storage/common/record_manager.h"
+#include "storage/common/meta_util.h"
 
 Tuple::Tuple(const Tuple &other) :
   values_(other.values())
@@ -605,8 +606,6 @@ void TupleRecordConverter::add_record(const char *record) {
   const TupleSchema &schema = tuple_set_.schema();
   Tuple tuple;
   const TableMeta &table_meta = table_->table_meta();
-  RecordFileHandler *record_handler = table_->record_handler();
-  RecordFileHandler *text_handler = table_->text_handler();
 
   for (const TupleField &field : schema.fields()) {
     const FieldMeta *field_meta = table_meta.field(field.field_name());
@@ -661,11 +660,20 @@ void TupleRecordConverter::add_record(const char *record) {
       }
       break;
       case TEXTS: {
-        const RID rid = *(RID*)(record + field_meta->offset());
-        Record record;
-        RC rc = text_handler->get_record(&rid, &record);
-        const char *s = (const char*)record.data;
-        tuple.add(s, strlen(s));
+        std::string text_file = table_->base_dir() + "/" + table_->table_meta().name() + TABLE_TEXT_SUFFIX;
+        int offset = *(int*)(record + field_meta->offset());
+        // printf("%d\n", offset);
+        std::ifstream ifile;
+        ifile.open(text_file, std::ios::in | std::ios::binary);
+        ifile.seekg(offset, std::ios::beg);
+        char *s = new char[4096];
+        ifile.read(s, 4096);
+        // printf("%s\n", s);
+        if (strlen(s) < 4096)
+            tuple.add(s, strlen(s));
+        else
+            tuple.add(s, 4096);
+        ifile.close();
       }
       break;
       default: {

@@ -596,7 +596,6 @@ RC ExecuteStage::manual_do_select(const char *db, Query *sql, SessionEvent *sess
         tsc.append(tuple_sets[0].get_schema());
         for(int i = 1; i < tuple_sets.size(); i++)
           {
-              printf("%d\n", i);
             tsc.append(tuple_sets[1].get_schema());
             std::vector<Tuple> tup_vec;
 

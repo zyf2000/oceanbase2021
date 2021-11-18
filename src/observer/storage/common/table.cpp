@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>
 #include <algorithm>
 #include <list>
+#include <fstream>
+#include <iomanip>
 
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
@@ -113,15 +115,6 @@ RC Table::create(const char *path, const char *name, const char *base_dir, int a
     std::string data_file = std::string(base_dir) + "/" + name + TABLE_DATA_SUFFIX;
     data_buffer_pool_ = theGlobalDiskBufferPool();
     rc = data_buffer_pool_->create_file(data_file.c_str());
-    if (rc != RC::SUCCESS)
-    {
-        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create disk buffer pool of data file. file name="
-                COLOR_GREEN "%s" COLOR_YELLOW ".\n", data_file.c_str());
-        return rc;
-    }
-
-    std::string data_text_file = std::string(base_dir) + "/" + name + TABLE_TEXT_SUFFIX;
-    rc = data_buffer_pool_->create_file(data_text_file.c_str());
     if (rc != RC::SUCCESS)
     {
         printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to create disk buffer pool of data file. file name="
@@ -440,13 +433,9 @@ const TableMeta& Table::table_meta() const
 {
     return table_meta_;
 }
-RecordFileHandler* Table::record_handler()
+std::string Table::base_dir()
 {
-    return record_handler_;
-}
-RecordFileHandler* Table::text_handler()
-{
-    return text_handler_;
+    return base_dir_;
 }
 
 RC Table::make_record(int value_num, const Value *values, char *&record_out)
@@ -495,10 +484,23 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
         const Value &value = values[i];
         if (field->type() == TEXTS)
         {
-            Record *record_text = new Record;
-            record_text->data = (char*)value.data;
-            RC rc = text_handler_->insert_record(record_text->data, 4096, &record_text->rid);
-            memcpy(record + field->offset(), &record_text->rid, field->len());
+            std::string text_file = base_dir_ + "/" + table_meta_.name() + TABLE_TEXT_SUFFIX;
+            std::ifstream ifile;
+            std::ofstream ofile;
+            ifile.open(text_file, std::ios::in | std::ios::binary);
+            ifile.seekg(0, std::ios::end);
+            int offset = ifile.tellg();
+            // printf("%d\n", offset);
+            if (offset == -1) offset = 0;
+            memcpy(record + field->offset(), &offset, field->len());
+            ifile.close();
+
+            ofile.open(text_file, std::ios::app | std::ios::binary);
+            char *data = new char[4096];
+            memcpy(data, value.data, 4096);
+            ofile.write(data, 4096);
+            delete[] data;
+            ofile.close();
         }
         else
             memcpy(record + field->offset(), value.data, field->len());
@@ -510,7 +512,6 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
 RC Table::init_record_handler(const char *base_dir)
 {
     std::string data_file = std::string(base_dir) + "/" + table_meta_.name() + TABLE_DATA_SUFFIX;
-    std::string text_file = std::string(base_dir) + "/" + table_meta_.name() + TABLE_TEXT_SUFFIX;
     if (nullptr == data_buffer_pool_)
     {
         data_buffer_pool_ = theGlobalDiskBufferPool();
@@ -527,16 +528,6 @@ RC Table::init_record_handler(const char *base_dir)
         return rc;
     }
 
-    int data_buffer_pool_text_file_id;
-    rc = data_buffer_pool_->open_file(text_file.c_str(), &data_buffer_pool_text_file_id);
-    if (rc != RC::SUCCESS)
-    {
-        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to open disk buffer pool for file:"
-                COLOR_GREEN "%s" COLOR_YELLOW ". rc=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s"
-                COLOR_YELLOW ".\n", text_file.c_str(), rc, strrc(rc));
-        return rc;
-    }
-
     record_handler_ = new RecordFileHandler();
     rc = record_handler_->init(*data_buffer_pool_, data_buffer_pool_file_id);
     if (rc != RC::SUCCESS)
@@ -546,17 +537,7 @@ RC Table::init_record_handler(const char *base_dir)
         return rc;
     }
 
-    text_handler_ = new RecordFileHandler();
-    rc = text_handler_->init(*data_buffer_pool_, data_buffer_pool_text_file_id);
-    if (rc != RC::SUCCESS)
-    {
-        printf( COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init text handler. rc="
-                COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s" COLOR_YELLOW ".\n", rc, strrc(rc));
-        return rc;
-    }
-
     file_id_ = data_buffer_pool_file_id;
-    text_file_id_ = data_buffer_pool_text_file_id;
     return rc;
 }
 
@@ -944,21 +925,34 @@ RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value
         }
         if (field->type() == TEXTS)
         {
-            Record *text_record = new Record;
-            text_record->rid = *(RID*)(record.data + field->offset());
-            text_record->data = new char[4096];
-            memcpy(text_record->data, value->data, 4096);
-            ret = text_handler_->update_record(text_record);
-            if (ret != RC::SUCCESS)
-            {
-                printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to update attribute "
-                        COLOR_GREEN "%s" COLOR_YELLOW
-                        " on table " COLOR_GREEN "%s" COLOR_YELLOW ". " COLOR_RED
-                        "failed to get record. " COLOR_YELLOW "file id=" COLOR_GREEN "%d "
-                        COLOR_YELLOW, "ret=" COLOR_GREEN "%d" COLOR_YELLOW ":" COLOR_GREEN "%s",
-                        attribute_name, this->name(), file_id_, ret, strrc(ret));
-                return ret;
-            }
+            // int offset = *(int*)(record.data + field->offset());
+            // std::string text_file = base_dir_ + "/" + table_meta_.name() + TABLE_TEXT_SUFFIX;
+            // std::ofstream ofile;
+            // ofile.open(text_file, std::ios::out | std::ios::binary);
+            // ofile.seekp(offset, std::ios::beg);
+            
+            // char *data = new char[4096];
+            // memcpy(data, value->data, 4096);
+            // ofile.write(data, 4096);
+            // delete[] data;
+            // ofile.close();
+            std::string text_file = base_dir_ + "/" + table_meta_.name() + TABLE_TEXT_SUFFIX;
+            std::ifstream ifile;
+            ifile.open(text_file, std::ios::in | std::ios::binary);
+            ifile.seekg(0, std::ios::end);
+            int offset = ifile.tellg();
+            // printf("%d\n", offset);
+            if (offset == -1) offset = 0;
+            memcpy(record.data + field->offset(), &offset, field->len());
+            ifile.close();
+
+            std::ofstream ofile;
+            ofile.open(text_file, std::ios::app | std::ios::binary);
+            char *data = new char[4096];
+            memcpy(data, value->data, 4096);
+            ofile.write(data, 4096);
+            delete[] data;
+            ofile.close();
         }
         else
         {

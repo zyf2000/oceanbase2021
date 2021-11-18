@@ -47,8 +47,7 @@ int page_record_capacity(int page_size, int record_size)
 {
     // (record_capacity * record_size) + record_capacity/8 + 1 <= (page_size - fix_size)
     // ==> record_capacity = ((page_size - fix_size) - 1) / (record_size + 0.125)
-    // return (int)((page_size - page_fix_size() - 1) / (record_size + 0.125));
-    return (int)( (page_size - page_fix_size()) / record_size );
+    return (int)((page_size - page_fix_size() - 1) / (record_size + 0.125));
 }
 
 int page_bitmap_size(int record_capacity)
@@ -121,12 +120,9 @@ RC RecordPageHandler::init_empty_page(DiskBufferPool &buffer_pool, int file_id, 
     }
 
     int page_size = sizeof(page_handle_.frame->page.data);
-    // printf("page size: %d\n", page_size);
     int record_phy_size = align8(record_size);
-    // printf("record phy size: %d\n", record_phy_size);
     page_header_->record_num = 0;
     page_header_->record_capacity = page_record_capacity(page_size, record_phy_size);
-    // printf("page record capacity: %d\n", page_header_->record_capacity);
     page_header_->record_real_size = record_size;
     page_header_->record_size = record_phy_size;
     page_header_->first_record_offset = page_header_size(page_header_->record_capacity);
@@ -536,11 +532,11 @@ RC RecordFileHandler::get_record(const RID *rid, Record *rec)
     RecordPageHandler page_handler;
     if ((ret != page_handler.init(*disk_buffer_pool_, file_id_, rid->page_num)) != RC::SUCCESS)
     {
-        printf("Failed to init record page handler.page number=%d, file_id:%d",
+        printf(COLOR_RED "[ERROR] " COLOR_YELLOW "Failed to init record page handler.page number="
+                COLOR_GREEN "%d" COLOR_YELLOW ", file_id:" COLOR_GREEN "%d" COLOR_YELLOW ".\n",
                   rid->page_num, file_id_);
         return ret;
     }
-
     return page_handler.get_record(rid, rec);
 }
 
