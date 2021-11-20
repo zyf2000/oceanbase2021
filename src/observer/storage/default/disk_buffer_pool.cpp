@@ -112,6 +112,9 @@ RC DiskBufferPool::open_file(const char *file_name, int *file_id)
             lru_file = i;
         }
     i = lru_file + 1;
+    RC rc = close_file(i - 1);
+    if (rc != RC::SUCCESS)
+        return rc;
   }
   
 
