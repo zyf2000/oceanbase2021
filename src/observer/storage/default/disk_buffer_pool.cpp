@@ -83,16 +83,16 @@ RC DiskBufferPool::open_file(const char *file_name, int *file_id)
 {
   int fd, i;
   // This part isn't gentle, the better method is using LRU queue.
-    // for (i = 0; i < MAX_OPEN_FILE; ++i)
-    //     if (open_list_[i])
-    //         ++open_list_time[i];
+    for (i = 0; i < MAX_OPEN_FILE; ++i)
+        if (open_list_[i])
+            ++open_list_time[i];
 
   for (i = 0; i < MAX_OPEN_FILE; i++) {
     if (open_list_[i]) {
       if (!strcmp(open_list_[i]->file_name, file_name)) {
         *file_id = i;
         LOG_INFO("%s has already been opened.", file_name);
-        // open_list_time[i] = 0;
+        open_list_time[i] = 0;
         return RC::SUCCESS;
       }
     }
@@ -103,16 +103,17 @@ RC DiskBufferPool::open_file(const char *file_name, int *file_id)
   if (i >= MAX_OPEN_FILE && open_list_[i - 1]) {
     LOG_ERROR("Failed to open file %s, because too much files has been opened.", file_name);
     return RC::BUFFERPOOL_OPEN_TOO_MANY_FILES;
-    // int lru_file = 0;
-    // int lru_time = 0;
-    // for (i = 0; i < MAX_OPEN_FILE; ++i)
-    //     if (open_list_time[i] > lru_time)
-    //     {
-    //         lru_time = open_list_time[i];
-    //         lru_file = i;
-    //     }
-    // i = lru_file + 1;
+    int lru_file = 0;
+    int lru_time = 0;
+    for (i = 0; i < MAX_OPEN_FILE; ++i)
+        if (open_list_time[i] > lru_time)
+        {
+            lru_time = open_list_time[i];
+            lru_file = i;
+        }
+    i = lru_file + 1;
   }
+  
 
   if ((fd = open(file_name, O_RDWR)) < 0) {
     LOG_ERROR("Failed to open file %s, because %s.", file_name, strerror(errno));
@@ -183,7 +184,7 @@ RC DiskBufferPool::close_file(int file_id)
     return RC::IOERR_CLOSE;
   }
   open_list_[file_id] = nullptr;
-//   open_list_time[file_id] = 0;
+  open_list_time[file_id] = 0;
   delete (file_handle);
   LOG_INFO("Successfully close file %d:%s.", file_id, file_handle->file_name);
   return RC::SUCCESS;
@@ -197,11 +198,11 @@ RC DiskBufferPool::get_this_page(int file_id, PageNum page_num, BPPageHandle *pa
     return tmp;
   }
 
-//   for (int i = 0; i < MAX_OPEN_FILE; ++i)
-//     if (open_list_[i] != nullptr)
-//         ++open_list_time[i];
+  for (int i = 0; i < MAX_OPEN_FILE; ++i)
+    if (open_list_[i] != nullptr)
+        ++open_list_time[i];
+  open_list_time[file_id] = 0;
   BPFileHandle *file_handle = open_list_[file_id];
-//   open_list_time[file_id] = 0;
   if ((tmp = check_page_num(page_num, file_handle)) != RC::SUCCESS) {
     LOG_ERROR("Failed to load page %s:%d, due to invalid pageNum.", file_handle->file_name, page_num);
     return tmp;
@@ -251,10 +252,10 @@ RC DiskBufferPool::allocate_page(int file_id, BPPageHandle *page_handle)
     return tmp;
   }
 
-//   for (int i = 0; i < MAX_OPEN_FILE; ++i)
-//     if (open_list_[i] != nullptr)
-//         ++open_list_time[i];
-//   open_list_time[file_id] = 0;
+  for (int i = 0; i < MAX_OPEN_FILE; ++i)
+    if (open_list_[i] != nullptr)
+        ++open_list_time[i];
+  open_list_time[file_id] = 0;
   BPFileHandle *file_handle = open_list_[file_id];  
 
   int byte = 0, bit = 0;
@@ -346,10 +347,10 @@ RC DiskBufferPool::dispose_page(int file_id, PageNum page_num)
     return rc;
   }
 
-//   for (int i = 0; i < MAX_OPEN_FILE; ++i)
-//     if (open_list_[i] != nullptr)
-//         ++open_list_time[i];
-//   open_list_time[file_id] = 0;
+  for (int i = 0; i < MAX_OPEN_FILE; ++i)
+    if (open_list_[i] != nullptr)
+        ++open_list_time[i];
+  open_list_time[file_id] = 0;
   BPFileHandle *file_handle = open_list_[file_id];
   if ((rc = check_page_num(page_num, file_handle)) != RC::SUCCESS) {
     LOG_ERROR("Failed to dispose page %s:%d, due to invalid pageNum", file_handle->file_name, page_num);
@@ -385,10 +386,10 @@ RC DiskBufferPool::force_page(int file_id, PageNum page_num)
     LOG_ERROR("Failed to alloc page, due to invalid fileId %d", file_id);
     return rc;
   }
-//   for (int i = 0; i < MAX_OPEN_FILE; ++i)
-//     if (open_list_[i] != nullptr)
-//         ++open_list_time[i];
-//   open_list_time[file_id] = 0;
+  for (int i = 0; i < MAX_OPEN_FILE; ++i)
+    if (open_list_[i] != nullptr)
+        ++open_list_time[i];
+  open_list_time[file_id] = 0;
   BPFileHandle *file_handle = open_list_[file_id];
   return force_page(file_handle, page_num);
 }
